@@ -1,0 +1,166 @@
+---
+title: "Cyclistic Summary"
+author: "Eugene Arkhipov"
+date: "2022-10-26"
+output:
+  beamer_presentation: default
+  ioslides_presentation: default
+---
+```{r Setting up Environment, include=FALSE}
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+install.packages("janitor", repos = "http://cran.us.r-project.org")
+install.packages("lubridate", repos = "http://cran.us.r-project.org")
+install.packages("patchwork", repos = "http://cran.us.r-project.org")
+install.packages("rmarkdown", repos = "http://cran.us.r-project.org")
+
+
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(ggplot2)
+library(patchwork)
+library(scales)
+library(readr)
+library(dplyr)
+
+setwd("C:\\Users\\mader\\OneDrive\\Desktop\\Capstone Data")
+
+rm(list=ls())
+dir("C:/Users/mader/OneDrive/Desktop/Capstone Data", full.names = T)
+```
+
+```{r Upload Data, include=FALSE}
+m1 <- read.csv("202110-divvy-tripdata.csv")
+m2 <- read.csv("202111-divvy-tripdata.csv")
+m3 <- read.csv("202112-divvy-tripdata.csv")
+m4 <- read.csv("202201-divvy-tripdata.csv")
+m5 <- read.csv("202202-divvy-tripdata.csv")
+m6 <- read.csv("202203-divvy-tripdata.csv")
+m7 <- read.csv("202204-divvy-tripdata.csv")
+m8 <- read.csv("202205-divvy-tripdata.csv")
+m9 <- read.csv("202206-divvy-tripdata.csv")
+m10 <- read.csv("202207-divvy-tripdata.csv")
+m11 <- read.csv("202208-divvy-tripdata.csv")
+m12 <- read.csv("202209-divvy-publictripdata.csv")
+```
+
+
+```{r Combine Months into one data frame}
+bike_trips <- rbind(m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12)
+```
+
+```{r Clean Data, include=FALSE}
+bike_trips <- janitor::remove_empty(bike_trips,which = c("cols"))
+bike_trips <- janitor::remove_empty(bike_trips,which = c("rows"))
+bike_trips$started_time <- lubridate::ymd_hms(bike_trips$started_at)
+bike_trips$end_time <- lubridate::ymd_hms(bike_trips$ended_at)
+```
+
+```{r Create Columns with Data, include=FALSE}
+bike_trips$trip_duration <- difftime(bike_trips$ended_at,bike_trips$started_at)
+bike_trips$weekday <- lubridate::wday(bike_trips$started_at, label=TRUE, abbr=FALSE)
+bike_trips$month <- lubridate::month(bike_trips$started_at, label=TRUE, abbr=FALSE)
+```
+
+```{r convert trip_duration to numeric and check, include=FALSE}
+is.factor(bike_trips$trip_duration)
+bike_trips$trip_duration <- as.numeric(as.character(bike_trips$trip_duration))
+is.numeric(bike_trips$trip_duration)
+```
+
+```{r Remove Negative or 0 Ride Time, add new data frame v2, include=FALSE}
+bike_trips_2 <- bike_trips[!(bike_trips$trip_duration <= 0),]
+```
+
+```{r Split Data into Casual/Member, include=FALSE}
+data_for_casual<-bike_trips_2 %>% filter(member_casual=="casual")
+data_for_member<-bike_trips_2 %>% filter(member_casual=="member")
+```
+ 
+```{r Convert Seconds to Minutes in all 3 Data Frames, include=FALSE}
+bike_trips_2$trip_duration_minutes <- bike_trips_2$trip_duration / 60
+data_for_casual$trip_duration_minutes <- data_for_casual$trip_duration /60
+data_for_member$trip_duration_minutes <- data_for_member$trip_duration /60
+```
+
+```{r Find Starting Hour for each Data Frame, include=FALSE}
+data_for_casual$start_hour <- format(as.POSIXct(data_for_casual$started_time), format = "%H")
+data_for_member$start_hour <- format(as.POSIXct(data_for_member$started_time), format = "%H")
+bike_trips_2$start_hour <- format(as.POSIXct(bike_trips_2$started_time), format = "%H")
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Cyclistic Data Set
+
+This Data set required to understand how to convert CASUAL riders to MEMBER riders.
+
+## Preliminary Observations
+
+- Location Data was Incomplete
+- Negative or "0" duration trips were excluded
+
+## Trip Duration Calculations
+### Minutes/Trip
+
+```{r Average Bike Trips, echo=FALSE, message=FALSE, warning=FALSE}
+summary(bike_trips_2$trip_duration_minutes)
+```
+
+## Types of Riders
+
+```{r Types of Riders, echo=FALSE}
+ggplot(bike_trips_2, aes(x=member_casual)) + geom_bar()+
+  labs(title="What types of riders ride the bikes",x="Rider type",y="# of riders")
+```
+
+
+## Rides per Day of the Week
+
+```{r Rides per day of the week, echo=FALSE}
+ggplot(bike_trips_2, aes(x=weekday, fill = member_casual)) + geom_bar()+
+  labs(title="What is the most popular day for a bike ride?",x="weekday",y="# of riders")
+```
+
+## Rides per Month
+```{r Rides per Month, echo=FALSE}
+ggplot(bike_trips_2, aes(x=month, fill = member_casual)) + geom_bar()+
+  labs(title="What is the most popular month for bike rides?",x="month",y="# of riders")+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+```
+
+## Starting Hour for Bike Rides
+```{r Starting Hour, echo=FALSE}
+ggplot(bike_trips_2, aes(x=start_hour, fill=member_casual)) + geom_bar(stat="count")+
+  labs(title="Riders per hour by type", x="starting hour", y="# of riders")
+```
+
+## Average Trip Duration
+```{r Average Trip Duration, echo=FALSE, message=FALSE, warning=FALSE}
+bike_trips_2 %>% 
+  mutate(weekday = wday(started_at, label = TRUE)) %>% 
+  group_by(member_casual, weekday) %>% 
+  summarise(number_of_rides = n()
+            ,average_duration = mean(trip_duration_minutes)) %>% 
+  arrange(member_casual, weekday)  %>% 
+  ggplot(aes(x = weekday, y = number_of_rides, fill = member_casual)) +
+  geom_col(position = "dodge")
+```
+
+## Deductions
+
+- Casual Riders ride mostly on Weekends
+- Member Riders ride a stable amount everyday except Sunday
+- May-October are high-volume months/November-March are low-volume months
+- Peak times for usage are between 4pm and 6pm
+- Most days in a row with bike rented = 27 days
+
+
+## Recommendations
+- Create memberships for 6 months, possibly 3 months
+- Create memberships for weekends only
+- Set up pricing so that the incentive is to buy more and save more
+- Create events in March and December for Members so that there is more reason
+to buy a full year's membership instead of 6 months/3 months/by the minute
