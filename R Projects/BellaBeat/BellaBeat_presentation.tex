@@ -1,0 +1,197 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  ignorenonframetext,
+]{beamer}
+\usepackage{pgfpages}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+% Prevent slide breaks in the middle of a paragraph
+\widowpenalties 1 10000
+\raggedbottom
+\setbeamertemplate{part page}{
+  \centering
+  \begin{beamercolorbox}[sep=16pt,center]{part title}
+    \usebeamerfont{part title}\insertpart\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{section page}{
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center]{part title}
+    \usebeamerfont{section title}\insertsection\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{subsection page}{
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center]{part title}
+    \usebeamerfont{subsection title}\insertsubsection\par
+  \end{beamercolorbox}
+}
+\AtBeginPart{
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \frame{\subsectionpage}
+}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\newif\ifbibliography
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={BellaBeat Report},
+  pdfauthor={Eugene Arkhipov},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{BellaBeat Report}
+\author{Eugene Arkhipov}
+\date{2022-10-26}
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}[fragile]{BellaBeat Data Set}
+\protect\hypertarget{bellabeat-data-set}{}
+This Data set required to understand the behavior of consumers and their
+smart devices (Non-BellaBeat). Further, we are required to select one
+Bellabeat product and apply insights gained.
+
+\begin{verbatim}
+## # A tibble: 1 x 7
+##   avg_steps avg_active_hrs avg_sedentary_hrs avg_calor~1 avg_w~2 avg_bmi total~3
+##       <dbl>          <dbl>             <dbl>       <dbl>   <dbl>   <dbl>   <dbl>
+## 1     7519.           3.75              16.7       2282.      NA      NA    20.4
+## # ... with abbreviated variable names 1: avg_calories, 2: avg_weight,
+## #   3: total_avg_hrs
+\end{verbatim}
+\end{frame}
+
+\begin{frame}{Preliminary Observations}
+\protect\hypertarget{preliminary-observations}{}
+\begin{itemize}
+\tightlist
+\item
+  Weight/BMI data was Incomplete/Missing
+\item
+  33 Unique consumers
+\item
+  Only 8 provided BMI/Weight Data
+\item
+  Only 14 provided heartrate Data
+\item
+  Only 24 provided sleep Data
+\item
+  ``Active time'' is a sum of Very Active, Fairly Active, and Lightly
+  Active people
+\end{itemize}
+
+\includegraphics{BellaBeat_presentation_files/figure-beamer/visualization-1.pdf}
+\includegraphics{BellaBeat_presentation_files/figure-beamer/visualization-2.pdf}
+\includegraphics{BellaBeat_presentation_files/figure-beamer/visualization-3.pdf}
+\includegraphics{BellaBeat_presentation_files/figure-beamer/visualization-4.pdf}
+\includegraphics{BellaBeat_presentation_files/figure-beamer/visualization-5.pdf}
+\includegraphics{BellaBeat_presentation_files/figure-beamer/visualization-6.pdf}
+
+\includegraphics{BellaBeat_presentation_files/figure-beamer/time comparison for all users-1.pdf}
+\includegraphics{BellaBeat_presentation_files/figure-beamer/time comparison for all users-2.pdf}
+\end{frame}
+
+\begin{frame}{Deductions}
+\protect\hypertarget{deductions}{}
+\begin{itemize}
+\tightlist
+\item
+  There is a large difference between active time and sedentary time,
+  more than twice as much sedentary time as all types of active time
+  combined
+\item
+  Manually input of data produces incomplete results (weight) because
+  not everyone inputs BMI/Weight Data
+\item
+  9 people take their devices off during sleep (for comfort or to
+  recharge)
+\item
+  Most People are under 8,000 steps per day
+\item
+  Average Hours of sleep/night for all consumers is about 7 Hours
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Recommendations}
+\protect\hypertarget{recommendations}{}
+\begin{itemize}
+\tightlist
+\item
+  Motivate users to input weight data
+\item
+  Motivate users to get in the habit of going to sleep for time
+\item
+  Present users with a pair of devices so that one can charge while the
+  other is being worn to minimize data omission - Motivate users to be
+  more active/not sedentary (any time of activity)
+\item
+  Motivation can be through notifications, vibrations, reminders,
+  goals/targets on the connected app
+\end{itemize}
+\end{frame}
+
+\end{document}
