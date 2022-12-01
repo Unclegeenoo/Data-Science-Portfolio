@@ -2,12 +2,12 @@
 select * from "Data" limit 20
 
 ---Checking unique values
-select distinct status from "Data" --Plot this
+select distinct status from "Data" 
 select distinct YEAR_ID  from "Data" 
-select distinct PRODUCTLINE  from "Data" --Plot this
-select distinct COUNTRY  from "Data" --Plot this
-select distinct DEALSIZE  from "Data" --PLot this
-select distinct TERRITORY  from "Data" --Nice to Plot
+select distinct PRODUCTLINE  from "Data" 
+select distinct COUNTRY  from "Data" 
+select distinct DEALSIZE  from "Data" 
+select distinct TERRITORY  from "Data" 
 
 select distinct MONTH_ID from "Data" 
 where YEAR_ID = 2005
@@ -109,7 +109,7 @@ WHERE YEAR_ID = 2003 --change year and month to see other years and months
 GROUP BY  PRODUCTLINE 
 order by 3 DESC 
 
----who is our best customer, RFM analysis
+---who is our best customer
 --recency - last order date
 --frequency - count of total orders
 --monetary value - total spend
@@ -147,25 +147,22 @@ Group by POSTALCODE
 order by 2 DESC 
 
 --dealsize information 
+--sum of deals
 SELECT DEALSIZE, sum(SALES) as Revenue
 FROM "Data" 
 group by DEALSIZE 
---
+--count of sales
 SELECT DEALSIZE, count(DEALSIZE) as Deals
 FROM "Data" 
 group by DEALSIZE 
 
 --product line information 
+--sum of sales
 SELECT PRODUCTLINE, sum(sales) as Revenue
 from "Data" 
 Group by PRODUCTLINE  
 order by 2 DESC 
---
-SELECT PRODUCTLINE, COUNTRY, count(sales) as Deals 
-from "Data"  
-group by PRODUCTLINE 
-order by 3 DESC 
---
+--count of sales
 SELECT PRODUCTLINE,  count(sales) as Deals 
 from "Data"  
 group by PRODUCTLINE 
