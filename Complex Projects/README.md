@@ -1,11 +1,11 @@
 # Moscow Lacrosse Club Team Fund (In Process)
 Ths project set out to write the history, growth, and development of the Moscow Lacrosse Team through their team fund finances over time. Additionally, attendance data and growth data was complied over the whole history of the club.
 ## Tools Used
-Google Sheets
-Google Translate/Personal Knowledge of Russian
-Excel
-R Studio
-Power BI
+- Google Sheets
+- Google Translate/Personal Knowledge of Russian
+- Excel
+- R Studio
+- Power BI
 ## Background Information
 The data used was complied from three separate sources (fund ledger, facebook events, world lacrosse grant schedule). The Facebook events provide the exact dates of the events as well as the attendance records, while the fund ledger is when that transaction was recorded, not necessarily the date it happened. Therefore the financial data should be looked at as a whole or over a period of time, and the facebook events are more time-accurate
 
