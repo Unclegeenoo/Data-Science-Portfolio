@@ -20,14 +20,14 @@ This Data is original and was complied over the course of a decade by me and my 
   * 1.4  The Ledger started in 2015 but the practices started in 2013
  
  * 2.0 Cleaning/Filling the data (Excel)
-  * 2.1 To standardize the data, columns from the most recent ledger table were copied into the tables from the past, new columns were created as necessary. 
+   * 2.1 To standardize the data, columns from the most recent ledger table were copied into the tables from the past, new columns were created as necessary. 
     * 2.1.1 Nomenclature in columns that categorize data (transaction type, date) were standardized. Ex: "helmet sale" was categorized as "equipment sale", but "helmet sale" was added to an information column.
     * 2.1.2 A column for transaction category was created (income, expense, income usd, expense usd)
-  * 2.2 Missing data was filled in
+   * 2.2 Missing data was filled in
     *  2.2.1 Dates were filled in the ledger by cross referencing bank statements and events
     *  2.2.2 New columns were created to identifiy the transaction type (income, expense, etc).
-  * 2.3 rows were inspected one by one for consistency and correctness. Some rows were split as there were multiple transactions summed in one cell
-  * 2.4 Language/words were standardized in Russian, English words in the Russian data were deliberately left because the data was to be translated anyway, information about the transaction was added where needed.
+   * 2.3 rows were inspected one by one for consistency and correctness. Some rows were split as there were multiple transactions summed in one cell
+   * 2.4 Language/words were standardized in Russian, English words in the Russian data were deliberately left because the data was to be translated anyway, information about the transaction was added where needed.
    
  
       
