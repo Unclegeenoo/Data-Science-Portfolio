@@ -15,7 +15,6 @@ This Data is original and was complied over the course of a decade by me and my 
 
 1.0 
 Data Gathering steps and observations (Google Sheets, Excel)
-  
   1.1  Data was taken from the team fund google sheet and was extracted to my personal hard drive as an excel file for further manipulation. The source data is still on Google Sheets.
   
   1.2  All of the data is in one file in separate sheets (tables), and the columns evolved over time as the ledger evolved, so the columns must be standardized.  
