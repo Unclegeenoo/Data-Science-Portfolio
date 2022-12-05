@@ -13,9 +13,9 @@ Additionally, not everyone checked in to the facebook event all the time, so the
 All the fund ledger data, as well as some of the facebook data was in Russian, so that has to be translated to English before anything can be processed.
 This Data is original and was complied over the course of a decade by me and my colleagues. 
 
-*1.Data Gathering steps and observations (Google Sheets, Excel)
-  *Data was taken from the team fund google sheet and was extracted to my personal hard drive as an excel file for further manipulation. The source data is still on Google Sheets.
-  *All of the data is in one file in separate sheets (tables), and the columns evolved over time as the ledger evolved, so the columns must be standardized.  
+* 1.Data Gathering steps and observations (Google Sheets, Excel)
+  * Data was taken from the team fund google sheet and was extracted to my personal hard drive as an excel file for further manipulation. The source data is still on Google Sheets.
+  * All of the data is in one file in separate sheets (tables), and the columns evolved over time as the ledger evolved, so the columns must be standardized.  
   
   1.3  Some of the data is missing. Ex. Dates were recorded only from late 2017, so those will have to be filled in
  
