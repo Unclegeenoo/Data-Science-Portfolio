@@ -1,5 +1,5 @@
 # Moscow Lacrosse Club Team Fund
-#### Ths project set out to write the history, growth, and development of the Moscow Lacrosse Team through their team fund finances over time. Additionally, attendance data and growth data was complied over the whole history of the club.
+Ths project set out to write the history, growth, and development of the Moscow Lacrosse Team through their team fund finances over time. Additionally, attendance data and growth data was complied over the whole history of the club.
 ## Tools Used
 Google Sheets
 Google Translate/Personal Knowledge of Russian
