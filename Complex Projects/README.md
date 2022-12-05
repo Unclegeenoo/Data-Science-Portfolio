@@ -13,13 +13,13 @@ Additionally, not everyone checked in to the facebook event all the time, so the
 All the fund ledger data, as well as some of the facebook data was in Russian, so that has to be translated to English before anything can be processed.
 This Data is original and was complied over the course of a decade by me and my colleagues. 
 
-* 1.Data Gathering steps and observations (Google Sheets, Excel)
-  * Data was taken from the team fund google sheet and was extracted to my personal hard drive as an excel file for further manipulation. The source data is still on Google Sheets.
-  * All of the data is in one file in separate sheets (tables), and the columns evolved over time as the ledger evolved, so the columns must be standardized.  
+* 1.0 Data Gathering steps and observations (Google Sheets, Excel)
+  * 1.1 Data was taken from the team fund google sheet and was extracted to my personal hard drive as an excel file for further manipulation. The source data is still on Google Sheets.
+  * 1.2 All of the data is in one file in separate sheets (tables), and the columns evolved over time as the ledger evolved, so the columns must be standardized.  
   
-  1.3  Some of the data is missing. Ex. Dates were recorded only from late 2017, so those will have to be filled in
+  * 1.3  Some of the data is missing. Ex. Dates were recorded only from late 2017, so those will have to be filled in
  
-  1.3  The Ledger started in 2015 but the practices started in 2013
+  * 1.4  The Ledger started in 2015 but the practices started in 2013
  
  2.0 Cleaning/Filling the data (Excel)
    2.1 To standardize the data, columns from the most recent ledger table were copied into the tables from the past, new columns were created as necessary. 
