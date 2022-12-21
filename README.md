@@ -1,8 +1,8 @@
 # Data Analytics Portfolio
 
-This portfolio is to showcase my skills as a Data Analyst. 
+This portfolio was created to showcase my skills as a Data Scientist | Data Analyst | Business Analyst 
 
-I have been working in Analytics for almost a decade in different roles, including Data Analytics, Data Sourcing, Business Analytics, Data Flow management and organization. I have experience in Excel, Google Sheets, SQL, R, Python, Tableau, and PowerBI. 
+I have been working in Analytics for almost a decade in different roles including; Data Analytics, Data Sourcing, Business Analytics, Data Flow management and organization. I have experience in Excel, Google Sheets, SQL, R, Python, Tableau, and PowerBI. 
 
 ### Current Projects :
 - Russia Lacrosse Financial Summary + Attendance Analysis
