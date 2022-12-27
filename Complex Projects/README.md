@@ -38,14 +38,14 @@ This Data is original and was complied over the course of a decade by me and my 
   ...
   
   * 4.0 Scraping Attendance Records from FB Private group
-     4.1 All attendance records were kept in facebook using their attendance recording system (going, maybe, can't go). There is no way to fetch the data through an api, nor is it efficient to download a csv with missing data from 1000+ events over 10+ years.
-     4.2 A scraping bot was created to fetch the data and store it automatically from all events in the private group
-      4.2.1 Data that was needed: name of event, date and time of event, location of event, people that replied with "going", people that were sent an inviation, duration of event, creator of event.
-      4.2.2 Main coding obstacles incurred for fetching data:
-        4.2.2.1 log in directly to the group page with no notification popups
-        4.2.2.2 "see more" button pressing loop for showing all events in the group history and scrolling down to the bottom automatically 
-        4.2.2.3 opening and closing consecutive pages while gathering into a .csv and storing data until no events are left on the page
-        4.2.2.4 set pauses with random intervals between requests to allow for loading and more "human-like" behavior
+     * 4.1 All attendance records were kept in facebook using their attendance recording system (going, maybe, can't go). There is no way to fetch the data through an api, nor is it efficient to download a csv with missing data from 1000+ events over 10+ years.
+     * 4.2 A scraping bot was created to fetch the data and store it automatically from all events in the private group
+      * 4.2.1 Data that was needed: name of event, date and time of event, location of event, people that replied with "going", people that were sent an inviation, duration of event, creator of event.
+      * 4.2.2 Main coding obstacles incurred for fetching data:
+        * 4.2.2.1 log in directly to the group page with no notification popups
+        * 4.2.2.2 "see more" button pressing loop for showing all events in the group history and scrolling down to the bottom automatically 
+        * 4.2.2.3 opening and closing consecutive pages while gathering into a .csv and storing data until no events are left on the page
+        * 4.2.2.4 set pauses with random intervals between requests to allow for loading and more "human-like" behavior
   
   
    
