@@ -30,7 +30,7 @@ This Data is original and was complied over the course of a decade by me and my 
    * 2.4 Language/words were standardized in Russian, English words in the Russian data were deliberately left because the data was to be translated anyway, information about the transaction was added where needed.
    * 2.5 Categories for each column were simplified and consolidated and categorized
    * 2.6 "Union All" tables into one sheet in Excel
-   * 2.7 The final data sheet was sent to colleagues for accuracy and validity inspection
+   * 2.7 The final Excel data sheet was sent to colleagues for accuracy and validity inspection
  
  * 3.0 Translating from Russian to English
    * 3.1 All standardized titles/categories were translated into English using the Find command in excel
