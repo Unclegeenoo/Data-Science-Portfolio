@@ -33,8 +33,8 @@ This Data is original and was complied over the course of a decade by me and my 
    * 2.7 The final data sheet was sent to colleagues for accuracy and validity inspection
  
  * 3.0 Translating from Russian to English
-  * 3.1 All standardized titles/categories were translated into English using the Find command in excel
-  * 3.2 Individual records had comments with no standardization, therefore they had to be translated one by one manually
+   * 3.1 All standardized titles/categories were translated into English using the Find command in excel
+   * 3.2 Individual records had comments with no standardization, therefore they had to be translated one by one manually
   ...
   
   * 4.0 Scraping Attendance Records from FB Private group
