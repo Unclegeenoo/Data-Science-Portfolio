@@ -7,6 +7,7 @@ I have been working in Analytics for almost a decade in different roles includin
 ### Current Projects :
 - Russia Lacrosse Financial Summary + Attendance Analysis
   - Tools Used or Planned
+    - Google Sheets
     - Excel (Cleaning)
     - Python (Scraping for attendance records)
     - RStudio (Statistical Analysis/Reports)
