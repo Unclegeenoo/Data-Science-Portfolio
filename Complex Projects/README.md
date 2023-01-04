@@ -45,8 +45,10 @@ This Data is original and was complied over the course of a decade by me and my 
       * 4.2.2 Main coding obstacles incurred for fetching data:
         * 4.2.2.1 log in directly to the group page with no notification popups
         * 4.2.2.2 "see more" button pressing loop for showing all events in the group history and scrolling down to the bottom automatically 
-        * 4.2.2.3 opening and closing consecutive pages while gathering into a .csv and storing data until no events are left on the page
-        * 4.2.2.4 set pauses with random intervals between requests to allow for loading and more "human-like" behavior
+        * 4.2.2.3 opening and closing consecutive pages while gathering data on those pages
+        * 4.2.2.4 set pauses between requests to allow for more loading time so that all elements are loaded
+        * 4.2.2.5 open a pop up window inside the target url and count "going" attendees
+        * 4.2.2.6 gathering data into a .csv and storing data until no events are left on the page
   
   
    
