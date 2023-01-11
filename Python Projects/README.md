@@ -1,4 +1,4 @@
-# Facebook group past events attenedance scraper
+# Facebook Group Past Events Attendance Scraper
   - This is a scraper that I built to get attendance data from past events in a group I manage. The given Facebook API does not give this information, 
     therefore I decided to build a scraper to extract that data.
 ## Considerations
