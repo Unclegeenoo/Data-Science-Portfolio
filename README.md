@@ -18,3 +18,8 @@ I have been working in Analytics for almost a decade in different roles includin
   - Tools Used or Planned
     - RStudio
 
+- Financial Analysis and Visualization of a Water Filtering Company in Russia (waiting for dataset from source)
+  - Tooks Used or Planned
+    - R Studio
+    - PowerBI/Excel
+    
