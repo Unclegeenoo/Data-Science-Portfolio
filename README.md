@@ -13,13 +13,4 @@ I have been working in Analytics for almost a decade in different roles includin
     - RStudio (Statistical Analysis/Reports)
     - PowerBI (Visualization)
     - PowerPoint (Presentation)
-
-- Furniture Manufacturing in Vietnam and SE Asia (waiting for dataset from source)
-  - Tools Used or Planned
-    - RStudio
-
-- Financial Analysis and Visualization of a Water Filtering Company in Russia (waiting for dataset from source)
-  - Tooks Used or Planned
-    - R Studio
-    - PowerBI/Excel
     
