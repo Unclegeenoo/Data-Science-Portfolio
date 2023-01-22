@@ -8,4 +8,4 @@
 
 ## Ecvols
 #### This interactive dashboard was created for a Russian water filtration company. The data (included in the file) showed the company's finances over the past 6 years. The task was to create a dashboard to show their financial results.
-![alt text]([https://https://github.com/Unclegeenoo/Data-Science-Portfolio/tree/main/Excel%20Projects/ecvols_vertical.png)
+!([https://https://github.com/Unclegeenoo/Data-Science-Portfolio/tree/main/Excel%20Projects/ecvols_vertical.png])
