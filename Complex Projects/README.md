@@ -50,7 +50,10 @@ This Data is original and was complied over the course of a decade by me and my 
         * 4.2.2.6 gathering data into a .csv and storing data until no events are left on the page
         * 4.2.2.7 facebook function limits ("see more" scrolling button, attendance button)
       * 4.2.3 Due to facebook restrictions, scraping had to be split into multiple days with output stored in seperate files
-        *4.2.3.1 Links to each event were extracted (1866 links). Restrictions allow scraping of about 150 links per day.
+        * 4.2.3.1 Links to each event were extracted (1866 links). Restrictions allow scraping of about 150 links per day.
+        * 4.2.3.2 restrictions on activating certain functions stated above causes the scraping time to increase since one function restriction can cripple the whole process
+      * 4.2.4 Due to above issues, a second version of the script was written to record all links into a .csv, therefore avoiding at least the "see more" button function restriction
+        * 4.2.4.1 the script does the same task as the first version, but instead of recalling links from the script memory, the links are reacalled from a csv list
         
  * 5.0 Cleaning the Attendance data (Excel)
  * 6.0 Analysis of Financial Data (R Studio)
