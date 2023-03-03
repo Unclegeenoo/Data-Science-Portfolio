@@ -56,6 +56,9 @@ This Data is original and was complied over the course of a decade by me and my 
         * 4.2.4.1 the script does the same task as the first version, but instead of recalling links from the script memory, the links are reacalled from a csv list
         
  * 5.0 Cleaning the Attendance data (Excel)
+      * 5.1 Changed patterns of unknown symbols into russian letters and words that were not copied correctly from Facebook
+      * 5.2 Noticed that the time of the event corresponded to the time zone I am in currently, not the time zone I was in during the event, therefore the data needs to be rescraped
+      
  * 6.0 Analysis of Financial Data (R Studio)
  * 7.0 Analysis of Attendance Data (R Studio)
  * 8.0 Visualization of Financial Data (Power BI)
