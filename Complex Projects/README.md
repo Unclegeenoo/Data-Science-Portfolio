@@ -58,8 +58,15 @@ This Data is original and was complied over the course of a decade by me and my 
  * 5.0 Cleaning the Attendance data (Excel)
       * 5.1 Changed patterns of unknown symbols into russian letters and words that were not copied correctly from Facebook
       * 5.2 Noticed that the time of the event corresponded to the time zone I am in currently, not the time zone I was in during the event, therefore the data needs to be rescraped
+      * 5.2 Added columns to the event csv to identify what type of event it was (practice, tournament, etc)
+      * 5.3 Standardized the format for attendance (removed extra symbols so that there are only commas separating the individual names)
+      * 5.4 Filled in any missing cells with information from the events, cross-referenced individual events to retrieve missing information and spot-check the data
+      * 5.5 The final Excel data sheet was sent to colleagues for accuracy and validity inspection
       
  * 6.0 Analysis of Financial Data (R Studio)
+      * 6.1 Loaded financial csv and conducted a "macro-inspection" on the data
+      
+      
  * 7.0 Analysis of Attendance Data (R Studio)
  * 8.0 Visualization of Financial Data (Power BI)
  * 9.0 Visualization of Attendance Data (Power BI)
