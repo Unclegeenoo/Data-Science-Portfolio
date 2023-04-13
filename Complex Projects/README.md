@@ -70,13 +70,19 @@ This Data is original and was complied over the course of a decade by me and my 
       * 6.4 Cleaned, wrangled, prepared data
         * 6.4.1 Converted chr to date in Date column
         * 6.4.2 Converted chr to num in columns with transaction amounts
-        * 6.4.3 trimmed white spaces (retroactively in Excel)
+        * 6.4.3 trimmed white spaces (in Excel)
+        * 6.4.4 added columns to main data frame for easier future analysis (month, year, absolute values, etc.)
       * 6.5 Analysis actions and questions answered
-        6.5.1 Calculated turnover for indvidual accounts and overall
-        6.5.1 How much was spent on each category by classification and transaction count
-        6.5.2 How many transactions by classification
-        6.5.3 How many operations and what kind, total spent on operation types
-        6.5.4 How much was spent by each account owner per category/operation and transaction amounts
+        * 6.5.1 Calculated turnover for indvidual accounts and overall
+        * 6.5.1 How much was spent on each category by classification and transaction count
+        * 6.5.2 How many transactions by classification
+        * 6.5.3 How many operations and what kind, total spent on operation types
+        * 6.5.4 How much was spent by each account owner per category/operation and transaction amounts
+        * 6.5.5 What years and months brought the most revenue, profit in general and for each category/classification
+        * 6.5.6 Total Turnover, turnover per year, month, acct. owner, turnover per category, classification
+        
+        * 6.5.x Joined data
+      
       
       
  * 7.0 Analysis of Attendance Data (R Studio)
