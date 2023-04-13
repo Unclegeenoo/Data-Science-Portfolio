@@ -80,6 +80,7 @@ This Data is original and was complied over the course of a decade by me and my 
         * 6.5.4 How much was spent by each account owner per category/operation and transaction amounts
         * 6.5.5 What years and months brought the most revenue, profit in general and for each category/classification
         * 6.5.6 Total Turnover, turnover per year, month, acct. owner, turnover per category, classification
+        * 6.5.7 Profit margins (total, per category, per operation, per currency)
         
         * 6.5.x Joined data
       
