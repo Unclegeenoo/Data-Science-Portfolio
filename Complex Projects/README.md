@@ -81,8 +81,22 @@ This Data is original and was complied over the course of a decade by me and my 
         * 6.5.5 What years and months brought the most revenue, profit in general and for each category/classification
         * 6.5.6 Total Turnover, turnover per year, month, acct. owner, turnover per category, classification
         * 6.5.7 Profit margins (total, per category, per operation, per currency)
-        
-        * 6.5.x Joined data
+        * 6.5.8 Running total per month/year
+        * 6.5.9 profit volume and percentage for each month/year
+      * 6.6 Visualization 
+        * 6.6.1 Running total of the fund for all time usd and rub
+          * 6.6.1.1 Total income over time
+          * 6.6.1.2 total income grouped by month
+          * 6.6.1.3 total income grouped by year
+        * 6.6.2 Volume of sales/profit per category
+          * 6.6.2.1 volume of sales/profit per operation in each category
+          * 6.6.2.2 volume of sales/profit per category over time
+        * 6.6.3 Volume of sales per/profit operation
+        * 6.6.4 Most profitable income streams
+        * 6.6.5 Expenses
+          * 6.6.5.1 total expenses over time
+          * 6.6.5.2 total expenses grouped by month
+          * 6.6.5.3 total expenses grouped by year
       
       
       
