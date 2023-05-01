@@ -101,6 +101,17 @@ This Data is original and was complied over the course of a decade by me and my 
       
       
  * 7.0 Analysis of Attendance Data (R Studio)
+   * 7.1 Loaded financial csv and conducted a "macro-inspection" on the data
+   * 7.2 Installed packages and uploaded libraries
+   * 7.3 Created data frame from Attendance Data CSV
+   * 7.4 Cleaned, wrangled, prepared data
+     * 7.4.1 (in Excel) The date column has dates in several formats that were given by the source, 
+     therefore they had to be parsed into multiple columns for day start, day end, date start, date end, month,
+     year, hour_minute_time, duration
+     * 7.4.2 (in Excel) Created function formulas in Excel to parse different pieces of data from the Date column
+     * 7.4.3 
+   
+   
  * 8.0 Visualization of Financial Data (Power BI)
  * 9.0 Visualization of Attendance Data (Power BI)
  * 10.0 Cross-referencing information with colleagues 
