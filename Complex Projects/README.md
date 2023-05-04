@@ -62,6 +62,10 @@ This Data is original and was complied over the course of a decade by me and my 
       * 5.3 Standardized the format for attendance (removed extra symbols so that there are only commas separating the individual names)
       * 5.4 Filled in any missing cells with information from the events, cross-referenced individual events to retrieve missing information and spot-check the data
       * 5.5 The final Excel data sheet was sent to colleagues for accuracy and validity inspection
+      * 5.6 The date column has dates in several formats that were given by the source, 
+     therefore they had to be parsed into multiple columns for day start, day end, date start, date end, month,
+     year, hour_minute_time, duration
+      * 5.7 Created function formulas in Excel to parse different pieces of data from the Date column
       
  * 6.0 Analysis of Financial Data (R Studio)
       * 6.1 Loaded financial csv and conducted a "macro-inspection" on the data
@@ -104,12 +108,7 @@ This Data is original and was complied over the course of a decade by me and my 
    * 7.1 Loaded financial csv and conducted a "macro-inspection" on the data
    * 7.2 Installed packages and uploaded libraries
    * 7.3 Created data frame from Attendance Data CSV
-   * 7.4 Cleaned, wrangled, prepared data
-     * 7.4.1 (in Excel) The date column has dates in several formats that were given by the source, 
-     therefore they had to be parsed into multiple columns for day start, day end, date start, date end, month,
-     year, hour_minute_time, duration
-     * 7.4.2 (in Excel) Created function formulas in Excel to parse different pieces of data from the Date column
-     * 7.4.3 
+   * 
    
    
  * 8.0 Visualization of Financial Data (Power BI)
