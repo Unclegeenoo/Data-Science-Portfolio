@@ -108,7 +108,14 @@ This Data is original and was complied over the course of a decade by me and my 
    * 7.1 Loaded financial csv and conducted a "macro-inspection" on the data
    * 7.2 Installed packages and uploaded libraries
    * 7.3 Created data frame from Attendance Data CSV
-   * 
+   * 7.4 Created extra columns
+     * 7.4.1 date column for standardization, concatenation of multiple other columns in the data
+     * 7.4.2 attendance sum column for counting how many people attended per event (row)
+     * 7.4.3 date/time column for any time calculations that need to be done
+   * 7.5 Counted attendance
+     * 7.5.1 all events
+     * 7.5.2 only team practices
+     * 7.5.3 only skills practices
    
    
  * 8.0 Visualization of Financial Data (Power BI)
