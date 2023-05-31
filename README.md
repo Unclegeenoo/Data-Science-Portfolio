@@ -11,6 +11,6 @@ I have been working in Analytics for almost a decade in different roles includin
     - Excel (Cleaning)
     - Python (Scraping for attendance records)
     - RStudio (Statistical Analysis/Reports)
-    - PowerBI (Visualization)
-    - PowerPoint (Presentation)
+    - Python (Visualization)
+    - Streamlit (Presentation)
     
