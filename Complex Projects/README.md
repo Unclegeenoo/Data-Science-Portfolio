@@ -120,11 +120,15 @@ This Data is original and was complied over the course of a decade by me and my 
    
  * 8.0 Visualization of Financial Data (Python)
  * 9.0 Visualization of Attendance Data (Python)
- * 10.0 Cross-referencing information with colleagues 
+ * 10.0 Cross-referencing information with colleagues
+   
  * 11.0 Presentation of Compiled Data (Streamlit)
    * Added txt file for streamlit requirements
    * Added .streamlit folder for the confit.toml file for page design
    * Created a navigation sidebar including different sections and with a logo of the Moscow Team
+   * Added necessary logos and color codes
+   * Added sections for analysis (financial, attendance, general, etc)
+   * Uploaded code for first draft
   
    
  
