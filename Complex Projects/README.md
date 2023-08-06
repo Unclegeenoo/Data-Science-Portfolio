@@ -117,7 +117,7 @@ This Data is original and was complied over the course of a decade by me and my 
      * 7.5.2 only team practices
      * 7.5.3 only skills practices
 
- * --- Taking additional courses in Advanced Data Analytics from Coursera to improve Python for Data Science knowledge and usage --- 4/7 courses completed
+ * --- Taking additional courses in Advanced Data Analytics from Coursera to improve Python for Data Science knowledge and usage --- 5/7 courses completed
    
  * 8.0 Visualization of Financial Data (Python)
  * 9.0 Visualization of Attendance Data (Python)
