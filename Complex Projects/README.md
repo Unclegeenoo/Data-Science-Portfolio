@@ -105,7 +105,7 @@ This Data is original and was complied over the course of a decade by me and my 
       
       
  * 7.0 Analysis of Attendance Data (R Studio)
-   * 7.1 Loaded financial csv and conducted a "macro-inspection" on the data
+   * 7.1 Loaded attendance csv and conducted a "macro-inspection" on the data
    * 7.2 Installed packages and uploaded libraries
    * 7.3 Created data frame from Attendance Data CSV
    * 7.4 Created extra columns
@@ -117,13 +117,27 @@ This Data is original and was complied over the course of a decade by me and my 
      * 7.5.2 only team practices
      * 7.5.3 only skills practices
 
- * --- Taking additional courses in Advanced Data Analytics from Coursera to improve Python for Data Science knowledge and usage --- 7/7 courses completed
+ * 8.0 Analysis of Financial Data for Streamlit (Python)
+   * 8.1 Loaded financial csv and conducted a "macro-inspection" on the data
+   * 8.2 Installed packages and uploaded libraries
+   * 8.3 Created data frame from Financial Data CSV
+   * 8.4 Analysis actions and questions answered
+        * 8.4.1 Calculated turnover for indvidual accounts and overall
+        * 8.4.1 How much was spent on each category by classification and transaction count
+        * 8.4.2 How many transactions by classification
+        * 8.4.3 How many operations and what kind, total spent on operation types
+        * 8.4.4 How much was spent by each account owner per category/operation and transaction amounts
+        * 8.4.5 What years and months brought the most revenue, profit in general and for each category/classification
+        * 8.4.6 Total Turnover, turnover per year, month, acct. owner, turnover per category, classification
+        * 8.4.7 Profit margins (total, per category, per operation, per currency)
+        * 8.4.8 Running total per month/year
+        * 8.4.9 profit volume and percentage for each month/year
    
- * 8.0 Visualization of Financial Data (Python)
- * 9.0 Visualization of Attendance Data (Python)
- * 10.0 Cross-referencing information with colleagues
+ * x.0 Visualization of Financial Data (Python)
+ * x.0 Visualization of Attendance Data (Python)
+ * x.0 Cross-referencing information with colleagues
    
- * 11.0 Presentation of Compiled Data (Streamlit)
+ * x.0 Presentation of Compiled Data (Streamlit)
    * Added txt file for streamlit requirements
    * Added .streamlit folder for the confit.toml file for page design
    * Created a navigation sidebar including different sections and with a logo of the Moscow Team
