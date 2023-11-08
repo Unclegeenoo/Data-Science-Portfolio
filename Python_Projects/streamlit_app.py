@@ -15,6 +15,18 @@ data = pd.DataFrame({
 })
 data['Growth'] = data['Apr'] - data['Jan']
 
+
+###add all data frames, convert date_date_excel do datetime, split df_fin into rub/usd
+df_fin = pd.read_csv("D:\Python\WebApp\MLC_Finances_Eng_Final_UTF8.csv")
+df_fin['Date'] = pd.to_datetime(df_fin['Date'], format='%d/%m/%Y', errors='coerce')
+
+df_fin_usd = df_fin[df_fin['Classification'].str.contains('USD')]
+df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
+
+df_att = pd.read_csv("D:\Python\WebApp\MLC_Attendance_Eng_FInal_UTF8.csv")
+
+df_att['Date_Date_Excel'] = pd.to_datetime(df_att['Date_Date_Excel'], format='%A, %B %d, %Y')
+
 ##data2 = #######
 ##data3 = #######
 
