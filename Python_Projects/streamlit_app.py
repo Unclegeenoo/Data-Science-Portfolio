@@ -27,10 +27,29 @@ df_att = pd.read_csv("D:\Python\WebApp\MLC_Attendance_Eng_FInal_UTF8.csv")
 
 df_att['Date_Date_Excel'] = pd.to_datetime(df_att['Date_Date_Excel'], format='%A, %B %d, %Y')
 
-##data2 = #######
-##data3 = #######
 
+##############Variable Bank##################
+###Attendance###
+# Total count of events
+total_events = df_att.shape[0]
 
+# Count of events by Creator
+events_by_creator = df_att['Creator'].value_counts()
+
+# Count of different Status (Cancelled and Completed count)
+status_counts = df_att['Status'].value_counts()
+
+# Percent completed from all events
+completed_percent = (status_counts['Completed'] / total_events) * 100
+
+# Count of different Type (Team Practice, etc)
+type_counts = df_att['Type'].value_counts()
+
+# Count of different elements in the Name column
+name_counts = df_att['Name'].value_counts()
+
+# Count of events by Location
+location_counts = df_att['Location'].value_counts()
 
 
 #############################################
@@ -80,7 +99,7 @@ def main():
     section = st.sidebar.radio("Go to", ("General", "Financial Data", "Attendance Data", "Conclusions"))
 
     if section == "General":
-        st.markdown("<h1 style='text-align: left; white-space: nowrap;'>Moscow Lacrosse Club Financial and Attendance Data Analysis</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-center: left; white-space: nowrap;'>MLC Financial and Attendance Data Analysis</h1>", unsafe_allow_html=True)
         show_general_stats()
     elif section == "Financial Data":
         show_financial_analysis()
@@ -90,9 +109,45 @@ def main():
         show_conclusions()
 
 def show_general_stats():
-    st.header("General Statistics")
-    # Add your general statistics code and visualizations here
+    st.write('<h2 style="text-align: center;">General Statistics</h2>', unsafe_allow_html=True)
     
+
+    # Add your general statistics code and visualizations here
+    status_counts = df_att['Status'].value_counts()
+
+    # Display a title
+    st.write('<h1 style="text-align: center;">MLC Event Locations</h1>', unsafe_allow_html=True)
+
+    # Define the HTML code to embed a Google Map
+    html_code = """
+    <div style="display: flex; justify-content: center;">
+    <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1gRGSSbVfXoknonZODAVIcfEdAeh0vac&ehbc=2E312F&noprof=1" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+    """
+
+    # Display the Google Map using the HTML code
+    st.markdown(html_code, unsafe_allow_html=True)
+
+    # Create two columns for side-by-side display
+    col1, col2, col3 = st.columns(3)
+
+    # Display status_counts in the first column
+    with col1:
+        st.markdown("<h2 style='font-size: 24px;'>Event Status</h2>", unsafe_allow_html=True)
+        st.write(status_counts)
+
+    # Display type_counts in the second column
+    with col2:
+        st.markdown("<h2 style='font-size: 24px;'>Event by Types</h2>", unsafe_allow_html=True)
+        st.write(type_counts)
+
+    # Display location_counts in the second column
+    with col3:
+        st.markdown("<h2 style='font-size: 24px;'>Event Locations</h2>", unsafe_allow_html=True)
+        st.write(location_counts)
+
+
+
     st.write("text here text here text here text here")
 
     data['Growth'] = data['Apr'] - data['Jan']
