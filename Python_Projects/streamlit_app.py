@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 st.set_page_config(layout='wide')
 
@@ -55,6 +58,27 @@ location_counts = df_att['Location'].value_counts()
 #############################################
 
 
+############calculations for events per year
+
+############BELOW calculations dont account for less than 52 available weeks in 2013 and 2022########
+#events_per_year = df_att['Year'].value_counts().sort_index()
+#events_per_year = events_per_year.reset_index()
+#events_per_year.columns = ['Year', 'Total Events']
+#events_per_year['Events per Week'] = events_per_year['Total Events'] / 52
+
+# Assuming 'Date_Date_Excel' is in datetime format
+#df_att['Year'] = df_att['Date_Date_Excel'].dt.year
+############ABOVE calculations dont account for less than 52 available weeks in 2013 and 2022########
+
+
+# Calculate events per week and add it as a new column
+events_per_year = df_att['Year'].value_counts().sort_index().reset_index()
+events_per_year.columns = ['Year', 'Total Events']
+events_per_year['Events per Week'] = events_per_year.apply(lambda row: row['Total Events'] / 8 if row['Year'] == 2013 else (row['Total Events'] / 11 if row['Year'] == 2022 else row['Total Events'] / 52), axis=1)
+
+
+#############################################
+
 
 def main():
     # Custom CSS styles #ff0000, #f9f9f9
@@ -99,7 +123,7 @@ def main():
     section = st.sidebar.radio("Go to", ("General", "Financial Data", "Attendance Data", "Conclusions"))
 
     if section == "General":
-        st.markdown("<h1 style='text-center: left; white-space: nowrap;'>MLC Financial and Attendance Data Analysis</h1>", unsafe_allow_html=True)
+        #st.markdown("<h1 style='text-center: left; white-space: nowrap;'>MLC Financial and Attendance Data Analysis</h1>", unsafe_allow_html=True)
         show_general_stats()
     elif section == "Financial Data":
         show_financial_analysis()
@@ -109,14 +133,14 @@ def main():
         show_conclusions()
 
 def show_general_stats():
-    st.write('<h2 style="text-align: center;">General Statistics</h2>', unsafe_allow_html=True)
+    st.write('<h1 style="text-align: center;">General Statistics</h1>', unsafe_allow_html=True)
     
 
     # Add your general statistics code and visualizations here
     status_counts = df_att['Status'].value_counts()
 
     # Display a title
-    st.write('<h1 style="text-align: center;">MLC Event Locations</h1>', unsafe_allow_html=True)
+    st.write('<h2 style="text-align: center;">MLC Event Locations</h2>', unsafe_allow_html=True)
 
     # Define the HTML code to embed a Google Map
     html_code = """
@@ -132,12 +156,12 @@ def show_general_stats():
     col1, col2, col3 = st.columns(3)
 
     # Display status_counts in the first column
-    with col1:
+    with col2:
         st.markdown("<h2 style='font-size: 24px;'>Event Status</h2>", unsafe_allow_html=True)
         st.write(status_counts)
 
     # Display type_counts in the second column
-    with col2:
+    with col1:
         st.markdown("<h2 style='font-size: 24px;'>Event by Types</h2>", unsafe_allow_html=True)
         st.write(type_counts)
 
@@ -148,7 +172,66 @@ def show_general_stats():
 
 
 
+
+
+
+    # Set title
+    st.write('<h1 style="text-align: center;">Total Events and Avg. Events per Week per Year</h1>', unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>2013 has 8 weeks of data, 2022 has 11 weeks of data</p>", unsafe_allow_html=True)
+
+
+
+    # Create a Plotly figure with subplots
+    fig = make_subplots(specs=[[{'secondary_y': True}]])
+
+    # Add bar chart with labels
+    fig.add_trace(go.Bar(
+        x=events_per_year['Year'],
+        y=events_per_year['Total Events'],
+        name='Total Events',
+        text=events_per_year['Total Events'],  
+        textposition='inside',
+        insidetextanchor='end',  # Adjust text anchor as needed
+        textfont=dict(size=16, color='white'),
+    ), secondary_y=False)
+
+
+    # Round the 'Events per Week' values to the tenths
+    rounded_values = events_per_year['Events per Week'].round(1)
+
+    # Add line chart with labels
+    fig.add_trace(go.Scatter(
+        x=events_per_year['Year'],
+        y=events_per_year['Events per Week'],
+        mode='lines+markers+text',
+        name='Events per Week',
+        text=rounded_values,
+        textposition='top center',
+        marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+        textfont=dict(size=16, color='red'),
+    ), secondary_y=True)
+
+    #Set layout
+    fig.update_layout(
+        xaxis=dict(title='Year'),
+        yaxis=dict(title='Total Events', showgrid=False, range=[0, 200]),
+        yaxis2=dict(title='Events per Week', overlaying='y', side='right', showgrid=False, range=[0, 3.5]),
+        legend=dict(x=0.5, y=0.99, traceorder='normal', orientation='h'),
+    )
+
+
+    # Display the plot in Streamlit
+    st.plotly_chart(fig, use_container_width=True)
+
+
+
+
+
+
     st.write("text here text here text here text here")
+    st.write("text here text here text here text here")
+
+
 
     data['Growth'] = data['Apr'] - data['Jan']
     bar_width = 0.4  ## Set the bar width (you can adjust this value)
