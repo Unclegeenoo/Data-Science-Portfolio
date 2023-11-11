@@ -133,9 +133,40 @@ This Data is original and was complied over the course of a decade by me and my 
         * 8.4.8 Running total per month/year
         * 8.4.9 profit volume and percentage for each month/year
    
- * x.0 Visualization of Financial Data (Python)
- * x.0 Visualization of Attendance Data (Python)
- * x.0 Cross-referencing information with colleagues
+ * 9.0 Visualization of Financial Data (Python)
+   * 9.1 Running total of the fund for all time usd and rub
+        * 9.1.1 Total income over time
+        * 9.1.2 total income grouped by month
+        * 9.1.3 total income grouped by year
+   * 9.2 Volume of sales/profit per category
+        * 9.2.1 volume of sales/profit per operation in each category
+        * 9.2.2 volume of sales/profit per category over time
+        * 9.2.3 Volume of sales per/profit operation
+        * 9.2.4 Most profitable income streams
+        * 9.2.5 Expenses
+        * 9.2.6.1 total expenses over time
+        * 9.2.7.2 total expenses grouped by month
+        * 9.2.8.3 total expenses grouped by year
+           
+
+   
+ * 10.0 Visualization of Attendance Data (Python)
+   * 10.1 Loaded attendance csv and conducted a "macro-inspection" on the data
+   * 10.2 Installed packages and uploaded libraries
+   * 10.3 Created data frame from Attendance Data CSV
+   * 10.4 Created extra columns
+     * 10.4.1 date column for standardization, concatenation of multiple other columns in the data
+     * 10.4.2 attendance sum column for counting how many people attended per event (row)
+     * 10.4.3 date/time column for any time calculations that need to be done
+   * 10.5 Counted attendance
+     * 10.5.1 all events
+     * 10.5.2 only team practices
+     * 10.5.3 only skills practices
+
+
+ * 11.0 Cross-referencing information with colleagues
+     * 11.1 sent files with raw data and rough graphs to board members for review and approval
+     * 11.2 checks were made for data integrity, privacy, politically exposed persons, statue of limitations and other potential issues
    
  * x.0 Presentation of Compiled Data (Streamlit)
    * Added txt file for streamlit requirements
