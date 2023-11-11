@@ -76,6 +76,37 @@ events_per_year = df_att['Year'].value_counts().sort_index().reset_index()
 events_per_year.columns = ['Year', 'Total Events']
 events_per_year['Events per Week'] = events_per_year.apply(lambda row: row['Total Events'] / 8 if row['Year'] == 2013 else (row['Total Events'] / 11 if row['Year'] == 2022 else row['Total Events'] / 52), axis=1)
 
+average_events_per_year = events_per_year.mean()
+events_per_week = average_events_per_year / 52
+
+###################################
+all_durations = df_att['Duration']
+# Sample duration values from all rows
+durations = all_durations
+# Define a function to convert a duration string to minutes
+def convert_duration_to_minutes(duration_str):
+    parts = duration_str.split()
+    minutes = 0
+
+    for i in range(len(parts)):
+        if parts[i] == 'days':
+            minutes += int(parts[i - 1]) * 24 * 60
+        elif parts[i] == 'hr':
+            minutes += int(parts[i - 1]) * 60
+        elif parts[i] == 'min':
+            minutes += int(parts[i - 1])
+
+    return minutes
+
+# Convert the duration strings to minutes and sum them
+total_minutes = sum([convert_duration_to_minutes(duration) for duration in durations])
+
+# Convert the total minutes back to hours and minutes
+total_hours = total_minutes // 60
+remaining_minutes = total_minutes % 60
+
+
+
 
 #############################################
 
@@ -135,7 +166,60 @@ def main():
 def show_general_stats():
     st.write('<h1 style="text-align: center;">General Statistics</h1>', unsafe_allow_html=True)
     
+
+    # Add your general statistics code and visualizations here
+    status_counts = df_att['Status'].value_counts()
+    unique_location_count = df_att['Location'].nunique()  # Count of unique locations
+   
+   
+
+
+
+    bg_color = 'lightblue'
     
+    # Create the layout for the dashboard
+    col1, col2, col3, col4 = st.columns(4)
+
+
+    # First row
+    with col1:
+        # Display unique location counts
+        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Unique Locations<br>{unique_location_count}</div>", unsafe_allow_html=True)
+        
+    with col2:
+        # Display average events per week cumulative
+        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Avg Events/Year<br>{average_events_per_year['Total Events']:.2f}</div>", unsafe_allow_html=True)
+
+    with col3:
+        # Display average events per year cumulative
+        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Avg Events/Week<br>{average_events_per_year['Events per Week']:.2f}</div>", unsafe_allow_html=True)
+
+    with col4:
+        # Display total hours (total_duration)
+        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Total Event Hours<br>{total_hours}</div>", unsafe_allow_html=True)
+
+
+
+    # Second row
+    col5, col6, col7 = st.columns(3)  
+
+    with col5:
+        # Display the number of completed events
+        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Completed Events<br>{status_counts.get('Completed', 0)}</div>", unsafe_allow_html=True)
+
+    with col6:
+        # Display the number of cancelled events
+        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Cancelled Events<br>{status_counts.get('Cancelled', 0)}</div>", unsafe_allow_html=True)
+
+    with col7:
+        # Display the percentage of completed events
+        completed_percent = (status_counts.get('Completed', 0) / len(df_att)) * 100
+        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Completed Percentage<br>{completed_percent:.2f}%</div>", unsafe_allow_html=True)
+
+
+
+
+
     ##completed events
     ##cancelled events
     ##percent completion
@@ -145,33 +229,15 @@ def show_general_stats():
 
     ##unique event locations
     ##top count of events by location table
+
     ##number of unique event types 
     ##total hours (total_duration for all event types) 3454 hours 39 minutes
 
     
+    ###################################################################################
+ 
 
-
-
-
-
-
-    # Add your general statistics code and visualizations here
-    status_counts = df_att['Status'].value_counts()
-
-    # Assuming status_counts is a Pandas Series
-    st.table(status_counts)
-
-    # Apply style to center the table
-    st.markdown(
-        """
-        <style>
-            table {
-                margin: auto;
-            }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+    #############################################################
 
     
 
