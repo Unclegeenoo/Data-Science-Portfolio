@@ -128,16 +128,52 @@ def main():
     elif section == "Financial Data":
         show_financial_analysis()
     elif section == "Attendance Data":
-        show_attendance_data()
+        show_attendance_data() 
     else:
         show_conclusions()
 
 def show_general_stats():
     st.write('<h1 style="text-align: center;">General Statistics</h1>', unsafe_allow_html=True)
     
+    
+    ##completed events
+    ##cancelled events
+    ##percent completion
+
+    ##average events per year
+    ##events per week    
+
+    ##unique event locations
+    ##top count of events by location table
+    ##number of unique event types 
+    ##total hours (total_duration for all event types) 3454 hours 39 minutes
+
+    
+
+
+
+
+
 
     # Add your general statistics code and visualizations here
     status_counts = df_att['Status'].value_counts()
+
+    # Assuming status_counts is a Pandas Series
+    st.table(status_counts)
+
+    # Apply style to center the table
+    st.markdown(
+        """
+        <style>
+            table {
+                margin: auto;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    
 
     # Display a title
     st.write('<h2 style="text-align: center;">MLC Event Locations</h2>', unsafe_allow_html=True)
@@ -145,7 +181,7 @@ def show_general_stats():
     # Define the HTML code to embed a Google Map
     html_code = """
     <div style="display: flex; justify-content: center;">
-    <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1gRGSSbVfXoknonZODAVIcfEdAeh0vac&ehbc=2E312F&noprof=1" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+    <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1gRGSSbVfXoknonZODAVIcfEdAeh0vac&ehbc=2E312F&noprof=1" width="800" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
     </div>
     """
 
@@ -153,27 +189,20 @@ def show_general_stats():
     st.markdown(html_code, unsafe_allow_html=True)
 
     # Create two columns for side-by-side display
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
 
-    # Display status_counts in the first column
-    with col2:
-        st.markdown("<h2 style='font-size: 24px;'>Event Status</h2>", unsafe_allow_html=True)
-        st.write(status_counts)
-
-    # Display type_counts in the second column
+  
+    # Display type_counts in the first column
     with col1:
-        st.markdown("<h2 style='font-size: 24px;'>Event by Types</h2>", unsafe_allow_html=True)
-        st.write(type_counts)
+        st.markdown("<h2 style='font-size: 24px; text-align: left;'>Event by Types</h2>", unsafe_allow_html=True)
+        st.write(type_counts, unsafe_allow_html=True)
+        st.markdown("<style>div[data-testid='stTable'] { margin: 0 auto; width: auto; }</style>", unsafe_allow_html=True)
 
     # Display location_counts in the second column
-    with col3:
-        st.markdown("<h2 style='font-size: 24px;'>Event Locations</h2>", unsafe_allow_html=True)
-        st.write(location_counts)
-
-
-
-
-
+    with col2:
+        st.markdown("<h2 style='font-size: 24px; text-align: left;'>Event Addresses</h2>", unsafe_allow_html=True)
+        st.write(location_counts, unsafe_allow_html=True)
+        st.markdown("<style>div[data-testid='stTable'] { margin: 0 auto; width: auto; }</style>", unsafe_allow_html=True)
 
     # Set title
     st.write('<h1 style="text-align: center;">Total Events and Avg. Events per Week per Year</h1>', unsafe_allow_html=True)
@@ -228,8 +257,8 @@ def show_general_stats():
 
 
 
-    st.write("text here text here text here text here")
-    st.write("text here text here text here text here")
+    st.write("same thing as above except total team practices and team practices per week")
+    st.write("same thing as above except total skills practices and skill practices per week")
 
 
 
@@ -330,14 +359,25 @@ def show_financial_analysis():
 
 def show_attendance_data():
     st.header("Attendance Data")
-    # Add your attendance data analysis code and visualizations here
-    st.write("text here text here text here text here")
 
-    st.bar_chart(data, x="Source", y="Growth",  width=0, height=0, use_container_width=True)
+    # Display the selected subsection content
+    selected_subsection = st.sidebar.radio("Go to", ("Summary", "Player Stats"))
+
+
+
+
+    if selected_subsection == "Summary":
+
+
+
+        # Add your attendance data analysis code and visualizations here
+        st.write("text here text here text here text here")
+
+        st.bar_chart(data, x="Source", y="Growth",  width=0, height=0, use_container_width=True)
         
         
-    st.write("Growth in Gold Bars per Source:")
-    st.dataframe(data[['Source', 'Growth']])
+        st.write("Growth in Gold Bars per Source:")
+        st.dataframe(data[['Source', 'Growth']])
 
 def show_conclusions():
     st.header("Conclusions")
