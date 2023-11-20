@@ -5,6 +5,8 @@ from PIL import Image
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from plotly.subplots import make_subplots
+
 
 st.set_page_config(layout='wide')
 
@@ -55,7 +57,38 @@ name_counts = df_att['Name'].value_counts()
 location_counts = df_att['Location'].value_counts()
 
 
+
+
 #############################################
+# Filter for Team Practice events
+team_practice_df = df_att[df_att['Type'] == 'Team Practice']
+
+# Calculate average attendance per Team Practice event per year
+average_attendance_team_practice_per_year = team_practice_df.groupby('Year')['Attendance'].mean()
+
+# Filter for Skills Practice events
+skills_practice_df = df_att[df_att['Type'] == 'Skills Practice']
+
+# Calculate average attendance per Skills Practice event per year
+average_attendance_skills_practice_per_year = skills_practice_df.groupby('Year')['Attendance'].mean()
+
+# Filter for Intra-Squad Game events
+intra_squad_game_df = df_att[df_att['Type'] == 'Intra-Squad Game']
+
+# Calculate average attendance per Intra-Squad Game event per year
+average_attendance_intra_squad_game_per_year = intra_squad_game_df.groupby('Year')['Attendance'].mean()
+
+# Filter for Championship events
+championship_df = df_att[df_att['Type'] == 'Championship']
+
+# Calculate average attendance per Championship event per year
+average_attendance_championship_per_year = championship_df.groupby('Year')['Attendance'].mean()
+
+# Filter for Tournament events
+tournament_df = df_att[df_att['Type'] == 'Tournament']
+
+# Calculate average attendance per Tournament event per year
+average_attendance_tournament_per_year = tournament_df.groupby('Year')['Attendance'].mean()
 
 
 ############calculations for events per year
@@ -172,51 +205,115 @@ def show_general_stats():
     unique_location_count = df_att['Location'].nunique()  # Count of unique locations
    
    
+    # Add CSS for styling the dashboard
+    st.markdown(
+        """
+        <style>
+            .dashboard-column {
+                text-align: center;
+                background-color: lightblue;
+                border-radius: 10px;
+                padding: 15px;
+            }
+        
+            .larger-text {
+                font-size: 26px; /* Adjust the font size here */
+            }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
 
 
 
     bg_color = 'lightblue'
     
+    # Add CSS for rounded corners
+    st.markdown(
+        """
+        <style>
+        .dashboard-column {
+            border-radius: 10px;
+            padding: 10px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
     # Create the layout for the dashboard
     col1, col2, col3, col4 = st.columns(4)
-
 
     # First row
     with col1:
         # Display unique location counts
-        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Unique Locations<br>{unique_location_count}</div>", unsafe_allow_html=True)
-        
+        st.markdown(
+            f"<div class='dashboard-column'>Unique Locations<br><span class='larger-text'>{unique_location_count}</span></div>",
+            unsafe_allow_html=True
+        )
+
     with col2:
         # Display average events per week cumulative
-        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Avg Events/Year<br>{average_events_per_year['Total Events']:.2f}</div>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='dashboard-column'>Avg Events/Year<br><span class='larger-text'>{average_events_per_year['Total Events']:.2f}</span></div>",
+            unsafe_allow_html=True
+        )
 
     with col3:
         # Display average events per year cumulative
-        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Avg Events/Week<br>{average_events_per_year['Events per Week']:.2f}</div>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='dashboard-column'>Avg Events/Week<br><span class='larger-text'>{average_events_per_year['Events per Week']:.2f}</span></div>",
+            unsafe_allow_html=True
+        )
 
     with col4:
         # Display total hours (total_duration)
-        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Total Event Hours<br>{total_hours}</div>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='dashboard-column'>Total Event Hours<br><span class='larger-text'>{total_hours}</span></div>",
+            unsafe_allow_html=True
+        )
 
 
+
+    
+
+    ##filler for spacing
+    st.markdown("<br>", unsafe_allow_html=True)
+
+
+   
+    bg_color = 'lightblue'
+
+    # Create the layout for the dashboard
+    col5, col6, col7 = st.columns(3)
 
     # Second row
-    col5, col6, col7 = st.columns(3)  
-
     with col5:
         # Display the number of completed events
-        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Completed Events<br>{status_counts.get('Completed', 0)}</div>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='dashboard-column' style='text-align: center; background-color: {bg_color};'>Completed Events<br><span class='larger-text'>{status_counts.get('Completed', 0)}</span></div>",
+            unsafe_allow_html=True
+        )
 
     with col6:
         # Display the number of cancelled events
-        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Cancelled Events<br>{status_counts.get('Cancelled', 0)}</div>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='dashboard-column' style='text-align: center; background-color: {bg_color};'>Cancelled Events<br><span class='larger-text'>{status_counts.get('Cancelled', 0)}</span></div>",
+            unsafe_allow_html=True
+        )
 
     with col7:
         # Display the percentage of completed events
         completed_percent = (status_counts.get('Completed', 0) / len(df_att)) * 100
-        st.markdown(f"<div style='text-align: center; background-color: {bg_color};'>Completed Percentage<br>{completed_percent:.2f}%</div>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='dashboard-column' style='text-align: center; background-color: {bg_color};'>Completed Percentage<br><span class='larger-text'>{completed_percent:.2f}%</span></div>",
+            unsafe_allow_html=True
+        )
 
 
+ 
 
 
 
@@ -270,6 +367,10 @@ def show_general_stats():
         st.write(location_counts, unsafe_allow_html=True)
         st.markdown("<style>div[data-testid='stTable'] { margin: 0 auto; width: auto; }</style>", unsafe_allow_html=True)
 
+
+
+########################################################
+    ##Total Events/Avg Events per week chart
     # Set title
     st.write('<h1 style="text-align: center;">Total Events and Avg. Events per Week per Year</h1>', unsafe_allow_html=True)
     st.markdown("<p style='text-align: center;'>2013 has 8 weeks of data, 2022 has 11 weeks of data</p>", unsafe_allow_html=True)
@@ -287,7 +388,8 @@ def show_general_stats():
         text=events_per_year['Total Events'],  
         textposition='inside',
         insidetextanchor='end',  # Adjust text anchor as needed
-        textfont=dict(size=16, color='white'),
+        textfont=dict(size=16, color='black'),
+        marker=dict(color='lightblue')  # Set the bar color here
     ), secondary_y=False)
 
 
@@ -311,12 +413,143 @@ def show_general_stats():
         xaxis=dict(title='Year'),
         yaxis=dict(title='Total Events', showgrid=False, range=[0, 200]),
         yaxis2=dict(title='Events per Week', overlaying='y', side='right', showgrid=False, range=[0, 3.5]),
-        legend=dict(x=0.5, y=0.99, traceorder='normal', orientation='h'),
+        legend=dict(x=0.5, y=.99, traceorder='normal', orientation='h'),
     )
 
 
     # Display the plot in Streamlit
     st.plotly_chart(fig, use_container_width=True)
+
+#########################################
+
+###Team practices should go before skill practices
+
+    st.write('<h1 style="text-align: center;">Total Team Practices and Avg. Team Practices per Week per Year</h1>', unsafe_allow_html=True)
+    
+    team_practice_data = df_att[df_att['Type'] == 'Team Practice']
+    team_practice_counts = team_practice_data.groupby('Year').size()
+    df_att['Date_Date_Excel'] = pd.to_datetime(df_att['Date_Date_Excel'], format='%A, %B %d, %Y')
+    team_practice_data['Week_Number'] = team_practice_data['Date_Date_Excel'].dt.strftime('%U')
+
+    average_weekly_counts = team_practice_data.groupby(['Year', 'Week_Number']).size().groupby('Year').mean()
+
+    fig3 = make_subplots(specs=[[{'secondary_y': True}]])
+
+    fig3.add_trace(go.Bar(
+        x=team_practice_counts.index,
+        y=team_practice_counts.values,
+        name='Total Team Practice Counts',
+        text=team_practice_counts.values,
+        textposition='inside',
+        insidetextanchor='end',
+        textfont=dict(size=16, color='black'),
+        marker=dict(color='lightblue')
+    ), secondary_y=False)
+
+    fig3.add_trace(go.Scatter(
+        x=average_weekly_counts.index,
+        y=average_weekly_counts.values,
+        mode='lines+markers+text',
+        name='Avg Weekly Events',
+        text=average_weekly_counts.values.round(1),
+        textposition='top center',
+        marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+        textfont=dict(size=16, color='red')
+    ), secondary_y=True)
+
+    fig3.update_layout(
+        xaxis=dict(title='Year'),
+        yaxis=dict(title='Total Team Practice Counts', showgrid=False, range=[0,150]),
+        yaxis2=dict(title='Avg Weekly Team Practice Counts', overlaying='y', side='right', showgrid=False, range=[0, 2.7]),
+        legend=dict(x=.3, y=1, traceorder='normal', orientation='h')
+    )
+
+    # Display the plot in Streamlit
+    st.plotly_chart(fig3, use_container_width=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#########################################
+
+    ##filler for spacing
+    st.markdown("<br>", unsafe_allow_html=True)
+     ##filler for spacing
+   
+
+############################################
+
+    st.write('<h1 style="text-align: center;">Total Skills Practices and Avg. Skills Practices per Week per Year</h1>', unsafe_allow_html=True)
+    
+
+    # Assuming df_att is your DataFrame containing the data
+    skills_practice_data = df_att[df_att['Type'] == 'Skills Practice']
+    skills_practice_counts = skills_practice_data.groupby('Year').size()
+    df_att['Date_Date_Excel'] = pd.to_datetime(df_att['Date_Date_Excel'], format='%A, %B %d, %Y')
+    skills_practice_data['Week_Number'] = skills_practice_data['Date_Date_Excel'].dt.strftime('%U')
+
+    average_weekly_counts_skills = skills_practice_data.groupby(['Year', 'Week_Number']).size().groupby('Year').mean()
+
+    fig2 = make_subplots(specs=[[{'secondary_y': True}]])
+
+    fig2.add_trace(go.Bar(
+        x=skills_practice_counts.index,
+        y=skills_practice_counts.values,
+        name="Total Skills Practices",
+        text=skills_practice_counts.values, 
+        textposition='inside',
+        insidetextanchor='end',
+        textfont=dict(size=16, color='black'),
+        marker=dict(color='lightblue')
+    ), secondary_y=False)
+
+    
+    # Add line chart with labels
+    fig2.add_trace(go.Scatter(
+        x=average_weekly_counts_skills.index,
+        y=average_weekly_counts_skills.values,
+        mode='lines+markers+text',
+        name='Avg Weekly Events',
+        text=average_weekly_counts_skills.values.round(1), 
+        textposition='top center',
+        marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+        textfont=dict(size=16, color='red'),
+    ), secondary_y=True)
+
+    #Set layout
+    fig2.update_layout(
+        xaxis=dict(title='Year'),
+        yaxis=dict(title='Total Events', showgrid=False, range=[0, 100]),
+        yaxis2=dict(title='Events per Week', overlaying='y', side='right', showgrid=False, range=[0, 4]),
+        legend=dict(x=0, y=1, traceorder='normal', orientation='h'),
+    )
+
+    # Display the plot in Streamlit
+    st.plotly_chart(fig2, use_container_width=True)
+
+
+
+#####################################################################
+
+
+
+
+
+
+
+
+
 
 
 
@@ -347,6 +580,43 @@ def show_general_stats():
     st.write("text here text here text here text here")
 
     st.pyplot(fig)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def show_financial_analysis():
     st.header("Financial Data")
@@ -426,13 +696,58 @@ def show_financial_analysis():
 def show_attendance_data():
     st.header("Attendance Data")
 
+    
     # Display the selected subsection content
     selected_subsection = st.sidebar.radio("Go to", ("Summary", "Player Stats"))
 
-
-
-
     if selected_subsection == "Summary":
+        
+        st.write('<h1 style="text-align: center;">Team/Skill Practice Attendance</h1>', unsafe_allow_html=True)
+
+
+        # Create the figure
+        fig = go.Figure()
+
+        # Add bar graph for Team Practice events
+        fig.add_trace(go.Bar(
+            x=average_attendance_team_practice_per_year.index,
+            y=average_attendance_team_practice_per_year.values,
+            name='Team Practice - Average Attendance',
+            marker=dict(color='lightblue'),  # Change the bar color here
+        ))
+
+        # Add line graph for Team Practice events
+        fig.add_trace(go.Scatter(
+            x=average_attendance_team_practice_per_year.index,
+            y=average_attendance_team_practice_per_year.values,
+            mode='lines+markers',
+            name='Team Practice - Average Attendance',
+            line=dict(color='green'),  # Change the line color here
+        ))
+
+        # Update layout
+        fig.update_layout(
+            title='Average Attendance for Team Practice Events per Year',
+            xaxis_title='Year',
+            yaxis_title='Average Attendance',
+            barmode='group',
+        )
+
+        # Show the plot
+        st.plotly_chart(fig)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
