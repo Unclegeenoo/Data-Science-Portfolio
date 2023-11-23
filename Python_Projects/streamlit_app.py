@@ -1,11 +1,15 @@
 import streamlit as st
+import streamlit.components.v1 as components
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from plotly.subplots import make_subplots
+from geopy.geocoders import Nominatim
+import folium
+from folium import plugins
 
 
 st.set_page_config(layout='wide')
@@ -31,6 +35,8 @@ df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
 df_att = pd.read_csv("D:\Python\WebApp\MLC_Attendance_Eng_FInal_UTF8.csv")
 
 df_att['Date_Date_Excel'] = pd.to_datetime(df_att['Date_Date_Excel'], format='%A, %B %d, %Y')
+
+df_att_geo = pd.read_csv("D:\Python\WebApp\MLC_Attendance_Eng_Final_Geo_UTF8.csv")
 
 
 ##############Variable Bank##################
@@ -314,25 +320,11 @@ def show_general_stats():
 
 
  
-
-
-
-    ##completed events
-    ##cancelled events
-    ##percent completion
-
-    ##average events per year
-    ##events per week    
-
-    ##unique event locations
-    ##top count of events by location table
-
-    ##number of unique event types 
-    ##total hours (total_duration for all event types) 3454 hours 39 minutes
-
     
     ###################################################################################
  
+    ##filler for spacing
+    st.markdown("<br>", unsafe_allow_html=True)
 
     #############################################################
 
@@ -341,38 +333,128 @@ def show_general_stats():
     # Display a title
     st.write('<h2 style="text-align: center;">MLC Event Locations</h2>', unsafe_allow_html=True)
 
-    # Define the HTML code to embed a Google Map
     html_code = """
     <div style="display: flex; justify-content: center;">
-    <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1gRGSSbVfXoknonZODAVIcfEdAeh0vac&ehbc=2E312F&noprof=1" width="800" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1gRGSSbVfXoknonZODAVIcfEdAeh0vac&ehbc=2E312F&noprof=1" 
+            style="width: 100%; height: 500px; border: 0;" 
+            allowfullscreen="" loading="lazy">
+        </iframe>
     </div>
     """
+
+
+
 
     # Display the Google Map using the HTML code
     st.markdown(html_code, unsafe_allow_html=True)
 
-    # Create two columns for side-by-side display
-    col1, col2 = st.columns(2)
+    ##################################################################
 
+    ##filler for spacing
+    st.markdown("<br>", unsafe_allow_html=True)
+
+
+    ######################################################################
+
+    # Calculate percentages
+    percentages = type_counts / type_counts.sum()
+
+    # Find types with less than 1% and group them
+    threshold = 0.01
+    types_to_group = percentages[percentages < threshold].index
+
+    # Create a new DataFrame with aggregated values
+    type_counts_grouped = type_counts.copy()
+    other_events_count = type_counts[types_to_group].sum()
+    type_counts_grouped = type_counts_grouped[percentages >= threshold]
+    type_counts_grouped['Other Events'] = other_events_count
+
+    
+
+    # Set a blue color palette
+    # Define a color palette based on the number of unique event types
+    num_types = len(type_counts_grouped)
+    colors = plt.cm.tab20c(range(num_types))
+
+    # Plot the pie chart with the specified color palette
+    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event by Types</h2>", unsafe_allow_html=True)
+    fig, ax = plt.subplots(figsize=(10, 6))  # Set the size here (width, height)
+    pie = type_counts_grouped.plot(kind='pie', startangle=140, labels=['']*len(type_counts_grouped), ax=ax, colors=colors)
+    plt.title('Event Distribution by Types')
+    plt.axis('equal')  # Equal aspect ratio ensures the pie chart is circular
+
+    # Get percentages for legend labels
+    percentages_grouped = ['{:1.0f}%'.format(val * 100) for val in type_counts_grouped / type_counts_grouped.sum()]
+    legend_labels_grouped = [f'{type_counts_grouped.index[i]}: {percentages_grouped[i]}' for i in range(len(type_counts_grouped))]
+
+    # Create a legend with percentages multiplied by 100
+    plt.legend(legend_labels_grouped, loc='center right', bbox_to_anchor=(1.2, 0.5), title="Event Types")
+    plt.ylabel('')  # Remove the y-label
+    st.pyplot(fig)
+
+
+    ############################
+   
+
+
+
+    ###################################################################################
+ 
+    ##filler for spacing
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    #############################################################
+
+
+
+    ############################################################################
+
+    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event Addresses</h2>", unsafe_allow_html=True)
+        
+    # Filter out rows with missing latitude or longitude
+    filtered_df = df_att_geo.dropna(subset=['lat', 'lon'])
+
+    # Create a scatter mapbox plot
+    #fig = px.scatter_mapbox(filtered_df, lat='lat', lon='lon', zoom=10)
+
+    # Set map layout and display the map
+    #fig.update_layout(mapbox_style="open-street-map")
+    #fig.update_layout(
+        #title='Geographic Scatter Map of Moscow',
+        #margin=dict(l=0, r=0, t=30, b=0)
+    #)
+    #st.plotly_chart(fig)
+        
+    # Create a Folium map centered around Moscow
+    m = folium.Map(location=[55.7558, 37.6173], zoom_start=10)  # Coordinates for Moscow
+
+    # Add a HeatMap layer to the map using the latitudes and longitudes from filtered_df
+    heat_data = filtered_df[['lat', 'lon']].values.tolist()
+    folium.plugins.HeatMap(heat_data).add_to(m)
+
+    # Convert the Folium map to HTML
+    html_map = m._repr_html_()
   
-    # Display type_counts in the first column
-    with col1:
-        st.markdown("<h2 style='font-size: 24px; text-align: left;'>Event by Types</h2>", unsafe_allow_html=True)
-        st.write(type_counts, unsafe_allow_html=True)
-        st.markdown("<style>div[data-testid='stTable'] { margin: 0 auto; width: auto; }</style>", unsafe_allow_html=True)
 
-    # Display location_counts in the second column
-    with col2:
-        st.markdown("<h2 style='font-size: 24px; text-align: left;'>Event Addresses</h2>", unsafe_allow_html=True)
-        st.write(location_counts, unsafe_allow_html=True)
-        st.markdown("<style>div[data-testid='stTable'] { margin: 0 auto; width: auto; }</style>", unsafe_allow_html=True)
+    # Display the map in Streamlit
+    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Geographic Heatmap of Moscow</h2>", unsafe_allow_html=True)
+    components.html(html_map, height=500)
+    
+
+    #############################################################################
+ 
 
 
+
+        
+        
+      
 
 ########################################################
     ##Total Events/Avg Events per week chart
     # Set title
-    st.write('<h1 style="text-align: center;">Total Events and Avg. Events per Week per Year</h1>', unsafe_allow_html=True)
+    
+    st.write('<h2 style="text-align: center;">Total Events and Avg. Events per Week per Year</h2>', unsafe_allow_html=True)
     st.markdown("<p style='text-align: center;'>2013 has 8 weeks of data, 2022 has 11 weeks of data</p>", unsafe_allow_html=True)
 
 
@@ -420,11 +502,18 @@ def show_general_stats():
     # Display the plot in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
+    st.markdown("<p style='text-align: center;'>Practices were conducted from 2010 but were recorded only starting at the end of 2013 at which the rate of practice was 2.1 per week. </p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Same with the beginning of 2022, at that time, for those first weeks of 2022 the rate of practice was 1.2. </p>", unsafe_allow_html=True)
+    
+
+
+
+
 #########################################
 
 ###Team practices should go before skill practices
 
-    st.write('<h1 style="text-align: center;">Total Team Practices and Avg. Team Practices per Week per Year</h1>', unsafe_allow_html=True)
+    st.write('<h2 style="text-align: center;">Total Team Practices and Avg. Team Practices per Week per Year</h2>', unsafe_allow_html=True)
     
     team_practice_data = df_att[df_att['Type'] == 'Team Practice']
     team_practice_counts = team_practice_data.groupby('Year').size()
@@ -460,14 +549,14 @@ def show_general_stats():
     fig3.update_layout(
         xaxis=dict(title='Year'),
         yaxis=dict(title='Total Team Practice Counts', showgrid=False, range=[0,150]),
-        yaxis2=dict(title='Avg Weekly Team Practice Counts', overlaying='y', side='right', showgrid=False, range=[0, 2.7]),
+        yaxis2=dict(title='Avg Weekly Team Practice Counts', overlaying='y', side='right', showgrid=False, range=[0, 2.9]),
         legend=dict(x=.3, y=1, traceorder='normal', orientation='h')
     )
 
     # Display the plot in Streamlit
     st.plotly_chart(fig3, use_container_width=True)
 
-
+    st.markdown("<p style='text-align: center;'>conclusion text here</p>", unsafe_allow_html=True)
 
 
 
@@ -490,7 +579,7 @@ def show_general_stats():
 
 ############################################
 
-    st.write('<h1 style="text-align: center;">Total Skills Practices and Avg. Skills Practices per Week per Year</h1>', unsafe_allow_html=True)
+    st.write('<h2 style="text-align: center;">Total Skills Practices and Avg. Skills Practices per Week per Year</h2>', unsafe_allow_html=True)
     
 
     # Assuming df_att is your DataFrame containing the data
@@ -538,6 +627,8 @@ def show_general_stats():
     # Display the plot in Streamlit
     st.plotly_chart(fig2, use_container_width=True)
 
+    st.markdown("<p style='text-align: center;'>conclusion text here</p>", unsafe_allow_html=True)
+
 
 
 #####################################################################
@@ -545,41 +636,6 @@ def show_general_stats():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-    st.write("same thing as above except total team practices and team practices per week")
-    st.write("same thing as above except total skills practices and skill practices per week")
-
-
-
-    data['Growth'] = data['Apr'] - data['Jan']
-    bar_width = 0.4  ## Set the bar width (you can adjust this value)
-    fig, ax = plt.subplots(figsize=(3, 1))
-    ax.bar(data['Source'], data['Growth'], width=bar_width)
-    ax.tick_params(axis='both', which='major', labelsize=6)
-    ax.set_xticks(range(len(data['Source'])))
-    ax.set_xticklabels(data['Source'], rotation=45, ha='right')
-    ##ax.set_xlabel('Source', fontsize=5)  --- x label (if needed)
-    ax.set_ylabel('Growth in Gold Bars', fontsize= 5)
-    ax.set_title('Growth in Gold Bars per Source', fontsize=7)
-
-    st.write("text here text here text here text here")
-
-    # Display the chart using Streamlit
-    st.pyplot(fig)
-
-    st.write("text here text here text here text here")
-
-    st.pyplot(fig)
 
 
 
