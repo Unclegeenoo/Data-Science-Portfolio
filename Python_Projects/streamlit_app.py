@@ -36,7 +36,6 @@ df_att = pd.read_csv("D:\Python\WebApp\MLC_Attendance_Eng_FInal_UTF8.csv")
 
 df_att['Date_Date_Excel'] = pd.to_datetime(df_att['Date_Date_Excel'], format='%A, %B %d, %Y')
 
-df_att_geo = pd.read_csv("D:\Python\WebApp\MLC_Attendance_Eng_Final_Geo_UTF8.csv")
 
 
 ##############Variable Bank##################
@@ -412,7 +411,7 @@ def show_general_stats():
     st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event Addresses</h2>", unsafe_allow_html=True)
         
     # Filter out rows with missing latitude or longitude
-    filtered_df = df_att_geo.dropna(subset=['lat', 'lon'])
+    filtered_df = df_att.dropna(subset=['lat', 'lon'])
 
     # Create a scatter mapbox plot
     #fig = px.scatter_mapbox(filtered_df, lat='lat', lon='lon', zoom=10)
@@ -750,16 +749,81 @@ def show_financial_analysis():
 
 
 def show_attendance_data():
-    st.header("Attendance Data")
-
-    
+        
     # Display the selected subsection content
     selected_subsection = st.sidebar.radio("Go to", ("Summary", "Player Stats"))
+    st.write('<h1 style="text-align: center;">Team/Skill Practice Attendance</h1>', unsafe_allow_html=True)
+        
+
+
 
     if selected_subsection == "Summary":
-        
-        st.write('<h1 style="text-align: center;">Team/Skill Practice Attendance</h1>', unsafe_allow_html=True)
+                
+        st.write('<h2 style="text-align: center;">Attendance Data</h2>', unsafe_allow_html=True)
 
+        # Add CSS for styling the dashboard
+        st.markdown(
+            """
+            <style>
+                .dashboard-column {
+                    text-align: center;
+                    background-color: lightblue;
+                    border-radius: 10px;
+                    padding: 15px;
+                }
+        
+                .larger-text {
+                    font-size: 26px; /* Adjust the font size here */
+                }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+        bg_color = 'lightblue'
+    
+        # Add CSS for rounded corners
+        st.markdown(
+            """
+            <style>
+            .dashboard-column {
+                border-radius: 10px;
+                padding: 10px;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+
+
+        # Create the layout for the dashboard
+        col1, col2, col3 = st.columns(3)
+
+
+        # First row
+        with col1:
+            # Display unique location counts
+            st.markdown(
+                f"<div class='dashboard-column'>Total Attendees All Time<br><span class='larger-text'>{0}</span></div>",
+                unsafe_allow_html=True
+            )
+
+        with col2:
+            # Display average events per week cumulative
+            st.markdown(
+                f"<div class='dashboard-column'>Avg Attendance per Event/Year<br><span class='larger-text'>{0}</span></div>",
+                unsafe_allow_html=True
+            )
+
+        with col3:
+            # Display average events per year cumulative
+            st.markdown(
+                f"<div class='dashboard-column'>Unique Attendees<br><span class='larger-text'>{0}</span></div>",
+                unsafe_allow_html=True
+            )
+
+    
 
         # Create the figure
         fig = go.Figure()
@@ -795,18 +859,6 @@ def show_attendance_data():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
         # Add your attendance data analysis code and visualizations here
         st.write("text here text here text here text here")
 
@@ -815,6 +867,23 @@ def show_attendance_data():
         
         st.write("Growth in Gold Bars per Source:")
         st.dataframe(data[['Source', 'Growth']])
+
+
+
+    elif selected_subsection == "Player Stats": 
+        st.write('<h2 style="text-align: center;">Individual Stats</h2>', unsafe_allow_html=True)
+
+
+
+        st.write("text here text here text here text here")
+
+
+
+
+
+
+
+
 
 def show_conclusions():
     st.header("Conclusions")
