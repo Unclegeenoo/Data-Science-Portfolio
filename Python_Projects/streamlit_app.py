@@ -405,13 +405,14 @@ def show_general_stats():
     #############################################################
 
 
-
-    ############################################################################
+    ##########################  HEATMAP  ###########################
+    ################################################################
 
     st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event Addresses</h2>", unsafe_allow_html=True)
         
     # Filter out rows with missing latitude or longitude
-    filtered_df = df_att.dropna(subset=['lat', 'lon'])
+    
+    filtered_df = df_att.loc[(df_att['Status'] == 'Completed') & df_att['lat'].notna() & df_att['lon'].notna()]
 
     # Create a scatter mapbox plot
     #fig = px.scatter_mapbox(filtered_df, lat='lat', lon='lon', zoom=10)
@@ -801,29 +802,91 @@ def show_attendance_data():
         col1, col2, col3 = st.columns(3)
 
 
+        
+        average_attendance_per_event = round(df_att[df_att['Status'] == 'Completed']['Attendance'].mean(), 1)
+        total_attendees_completed_events = df_att[df_att['Status'] == 'Completed']['Attendance'].sum()
+        
+
+        all_attendees = df_att['Going'].str.split(', ').explode()
+        filtered_attendees = [attendee for attendee in all_attendees if attendee != "No Data" and len(attendee.split()) == 2]
+        unique_attendees = list(set(filtered_attendees))
+        unique_attendees_count = len(unique_attendees)
+
+
         # First row
         with col1:
             # Display unique location counts
             st.markdown(
-                f"<div class='dashboard-column'>Total Attendees All Time<br><span class='larger-text'>{0}</span></div>",
+                f"<div class='dashboard-column'>Total Attendees<br><span class='larger-text'>{total_attendees_completed_events}</span></div>",
                 unsafe_allow_html=True
             )
 
         with col2:
             # Display average events per week cumulative
             st.markdown(
-                f"<div class='dashboard-column'>Avg Attendance per Event/Year<br><span class='larger-text'>{0}</span></div>",
+                f"<div class='dashboard-column'>Avg Att. per Event<br><span class='larger-text'>{average_attendance_per_event}</span></div>",
                 unsafe_allow_html=True
             )
 
         with col3:
             # Display average events per year cumulative
             st.markdown(
-                f"<div class='dashboard-column'>Unique Attendees<br><span class='larger-text'>{0}</span></div>",
+                f"<div class='dashboard-column'>Unique Attendees<br><span class='larger-text'>{unique_attendees_count}</span></div>",
                 unsafe_allow_html=True
             )
 
-    
+
+        # Filter DataFrame for 'Completed' events
+        completed_events = df_att[df_att['Status'] == 'Completed']
+
+        # Calculate average attendance per event per year
+        avg_attendance_per_event_per_year = completed_events.groupby('Year')['Attendance'].mean()
+
+
+        # Group by year and sum the attendees
+        total_attendees_per_year = completed_events.groupby('Year')['Attendance'].sum()
+
+        # Create a Plotly figure with subplots
+        fig = make_subplots(specs=[[{'secondary_y': True}]])
+
+        # Add bar chart for total attendees per year
+        fig.add_trace(go.Bar(
+            x=total_attendees_per_year.index,
+            y=total_attendees_per_year.values,
+            name='Total Attendees',
+            marker=dict(color='lightblue'),  # Set the bar color here
+            text=total_attendees_per_year.values,
+            textposition='inside',
+            textfont=dict(size=16, color='black'),
+        ), secondary_y=False)
+
+        # Round average values to tenths
+        rounded_avg_values = avg_attendance_per_event_per_year.round(1)
+
+        # Add line chart for average attendance per event per year
+        fig.add_trace(go.Scatter(
+            x=avg_attendance_per_event_per_year.index,
+            y=avg_attendance_per_event_per_year.values,
+            mode='lines+markers+text',
+            name='Avg Attendance per Event',
+            marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+            text=rounded_avg_values,
+            textposition='top center',
+            textfont=dict(size=16, color='red'),
+        ), secondary_y=True)
+
+
+        # Set layout
+        fig.update_layout(
+            xaxis=dict(title='Year'),
+            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, 1300]),
+            yaxis2=dict(title='Avg. Attendance per Week', showgrid=False, range=[5, 11]),
+            legend=dict(x=.3, y=1, traceorder='normal', orientation='h'),
+        )
+
+        # Display the plot in Streamlit
+        st.plotly_chart(fig, use_container_width=True)
+
 
         # Create the figure
         fig = go.Figure()
