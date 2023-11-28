@@ -216,7 +216,7 @@ def show_general_stats():
         <style>
             .dashboard-column {
                 text-align: center;
-                background-color: lightblue;
+                background-color: skyblue;
                 border-radius: 10px;
                 padding: 15px;
             }
@@ -232,7 +232,7 @@ def show_general_stats():
 
 
 
-    bg_color = 'lightblue'
+    bg_color = 'skyblue'
     
     # Add CSS for rounded corners
     st.markdown(
@@ -289,7 +289,7 @@ def show_general_stats():
 
 
    
-    bg_color = 'lightblue'
+    bg_color = 'skyblue'
 
     # Create the layout for the dashboard
     col5, col6, col7 = st.columns(3)
@@ -471,7 +471,7 @@ def show_general_stats():
         textposition='inside',
         insidetextanchor='end',  # Adjust text anchor as needed
         textfont=dict(size=16, color='black'),
-        marker=dict(color='lightblue')  # Set the bar color here
+        marker=dict(color='skyblue')  # Set the bar color here
     ), secondary_y=False)
 
 
@@ -532,7 +532,7 @@ def show_general_stats():
         textposition='inside',
         insidetextanchor='end',
         textfont=dict(size=16, color='black'),
-        marker=dict(color='lightblue')
+        marker=dict(color='skyblue')
     ), secondary_y=False)
 
     fig3.add_trace(go.Scatter(
@@ -600,7 +600,7 @@ def show_general_stats():
         textposition='inside',
         insidetextanchor='end',
         textfont=dict(size=16, color='black'),
-        marker=dict(color='lightblue')
+        marker=dict(color='skyblue')
     ), secondary_y=False)
 
     
@@ -811,7 +811,7 @@ def show_attendance_data():
             <style>
                 .dashboard-column {
                     text-align: center;
-                    background-color: lightblue;
+                    background-color: skyblue;
                     border-radius: 10px;
                     padding: 15px;
                 }
@@ -825,7 +825,7 @@ def show_attendance_data():
         )
 
 
-        bg_color = 'lightblue'
+        bg_color = 'skyblue'
     
         # Add CSS for rounded corners
         st.markdown(
@@ -908,7 +908,7 @@ def show_attendance_data():
             x=total_attendees_per_year.index,
             y=total_attendees_per_year.values,
             name='Total Attendees',
-            marker=dict(color='lightblue'),  # Set the bar color here
+            marker=dict(color='skyblue'),  # Set the bar color here
             text=total_attendees_per_year.values,
             textposition='inside',
             textfont=dict(size=16, color='black'),
@@ -979,7 +979,7 @@ def show_attendance_data():
             fig_team.add_trace(go.Bar(
                 x=total_attendance_team_practices.index,
                 y=total_attendance_team_practices.values,
-                marker=dict(color='lightblue'),  # Set the bar color here
+                marker=dict(color='skyblue'),  # Set the bar color here
                 text=total_attendance_team_practices.values,
                 textposition='inside',
                 textfont=dict(size=16, color='black'),
@@ -1020,7 +1020,7 @@ def show_attendance_data():
             fig_skills.add_trace(go.Bar(
                 x=total_attendance_skills_practices.index,
                 y=total_attendance_skills_practices.values,
-                marker=dict(color='lightblue'),  # Set the bar color here
+                marker=dict(color='skyblue'),  # Set the bar color here
                 text=total_attendance_skills_practices.values,
                 textposition='inside',
                 textfont=dict(size=16, color='black'),
@@ -1076,6 +1076,32 @@ def show_attendance_data():
         # Round average attendance for Intra-Squad Game per year to tenths
         average_attendance_intra_squad_game_per_year = average_attendance_intra_squad_game_per_year.round(1)
 
+        
+        ################## chart 4 data (2nd chart in 2nd row) ######################
+
+        # Filter the DataFrame for 'Tournament' events
+        tournament_events = df_att[df_att['Type'] == 'Tournament']
+
+        # Compute total attendance per year for Tournament events
+        total_attendance_per_year_tournament = tournament_events.groupby('Year')['Attendance'].sum()
+          
+
+        # Filter the DataFrame for 'Intra-Squad Game' events
+        intra_squad_events = df_att[df_att['Type'] == 'Intra-Squad Game']
+
+        # Compute total attendance per year for Intra-Squad Game events
+        total_attendance_per_year_intra_squad_game = intra_squad_events.groupby('Year')['Attendance'].sum()
+
+        # Concatenate the two dataframes
+        combined_events = pd.concat([intra_squad_events, tournament_events])
+
+        # Concatenate the two dataframes
+        average_combined = combined_events.groupby('Year')['Attendance'].mean()
+
+
+
+        #############################################################
+
 
 
 
@@ -1088,7 +1114,7 @@ def show_attendance_data():
             fig_championship.add_trace(go.Bar(
                 x=total_attendance_championship.index,
                 y=total_attendance_championship.values,
-                marker=dict(color='lightblue'),
+                marker=dict(color='skyblue'),
                 text=total_attendance_championship.values,
                 textposition='inside',
                 textfont=dict(size=16, color='black'),
@@ -1120,57 +1146,140 @@ def show_attendance_data():
         
         with col2:
             st.write("<h3 style='text-align: center;'>Intra-Squad Game and Tournament Attendance</h3>", unsafe_allow_html=True)
-            fig_intra_squad_game = go.Figure()
+            fig_intra_tour = go.Figure()
 
-            # Add bar chart for total attendance
-            fig_intra_squad_game.add_trace(go.Bar(
-                x=total_attendance_intra_squad_game.index,
-                y=total_attendance_intra_squad_game.values,
-                marker=dict(color='lightblue'),
-                text=total_attendance_intra_squad_game.values,
+            # Add bar chart for total attendance - Tournament
+            fig_intra_tour.add_trace(go.Bar(
+                x=total_attendance_per_year_tournament.index,
+                y=total_attendance_per_year_tournament.values,
+                marker=dict(color='skyblue'),
+                text=total_attendance_per_year_tournament.values,
+                textposition='inside',
+                textfont=dict(size=16, color='black'),
+                name='Tournament Attendance'
+            ))
+
+            # Add bar chart for Intra-Squad Game attendance, stacked on top of Tournament attendance
+            fig_intra_tour.add_trace(go.Bar(
+                x=total_attendance_per_year_intra_squad_game.index,
+                y=total_attendance_per_year_intra_squad_game.values,
+                marker=dict(color='aqua'),
+                text=total_attendance_per_year_intra_squad_game.values,
                 textposition='inside',
                 textfont=dict(size=16, color='black'),
                 name='Intra-Squad Game Attendance'
             ))
 
-            # Add line chart for average attendance per event per year
-            fig_intra_squad_game.add_trace(go.Scatter(
-                x=average_attendance_intra_squad_game_per_year.index,
-                y=average_attendance_intra_squad_game_per_year.values,
+            # Add line chart for the average of Tournament and Intra-Squad Game attendance
+            fig_intra_tour.add_trace(go.Scatter(
+                x=average_combined.index,
+                y=average_combined.values,
                 mode='lines+markers+text',
-                name='Avg Attendance per Event',
+                name='Avg Combined Attendance',
                 marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
-                text=average_attendance_intra_squad_game_per_year.values,
+                text=average_combined.values.round(1),
                 textposition='top center',
                 textfont=dict(size=16, color='red'),
                 yaxis='y2'
             ))
 
-            fig_intra_squad_game.update_layout(
+
+
+            fig_intra_tour.update_layout(
                 xaxis=dict(title='Year'),
-                yaxis=dict(showgrid=False, range=[0, 200], showticklabels=False, showline=False),
-                yaxis2=dict(overlaying='y', side='right', showgrid=False, range=[0, 50], showticklabels=False, showline=False),
-                legend=dict(x=0.3, y=.99, traceorder='normal', orientation='h'),
+                yaxis=dict(showgrid=False, range=[0, 275], showticklabels=False, showline=False),
+                yaxis2=dict(overlaying='y', side='right', showgrid=False, range=[0, 23], showticklabels=False, showline=False),
+                legend=dict(x=0.1, y=1, traceorder='normal', orientation='h'),
+                barmode='stack'  # Stacked bar mode
             )
-            st.plotly_chart(fig_intra_squad_game, use_container_width=True)
+            st.plotly_chart(fig_intra_tour, use_container_width=True)
+
+
+        st.write("<h3 style='text-align: center;'>Total and Avg Attendance per Type</h3>", unsafe_allow_html=True)
+
+        # Calculate total attendance per event type
+        total_attendance_per_type = df_att.groupby('Type')['Attendance'].sum()
+
+        # Sort the total attendance per event type in descending order
+        total_attendance_per_type = total_attendance_per_type.sort_values(ascending=True) 
+
+        # Calculate average attendance per event type
+        average_attendance_per_type = df_att.groupby('Type')['Attendance'].mean()
+
+        # Sort the average attendance per event type based on the total attendance order
+        average_attendance_per_type = average_attendance_per_type.loc[total_attendance_per_type.index]
+
+
+        fig_att_type = go.Figure()
+
+        # Add a horizontal bar chart
+        fig_att_type.add_trace(go.Bar(
+            x=total_attendance_per_type.values,  # Total attendance values
+            y=total_attendance_per_type.index,   # Event types
+            text=total_attendance_per_type.values,
+            textposition='auto',
+            textfont=dict(size=16, color='black'),
+            orientation='h',                    # Horizontal orientation
+            marker=dict(color='skyblue'),
+            name='Attendance by Type'       # Bar color
+        ))
+
+
+        # Add a line chart for average attendance per event type
+        fig_att_type.add_trace(go.Scatter(
+            x=average_attendance_per_type.values,  # Average attendance values
+            y=average_attendance_per_type.index,   # Event types
+            mode='lines+markers+text',
+            name='Average Attendance',            # Line chart name
+            marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+            text=average_attendance_per_type.round(1),
+            textposition='top center',
+            textfont=dict(size=16, color='red'),
+            line=dict(color='orange'),            # Line color
+            xaxis ='x2'
+        ))
 
 
 
+        fig_att_type.update_layout(
+            
+            xaxis=dict(showgrid=False, showticklabels=False, range=[0, 4700]),  # Adjust the x-axis range
+            yaxis=dict(showgrid=True),  
+            height=800,  # Set the height of the chart
+            bargap=0.1,  # Set the gap between bars
+            legend=dict(x=.5, y=.3),
+            xaxis2=dict(title='Average Attendance', range=[0, 30], overlaying='x', side='bottom', showticklabels=False, showgrid=False),  # Adjust the second x-axis
+        )
 
 
+        # Display the plot
+        st.plotly_chart(fig_att_type, use_container_width=True)
 
+  
+        #####################################################################
+        ####################   interactive chart   ##########################
+        st.write("<h3 style='text-align: center;'>Event Type Attendance Per Year Interactive Chart</h3>", unsafe_allow_html=True)
 
+        # Create a multiselect element for selecting event types
+        selected_types = st.multiselect("Select Event Type", df_att['Type'].unique(),label_visibility='collapsed')
+      
 
+        # Filter the DataFrame based on the selected event types
+        filtered_data = df_att[df_att['Type'].isin(selected_types)]
 
+        # Group by year and calculate total attendance per year
+        total_attendance_per_year = filtered_data.groupby(['Year', 'Type'])['Attendance'].sum().reset_index()
 
+        # Create an interactive line chart using Plotly Express
+        fig_int_att = px.line(total_attendance_per_year, x='Year', y='Attendance', color='Type')
+        fig_int_att.update_xaxes(type='category')  # Ensure the x-axis is treated as categorical (years)
 
+        # Update layout to remove axis labels and tick marks
+        fig_int_att.update_xaxes(title_text=None, showticklabels=True)
+        fig_int_att.update_yaxes(title_text=None, showticklabels=True)
 
-
-
-
-
-
-
+        # Display the chart in Streamlit
+        st.plotly_chart(fig_int_att, use_container_width=True)
 
 
 
