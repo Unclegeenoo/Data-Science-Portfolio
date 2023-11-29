@@ -1231,11 +1231,11 @@ def show_attendance_data():
             y=average_attendance_per_type.index,   # Event types
             mode='lines+markers+text',
             name='Average Attendance',            # Line chart name
-            marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+            marker=dict(color='red', size=10),
             text=average_attendance_per_type.round(1),
             textposition='top center',
             textfont=dict(size=16, color='red'),
-            line=dict(color='orange'),            # Line color
+            line=dict(color='red'),            # Line color
             xaxis ='x2'
         ))
 
@@ -1257,11 +1257,11 @@ def show_attendance_data():
 
   
         #####################################################################
-        ####################   interactive chart   ##########################
+        ####################   interactive attendance chart   ##########################
         st.write("<h3 style='text-align: center;'>Event Type Attendance Per Year Interactive Chart</h3>", unsafe_allow_html=True)
 
         # Create a multiselect element for selecting event types
-        selected_types = st.multiselect("Select Event Type", df_att['Type'].unique(),label_visibility='collapsed')
+        selected_types = st.multiselect("Select Event Type ", df_att['Type'].unique(),label_visibility='collapsed')
       
 
         # Filter the DataFrame based on the selected event types
@@ -1283,9 +1283,88 @@ def show_attendance_data():
 
 
 
+        ###########################################################
+        ###################### histograms #########################
+        st.write("<h3 style='text-align: center;'>Event Attendance Boxplots</h3>", unsafe_allow_html=True)
+
+
+
+        
+        # Multiselect element to select event types
+        selected_types = st.multiselect('Select Event Type', df_att['Type'].unique(), key='multiselect')
+
+
+
+        # Filter data based on selected event types
+        filtered_data = df_att[df_att['Type'].isin(selected_types)]
+
+        # Create an interactive boxplot chart using Plotly Express
+        if not filtered_data.empty:
+            fig_box = px.box(filtered_data, x='Type', y='Attendance', points="all")
+
+            # Update layout to remove axis titles
+            fig_box.update_xaxes(title_text=None, showticklabels=True)
+            fig_box.update_yaxes(title_text='Attendance', showticklabels=True)
+
+            # Set the chart width using the use_container_width function
+            st.plotly_chart(fig_box, use_container_width=True)
+        else:
+            st.warning("No data available for the selected event types.")
+        
+
+        
+        
+        st.write("<h3 style='text-align: center;'>Conclusions</h3>", unsafe_allow_html=True)
+
+
+
+
+
+                   ############################################################################
+###################################################################################
+ 
+        ##filler for spacing
+        st.markdown("<br>", unsafe_allow_html=True)
+
+#############################################################
+        #############################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     elif selected_subsection == "Player Stats": 
         st.write('<h2 style="text-align: center;">Individual Stats</h2>', unsafe_allow_html=True)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
 
 
         st.write("text here text here text here text here")
