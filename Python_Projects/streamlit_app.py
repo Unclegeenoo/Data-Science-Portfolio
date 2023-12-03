@@ -219,6 +219,7 @@ def show_general_stats():
                 background-color: skyblue;
                 border-radius: 10px;
                 padding: 15px;
+                font-weight: bold;
             }
         
             .larger-text {
@@ -375,10 +376,19 @@ def show_general_stats():
     num_types = len(type_counts_grouped)
     colors = plt.cm.tab20c(range(num_types))
 
+
+
+###########################################
+###############  pie chart ################ 
+###########################################
+
+
+
+
     # Plot the pie chart with the specified color palette
     st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event by Types</h2>", unsafe_allow_html=True)
     fig, ax = plt.subplots(figsize=(10, 6))  # Set the size here (width, height)
-    pie = type_counts_grouped.plot(kind='pie', startangle=140, labels=['']*len(type_counts_grouped), ax=ax, colors=colors)
+    pie = type_counts_grouped.plot(kind='pie', startangle=140, labels=[None]*len(type_counts_grouped), ax=ax, colors=colors)
     plt.title('Event Distribution by Types')
     plt.axis('equal')  # Equal aspect ratio ensures the pie chart is circular
 
@@ -570,6 +580,18 @@ def show_general_stats():
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 #########################################
 
     ##filler for spacing
@@ -632,20 +654,6 @@ def show_general_stats():
 
 
 #####################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -771,27 +779,6 @@ def show_financial_analysis():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def show_attendance_data():
         
     # Display the selected subsection content
@@ -834,6 +821,7 @@ def show_attendance_data():
             .dashboard-column {
                 border-radius: 10px;
                 padding: 10px;
+                font-weight: bold;
             }
             </style>
             """,
@@ -1330,22 +1318,111 @@ def show_attendance_data():
         #############################################################################
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+       
     elif selected_subsection == "Player Stats": 
+
+        # Filter the DataFrame for 'Team Practice'
+        team_practice_df = df_att[df_att['Type'] == 'Team Practice']
+
+        # Explode and count attendees
+        team_practice_attendees = team_practice_df['Going'].str.split(', ').explode()
+        team_practice_attendees_count = team_practice_attendees.value_counts()
+
+        # Filter the DataFrame for 'Skills Practice'
+        skills_practice_df = df_att[df_att['Type'] == 'Skills Practice']
+
+        # Explode and count attendees
+        skills_practice_attendees = skills_practice_df['Going'].str.split(', ').explode()
+        skills_practice_attendees_count = skills_practice_attendees.value_counts()
+        
+    # Assuming you have the 'attendees_count' Series
+        all_attendees = df_att['Going'].str.split(', ').explode()
+
+        attendees_count = all_attendees.value_counts()
+
+        # Get the top 7 attendees
+        top_7_attendees_team = team_practice_attendees_count[:7]
+        top_7_attendees_skills = skills_practice_attendees_count[:7]
+        top_7_attendees = attendees_count[:7]
+
+        
+
+
+
+        st.write('<h2 style="text-align: center;">Top 7 Attendees</h2>', unsafe_allow_html=True)
+
+           
+ 
+        
+        # Create the HTML content for the team practice column
+        html_content_team = '''
+        <div style="background-color: skyblue; border-radius: 5px; padding: 10px;">
+            <h3 style="text-align: center;">Team Practices</h3>
+        '''
+
+        # Create the HTML content for the skills practice column
+        html_content_skills = '''
+        <div style="background-color: skyblue; border-radius: 5px; padding: 10px;">
+            <h3 style="text-align: center;">Skills Practices</h3>
+        '''
+
+        # Create the HTML content for the overall column
+        html_content_overall = '''
+        <div style="background-color: skyblue; border-radius: 5px; padding: 10px;">
+            <h3 style="text-align: center;">Overall</h3>
+        '''
+
+
+
+        # Iterate through the top team practice attendees and append them to the HTML content
+        for i, (attendee, count) in enumerate(top_7_attendees_team.items(), start=1):
+            html_content_team += f'<p style="text-align: center; font-weight: bold;">{i}. {attendee} ({count})</p>'
+
+        # Iterate throuth the top skills practice attendees and append them the HTML content
+        for i, (attendee, count) in enumerate(top_7_attendees_skills.items(), start=1):
+            html_content_skills += f'<p style="text-align: center; font-weight: bold;">{i}. {attendee} ({count})</p>'
+
+        # Iterate through the top overall attendees and append them to the HTML content
+        for i, (attendee, count) in enumerate(top_7_attendees.items(), start=1):
+            html_content_overall += f'<p style="text-align: center; font-weight: bold;">{i}. {attendee} ({count})</p>'
+
+
+
+        # Close the HTML div tag
+        html_content_team += '</div>'
+        html_content_skills += '</div>'
+        html_content_overall += '</div>'
+
+        # Create the 3 column layout for top 5 lists
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.markdown(html_content_team, unsafe_allow_html=True)
+
+        with col2:
+            st.markdown(html_content_skills, unsafe_allow_html=True)
+            
+        with col3:
+            st.markdown(html_content_overall, unsafe_allow_html=True)
+
+
+
+    
+
+                   ############################################################################
+###################################################################################
+ 
+        ##filler for spacing
+        st.markdown("<br>", unsafe_allow_html=True)
+
+#############################################################
+        #############################################################################
+
+
+        
         st.write('<h2 style="text-align: center;">Individual Stats</h2>', unsafe_allow_html=True)
+
+
 
 
 
