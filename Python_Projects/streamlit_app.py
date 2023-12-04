@@ -33,6 +33,7 @@ df_fin_usd = df_fin[df_fin['Classification'].str.contains('USD')]
 df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
 
 df_att = pd.read_csv("D:\Python\WebApp\MLC_Attendance_Eng_FInal_UTF8.csv")
+df_att_names = pd.read_csv("D:\Python\WebApp\MLC_Attendance_Eng_UTF8 - Only names.csv")
 
 df_att['Date_Date_Excel'] = pd.to_datetime(df_att['Date_Date_Excel'], format='%A, %B %d, %Y')
 
@@ -643,7 +644,7 @@ def show_general_stats():
         xaxis=dict(title='Year'),
         yaxis=dict(title='Total Events', showgrid=False, range=[0, 100]),
         yaxis2=dict(title='Events per Week', overlaying='y', side='right', showgrid=False, range=[0, 4]),
-        legend=dict(x=0, y=1, traceorder='normal', orientation='h'),
+        legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
     )
 
     # Display the plot in Streamlit
@@ -1318,6 +1319,31 @@ def show_attendance_data():
         #############################################################################
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
        
     elif selected_subsection == "Player Stats": 
 
@@ -1423,6 +1449,89 @@ def show_attendance_data():
         st.write('<h2 style="text-align: center;">Individual Stats</h2>', unsafe_allow_html=True)
 
 
+        
+        all_attendees = df_att['Going'].str.split(', ').explode()
+        filtered_attendees = [attendee for attendee in all_attendees if attendee != "No Data" and len(attendee.split()) <= 3]
+        unique_attendees = sorted(list(set(filtered_attendees))) 
+
+
+        
+
+        # Dropdown menu to select an attendee's name
+        selected_name = st.selectbox("Select an Attendee", unique_attendees)
+
+        if selected_name:
+            # Filter data for the selected attendee
+            attendee_data = df_att[df_att['Going'].str.contains(selected_name)]
+
+            # Calculate metrics
+            total_team_practices = attendee_data[attendee_data['Type'] == 'Team Practice'].shape[0]
+            total_skills_practices = attendee_data[attendee_data['Type'] == 'Skills Practice'].shape[0]
+            total_events_attended = attendee_data.shape[0]
+            first_event_date = attendee_data['Date_Date_Excel'].min()
+            last_event_date = attendee_data['Date_Date_Excel'].max()
+
+            # Calculate the number of months between the first and last event
+            months_attended = max((last_event_date - first_event_date).days / 30, 1)
+            avg_events_per_month = total_events_attended / months_attended
+
+            # Format first and last event dates to the desired format
+            formatted_first_date = first_event_date.strftime("%b %d, %Y")
+            formatted_last_date = last_event_date.strftime("%b %d, %Y")
+
+            # Compute rankings for different practice types based on attendance count
+            df_team_practices = df_att[df_att['Type'] == 'Team Practice']
+            df_skills_practices = df_att[df_att['Type'] == 'Skills Practice']
+            df_total_events = df_att.copy()  # Create a copy of the original DataFrame
+            
+            
+            total_events_ranks = df_total_events['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
+            team_practices_ranks = df_team_practices['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
+            skills_practices_ranks = df_skills_practices['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
+            
+            rank_total_events = total_events_ranks[selected_name] if selected_name in total_events_ranks else None
+            rank_team_practices = team_practices_ranks[selected_name] if selected_name in team_practices_ranks else None
+            rank_skills_practices = skills_practices_ranks[selected_name] if selected_name in skills_practices_ranks else None
+
+            # Function to convert a duration string to minutes
+            def convert_duration_to_minutes(duration_str):
+                parts = duration_str.split()
+                minutes = 0
+
+                for i in range(len(parts)):
+                    if parts[i] == 'days':
+                        minutes += int(parts[i - 1]) * 24 * 60
+                    elif parts[i] == 'hr':
+                        minutes += int(parts[i - 1]) * 60
+                    elif parts[i] == 'min':
+                        minutes += int(parts[i - 1])
+
+                return minutes
+            
+            # Filter the DataFrame to select rows where the selected_name is in the "Going" column
+            selected_name_events = df_att[df_att['Going'].str.contains(selected_name, case=False)]
+
+            # Sample duration values from the filtered DataFrame
+            selected_name_durations = selected_name_events['Duration']
+
+            # Convert the duration strings to minutes and sum them
+            total_minutes = sum([convert_duration_to_minutes(duration) for duration in selected_name_durations])
+
+            # Convert the total minutes back to hours and minutes
+            total_hours = total_minutes // 60
+            remaining_minutes = total_minutes % 60
+    
+
+            # Display metrics with formatted dates and rankings
+            st.subheader(f"Metrics for {selected_name}")
+            st.write(f"Total Team Practices Attended: {total_team_practices}, Rank: {int(rank_team_practices) if rank_team_practices else 'N/A'}")
+            st.write(f"Total Skills Practices Attended: {total_skills_practices}, Rank: {int(rank_skills_practices) if rank_skills_practices else 'N/A'}")
+            st.write(f"Total Events Attended: {total_events_attended}, Rank: {int(rank_total_events) if rank_total_events else 'N/A'}")
+            st.write(f"Percentage of All Events Attended: {total_events_attended / df_att.shape[0] * 100:.2f}%")
+            st.write(f"Date of First Event Attended: {formatted_first_date}")
+            st.write(f"Date of Last Event Attended: {formatted_last_date}")
+            st.write(f"Average Events Attended per Month: {avg_events_per_month:.2f}")
+            st.write(f"Time spent by {selected_name} at events: {total_hours} hr {remaining_minutes} min")
 
 
 
@@ -1444,7 +1553,7 @@ def show_attendance_data():
         
 
 
-        st.write("text here text here text here text here")
+       
 
 
 
