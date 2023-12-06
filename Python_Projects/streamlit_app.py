@@ -1464,6 +1464,19 @@ def show_attendance_data():
             # Filter data for the selected attendee
             attendee_data = df_att[df_att['Going'].str.contains(selected_name)]
 
+            # Function to calculate the percentage of events attended by each attendee
+            def calculate_percentage_attended(df, selected_attendee):
+                total_events = df.shape[0]
+                events_attended = df[df['Going'].str.contains(selected_attendee, case=False)].shape[0]
+                return (events_attended / total_events) * 100 if total_events > 0 else 0
+            
+             # Calculate the percentage of events attended by each attendee
+            df_percentage_attended = pd.DataFrame(columns=['Attendee', 'Percentage'])
+            df_percentage_attended['Attendee'] = unique_attendees
+            df_percentage_attended['Percentage'] = df_percentage_attended['Attendee'].apply(
+                lambda x: calculate_percentage_attended(df_att, x))
+
+
             # Calculate metrics
             total_team_practices = attendee_data[attendee_data['Type'] == 'Team Practice'].shape[0]
             total_skills_practices = attendee_data[attendee_data['Type'] == 'Skills Practice'].shape[0]
@@ -1479,10 +1492,14 @@ def show_attendance_data():
             formatted_first_date = first_event_date.strftime("%b %d, %Y")
             formatted_last_date = last_event_date.strftime("%b %d, %Y")
 
-            # Compute rankings for different practice types based on attendance count
+            # Compute rankings for different event types based on attendance count
             df_team_practices = df_att[df_att['Type'] == 'Team Practice']
             df_skills_practices = df_att[df_att['Type'] == 'Skills Practice']
             df_total_events = df_att.copy()  # Create a copy of the original DataFrame
+            # Sort the DataFrame by percentage in descending order to assign ranks
+            df_percentage_attended = df_percentage_attended.sort_values(by='Percentage', ascending=False)
+            df_percentage_attended['Rank'] = df_percentage_attended['Percentage'].rank(ascending=False, method='min')
+
             
             
             total_events_ranks = df_total_events['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
@@ -1492,6 +1509,10 @@ def show_attendance_data():
             rank_total_events = total_events_ranks[selected_name] if selected_name in total_events_ranks else None
             rank_team_practices = team_practices_ranks[selected_name] if selected_name in team_practices_ranks else None
             rank_skills_practices = skills_practices_ranks[selected_name] if selected_name in skills_practices_ranks else None
+            rank_percentage_attended = df_percentage_attended[df_percentage_attended['Attendee'] == selected_name]['Rank'].values[0]
+
+
+
 
             # Function to convert a duration string to minutes
             def convert_duration_to_minutes(duration_str):
@@ -1527,17 +1548,119 @@ def show_attendance_data():
             st.write(f"Total Team Practices Attended: {total_team_practices}, Rank: {int(rank_team_practices) if rank_team_practices else 'N/A'}")
             st.write(f"Total Skills Practices Attended: {total_skills_practices}, Rank: {int(rank_skills_practices) if rank_skills_practices else 'N/A'}")
             st.write(f"Total Events Attended: {total_events_attended}, Rank: {int(rank_total_events) if rank_total_events else 'N/A'}")
-            st.write(f"Percentage of All Events Attended: {total_events_attended / df_att.shape[0] * 100:.2f}%")
+            st.write(f"Percentage of All Events Attended by {selected_name}: {total_events_attended / df_att.shape[0] * 100:.2f}%, Rank: {int(rank_percentage_attended)}")
             st.write(f"Date of First Event Attended: {formatted_first_date}")
             st.write(f"Date of Last Event Attended: {formatted_last_date}")
             st.write(f"Average Events Attended per Month: {avg_events_per_month:.2f}")
             st.write(f"Time spent by {selected_name} at events: {total_hours} hr {remaining_minutes} min")
 
+          
+
+
+            col1, col2 = st.columns(2)
+
+            
+                
+         
+
+            with col1:
+                st.markdown(
+                    f"""
+                    <div style='text-align: center;'>
+                        <span style='font-size: 20px; font-weight: bold;'>First Event Attended</span>
+                        <p style='font-size: 16px;'>{formatted_first_date}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col2:
+                st.markdown(
+                    f"""
+                    <div style='text-align: center;'>
+                        <span style='font-size: 20px; font-weight: bold;'>Last Event Attended</span>
+                        <p style='font-size: 16px;'>{formatted_last_date}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+
+            
 
 
 
+          
 
+            col1, col2, col3 = st.columns(3)
 
+            with col1:
+                st.markdown(
+                    f"""
+                    <div style='text-align: center;'>
+                        <span style='font-size: 20px; font-weight: bold;'>Team Practices Attended</span>
+                        <p style='font-size: 16px;'>{total_team_practices}, Rank: {int(rank_team_practices) if rank_team_practices else 'N/A'}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col2:
+                st.markdown(
+                    f"""
+                    <div style='text-align: center;'>
+                        <span style='font-size: 20px; font-weight: bold;'>Skills Practices Attended</span>
+                        <p style='font-size: 16px;'>{total_skills_practices}, Rank: {int(rank_skills_practices) if rank_skills_practices else 'N/A'}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col3:
+                st.markdown(
+                    f"""
+                    <div style='text-align: center;'>
+                        <span style='font-size: 20px; font-weight: bold;'>All Events Attended</span>
+                        <p style='font-size: 16px;'>{total_events_attended}, Rank: {int(rank_total_events) if rank_total_events else 'N/A'}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            col4, col5, col6 = st.columns(3)
+
+            with col4:
+                st.markdown(
+                    f"""
+                    <div style='text-align: center;'>
+                        <span style='font-size: 20px; font-weight: bold;'>Percentage of All Events Attended</span>
+                        <p style='font-size: 16px;'>{total_events_attended / df_att.shape[0] * 100:.2f}%</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col5:
+                st.markdown(
+                    f"""
+                    <div style='text-align: center;'>
+                        <span style='font-size: 20px; font-weight: bold;'>Avg Events Attended per Month</span>
+                        <p style='font-size: 16px;'>{avg_events_per_month:.2f}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col6:
+                st.markdown(
+                    f"""
+                    <div style='text-align: center;'>
+                        <span style='font-size: 20px; font-weight: bold;'>Time spent by {selected_name} at events</span>
+                        <p style='font-size: 16px;'>{total_hours} hr {remaining_minutes} min</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
 
 
