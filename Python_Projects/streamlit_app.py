@@ -329,8 +329,11 @@ def show_general_stats():
 
     #############################################################
 
-    
+      
 
+    
+    
+    
     # Display a title
     st.write('<h2 style="text-align: center;">MLC Event Locations</h2>', unsafe_allow_html=True)
 
@@ -424,17 +427,6 @@ def show_general_stats():
     # Filter out rows with missing latitude or longitude
     
     filtered_df = df_att.loc[(df_att['Status'] == 'Completed') & df_att['lat'].notna() & df_att['lon'].notna()]
-
-    # Create a scatter mapbox plot
-    #fig = px.scatter_mapbox(filtered_df, lat='lat', lon='lon', zoom=10)
-
-    # Set map layout and display the map
-    #fig.update_layout(mapbox_style="open-street-map")
-    #fig.update_layout(
-        #title='Geographic Scatter Map of Moscow',
-        #margin=dict(l=0, r=0, t=30, b=0)
-    #)
-    #st.plotly_chart(fig)
         
     # Create a Folium map centered around Moscow
     m = folium.Map(location=[55.7558, 37.6173], zoom_start=10)  # Coordinates for Moscow
@@ -454,6 +446,40 @@ def show_general_stats():
 
     #############################################################################
  
+
+    tab1, tab2 = st.tabs(["MLC Event Locations", "MLC Heatmap"])
+
+    
+
+    with tab1:
+        st.write('<h2 style="text-align: center;">MLC Event Locations</h2>', unsafe_allow_html=True)
+
+
+        html_code = """
+        <div style="display: flex; justify-content: center;">
+            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1gRGSSbVfXoknonZODAVIcfEdAeh0vac&ehbc=2E312F&noprof=1" 
+                style="width: 100%; height: 500px; border: 0;" 
+                allowfullscreen="" loading="lazy">
+            </iframe>
+        </div>
+        """
+        st.markdown(html_code, unsafe_allow_html=True)
+
+    with tab2:
+        st.write('<h2 style="text-align: center;">MLC Heatmap</h2>', unsafe_allow_html=True)
+
+        st.markdown("<h2 style='font-size: 24px; text-align: center;'>Geographic Heatmap of Moscow</h2>", unsafe_allow_html=True)
+        components.html(html_map, height=500)
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -573,26 +599,6 @@ def show_general_stats():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #########################################
 
     ##filler for spacing
@@ -654,7 +660,72 @@ def show_general_stats():
 
 
 
+###################################################################
+
+    tab1, tab2 = st.tabs(["MLC Event Locations", "MLC Heatmap"])
+
+    with tab1:
+        st.write('<h2 style="text-align: center;">MLC Event Locations</h2>', unsafe_allow_html=True)
+
+
+        html_code = """
+        <div style="display: flex; justify-content: center;">
+            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1gRGSSbVfXoknonZODAVIcfEdAeh0vac&ehbc=2E312F&noprof=1" 
+                style="width: 100%; height: 500px; border: 0;" 
+                allowfullscreen="" loading="lazy">
+            </iframe>
+        </div>
+        """
+        st.markdown(html_code, unsafe_allow_html=True)
+
+    with tab2:
+        st.write('<h2 style="text-align: center;">MLC Heatmap</h2>', unsafe_allow_html=True)
+
+        st.markdown("<h2 style='font-size: 24px; text-align: center;'>Geographic Heatmap of Moscow</h2>", unsafe_allow_html=True)
+        components.html(html_map, height=500)
+
+###################################################################
+
+
+    ##filler for spacing
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    ## double space
+
+
+
+###################################################################
+
+    tab3, tab4, tab5 = st.tabs(['Total Team Practices and Avg. Team Practices per Week per Year', 'Total Skills Practices and Avg. Skills Practices per Week per Year', 'Total Events and Avg. Events per Week per Year'])
+
+    with tab3:
+        st.plotly_chart(fig3, use_container_width=True)
+    
+    with tab4:
+        st.plotly_chart(fig2, use_container_width=True)
+
+    with tab5:
+        st.plotly_chart(fig, use_container_width=True)
+
 #####################################################################
+
+
+    with st.expander('Total Team Practices and Avg. Team Practices per Week per Year'):
+        st.plotly_chart(fig3, use_container_width=True)
+    
+    with st.expander('Total Skills Practices and Avg. Skills Practices per Week per Year'):
+        st.plotly_chart(fig2, use_container_width=True)
+
+    with st.expander('Total Events and Avg. Events per Week per Year'):
+        st.plotly_chart(fig, use_container_width=True)
+
+
+
+
+
+
+
+
+######################################################################
 
 
 
@@ -1446,7 +1517,7 @@ def show_attendance_data():
 
 
         
-        st.write('<h2 style="text-align: center;">Individual Stats</h2>', unsafe_allow_html=True)
+        st.write('<h2 style="text-align: center;">Individual Attendance Data</h2>', unsafe_allow_html=True)
 
 
         
@@ -1459,6 +1530,8 @@ def show_attendance_data():
 
         # Dropdown menu to select an attendee's name
         selected_name = st.selectbox("Select an Attendee", unique_attendees)
+
+
 
         if selected_name:
             # Filter data for the selected attendee
@@ -1486,7 +1559,12 @@ def show_attendance_data():
 
             # Calculate the number of months between the first and last event
             months_attended = max((last_event_date - first_event_date).days / 30, 1)
-            avg_events_per_month = total_events_attended / months_attended
+            avg_events_per_month = total_events_attended / months_attended if months_attended != 0 else total_events_attended
+
+             # Create a DataFrame to store average events per month for each attendee
+            attendees_avg_events = pd.DataFrame(columns=['Attendee', 'AvgEventsPerMonth'])
+
+            
 
             # Format first and last event dates to the desired format
             formatted_first_date = first_event_date.strftime("%b %d, %Y")
@@ -1500,20 +1578,22 @@ def show_attendance_data():
             df_percentage_attended = df_percentage_attended.sort_values(by='Percentage', ascending=False)
             df_percentage_attended['Rank'] = df_percentage_attended['Percentage'].rank(ascending=False, method='min')
 
-            
+
+                                  
             
             total_events_ranks = df_total_events['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
             team_practices_ranks = df_team_practices['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
             skills_practices_ranks = df_skills_practices['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
-            
+        
             rank_total_events = total_events_ranks[selected_name] if selected_name in total_events_ranks else None
             rank_team_practices = team_practices_ranks[selected_name] if selected_name in team_practices_ranks else None
             rank_skills_practices = skills_practices_ranks[selected_name] if selected_name in skills_practices_ranks else None
             rank_percentage_attended = df_percentage_attended[df_percentage_attended['Attendee'] == selected_name]['Rank'].values[0]
+            
 
 
 
-
+            
             # Function to convert a duration string to minutes
             def convert_duration_to_minutes(duration_str):
                 parts = duration_str.split()
@@ -1541,34 +1621,75 @@ def show_attendance_data():
             # Convert the total minutes back to hours and minutes
             total_hours = total_minutes // 60
             remaining_minutes = total_minutes % 60
-    
+
+             # Create a dictionary to store minutes attended by each attendee
+            attendees_minutes = {}
+
+            # Loop through unique attendees to calculate their total time spent at events
+            for attendee in unique_attendees:
+                attendee_events = df_att[df_att['Going'].str.contains(attendee, case=False)]
+                attendee_durations = attendee_events['Duration']
+                total_minutes = sum([convert_duration_to_minutes(duration) for duration in attendee_durations])
+                attendees_minutes[attendee] = total_minutes
+
+
+            # Sort attendees by the total minutes attended in descending order to get ranks
+            ranked_attendees = sorted(attendees_minutes.items(), key=lambda x: x[1], reverse=True)
+
+            # Get the rank for the selected attendee
+            rank_selected_name = [rank for rank, (name, _) in enumerate(ranked_attendees, 1) if name.lower() == selected_name.lower()]
+
 
             # Display metrics with formatted dates and rankings
-            st.subheader(f"Metrics for {selected_name}")
-            st.write(f"Total Team Practices Attended: {total_team_practices}, Rank: {int(rank_team_practices) if rank_team_practices else 'N/A'}")
-            st.write(f"Total Skills Practices Attended: {total_skills_practices}, Rank: {int(rank_skills_practices) if rank_skills_practices else 'N/A'}")
-            st.write(f"Total Events Attended: {total_events_attended}, Rank: {int(rank_total_events) if rank_total_events else 'N/A'}")
-            st.write(f"Percentage of All Events Attended by {selected_name}: {total_events_attended / df_att.shape[0] * 100:.2f}%, Rank: {int(rank_percentage_attended)}")
-            st.write(f"Date of First Event Attended: {formatted_first_date}")
-            st.write(f"Date of Last Event Attended: {formatted_last_date}")
-            st.write(f"Average Events Attended per Month: {avg_events_per_month:.2f}")
-            st.write(f"Time spent by {selected_name} at events: {total_hours} hr {remaining_minutes} min")
-
-          
-
-
-            col1, col2 = st.columns(2)
+            st.markdown(
+                f"""
+                <div style='text-align: center;'>
+                    <h3 style='margin-bottom: 0;'>Attendance Ranks and Stats for {selected_name}</h3>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
             
-                
-         
+            #st.write(f"Total Team Practices Attended: {total_team_practices}, # {int(rank_team_practices) if rank_team_practices else 'N/A'}")
+            #st.write(f"Total Skills Practices Attended: {total_skills_practices}, # {int(rank_skills_practices) if rank_skills_practices else 'N/A'}")
+            #st.write(f"Total Events Attended: {total_events_attended}, # {int(rank_total_events) if rank_total_events else 'N/A'}")
+            #st.write(f"Percentage of All Events Attended by {selected_name}: {total_events_attended / df_att.shape[0] * 100:.2f}%, # {int(rank_percentage_attended)}")
+            #st.write(f"Date of First Event Attended: {formatted_first_date}")
+            #st.write(f"Date of Last Event Attended: {formatted_last_date}")
+            #st.write(f"Average Events Attended per Month: {avg_events_per_month:.2f}")
+            #st.write(f"Time spent at events: {total_hours} hr {remaining_minutes} min | # {rank_selected_name[0]}" if rank_selected_name else f"Time spent by {selected_name} at events: {total_hours} hr {remaining_minutes} min | No rank found for {selected_name}")
+            
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            col1, col2, col3 = st.columns(3)
+            
+         
             with col1:
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>First Event Attended</span>
-                        <p style='font-size: 16px;'>{formatted_first_date}</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>First Event Attended</span>
+                        </div>
+                        <p style='font-size: 30px;'>{formatted_first_date}</p>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -1578,8 +1699,23 @@ def show_attendance_data():
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>Last Event Attended</span>
-                        <p style='font-size: 16px;'>{formatted_last_date}</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>Avg Events Attended per Month</span>
+                        </div>
+                        <p style='font-size: 30px;'>{avg_events_per_month:.2f}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col3:
+                st.markdown(
+                    f"""
+                    <div style='text-align: center;'>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>Last Event Attended</span>
+                        </div>
+                        <p style='font-size: 30px;'>{formatted_last_date}</p>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -1598,8 +1734,10 @@ def show_attendance_data():
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>Team Practices Attended</span>
-                        <p style='font-size: 16px;'>{total_team_practices}, Rank: {int(rank_team_practices) if rank_team_practices else 'N/A'}</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>Team Practices Attended</span>
+                        </div>
+                        <p style='font-size: 30px;'># {int(rank_team_practices) if rank_team_practices else 'N/A'}  ({total_team_practices})</p>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -1609,8 +1747,10 @@ def show_attendance_data():
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>Skills Practices Attended</span>
-                        <p style='font-size: 16px;'>{total_skills_practices}, Rank: {int(rank_skills_practices) if rank_skills_practices else 'N/A'}</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>Skills Practices Attended</span>
+                        </div>
+                        <p style='font-size: 30px;'># {int(rank_skills_practices) if rank_skills_practices else 'N/A'}  ({total_skills_practices})</p>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -1620,50 +1760,46 @@ def show_attendance_data():
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>All Events Attended</span>
-                        <p style='font-size: 16px;'>{total_events_attended}, Rank: {int(rank_total_events) if rank_total_events else 'N/A'}</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>All Events Attended</span>
+                        </div>
+                        <p style='font-size: 30px;'># {int(rank_total_events) if rank_total_events else 'N/A'}  ({total_events_attended})</p>
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
 
-            col4, col5, col6 = st.columns(3)
+            col4, col5 = st.columns(2)
 
             with col4:
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>Percentage of All Events Attended</span>
-                        <p style='font-size: 16px;'>{total_events_attended / df_att.shape[0] * 100:.2f}%</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>Percentage of All Events Attended</span>
+                        </div>
+                        <p style='font-size: 30px;'># {int(rank_percentage_attended)}  ({total_events_attended / df_att.shape[0] * 100:.2f}%)</p>
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
 
+                
+      
             with col5:
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>Avg Events Attended per Month</span>
-                        <p style='font-size: 16px;'>{avg_events_per_month:.2f}</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>Time spent at events</span>
+                        </div>
+                        <p style='font-size: 30px;'># {rank_selected_name[0] if rank_selected_name else 'N/A'}  ({total_hours} hr {remaining_minutes} min)</p>
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
 
-            with col6:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>Time spent by {selected_name} at events</span>
-                        <p style='font-size: 16px;'>{total_hours} hr {remaining_minutes} min</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-
-
+              
 
 
 
