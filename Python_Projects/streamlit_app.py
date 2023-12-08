@@ -33,7 +33,7 @@ df_fin_usd = df_fin[df_fin['Classification'].str.contains('USD')]
 df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
 
 df_att = pd.read_csv("D:\Python\WebApp\MLC_Attendance_Eng_FInal_UTF8.csv")
-df_att_names = pd.read_csv("D:\Python\WebApp\MLC_Attendance_Eng_UTF8 - Only names.csv")
+
 
 df_att['Date_Date_Excel'] = pd.to_datetime(df_att['Date_Date_Excel'], format='%A, %B %d, %Y')
 
@@ -95,19 +95,6 @@ tournament_df = df_att[df_att['Type'] == 'Tournament']
 
 # Calculate average attendance per Tournament event per year
 average_attendance_tournament_per_year = tournament_df.groupby('Year')['Attendance'].mean()
-
-
-############calculations for events per year
-
-############BELOW calculations dont account for less than 52 available weeks in 2013 and 2022########
-#events_per_year = df_att['Year'].value_counts().sort_index()
-#events_per_year = events_per_year.reset_index()
-#events_per_year.columns = ['Year', 'Total Events']
-#events_per_year['Events per Week'] = events_per_year['Total Events'] / 52
-
-# Assuming 'Date_Date_Excel' is in datetime format
-#df_att['Year'] = df_att['Date_Date_Excel'].dt.year
-############ABOVE calculations dont account for less than 52 available weeks in 2013 and 2022########
 
 
 # Calculate events per week and add it as a new column
@@ -319,8 +306,6 @@ def show_general_stats():
             unsafe_allow_html=True
         )
 
-
- 
     
     ###################################################################################
  
@@ -329,13 +314,16 @@ def show_general_stats():
 
     #############################################################
 
+    st.markdown("<p style='text-align: center;'>Practices were conducted from 2010 but were recorded only starting at the end of 2013 at which the rate of practice was 2.1 per week. </p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Same with the beginning of 2022, at that time, for those first weeks of 2022 the rate of practice was 1.2. </p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>2013 has 8 weeks of data, 2022 has 11 weeks of data</p>", unsafe_allow_html=True)
+    
       
 
     
     
     
-    # Display a title
-    st.write('<h2 style="text-align: center;">MLC Event Locations</h2>', unsafe_allow_html=True)
+  
 
     html_code = """
     <div style="display: flex; justify-content: center;">
@@ -346,11 +334,7 @@ def show_general_stats():
     </div>
     """
 
-
-
-
-    # Display the Google Map using the HTML code
-    st.markdown(html_code, unsafe_allow_html=True)
+ 
 
     ##################################################################
 
@@ -382,7 +366,88 @@ def show_general_stats():
 
 
 
-###########################################
+
+    ###################################################################################
+ 
+    ##filler for spacing
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    #############################################################
+
+
+    ##########################  HEATMAP  ###########################
+    ################################################################
+
+            
+    # Filter out rows with missing latitude or longitude
+    
+    filtered_df = df_att.loc[(df_att['Status'] == 'Completed') & df_att['lat'].notna() & df_att['lon'].notna()]
+        
+    # Create a Folium map centered around Moscow
+    m = folium.Map(location=[55.7558, 37.6173], zoom_start=10)  # Coordinates for Moscow
+
+    # Add a HeatMap layer to the map using the latitudes and longitudes from filtered_df
+    heat_data = filtered_df[['lat', 'lon']].values.tolist()
+    folium.plugins.HeatMap(heat_data).add_to(m)
+
+    # Convert the Folium map to HTML
+    html_map = m._repr_html_()
+     
+
+    #############################################################################
+    ###########################################
+
+
+
+
+
+
+
+    ###################################################################################
+ 
+    ##filler for spacing
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    #############################################################
+
+
+
+
+    tab1, tab2 = st.tabs(["MLC Event Locations", "MLC Heatmap"])
+
+    
+
+    with tab1:
+        st.write('<h2 style="text-align: center;">MLC Event Locations</h2>', unsafe_allow_html=True)
+
+
+        html_code = """
+        <div style="display: flex; justify-content: center;">
+            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1gRGSSbVfXoknonZODAVIcfEdAeh0vac&ehbc=2E312F&noprof=1" 
+                style="width: 100%; height: 500px; border: 0;" 
+                allowfullscreen="" loading="lazy">
+            </iframe>
+        </div>
+        """
+        st.markdown(html_code, unsafe_allow_html=True)
+
+    with tab2:
+        st.write('<h2 style="text-align: center;">MLC Heatmap</h2>', unsafe_allow_html=True)
+
+        
+        components.html(html_map, height=500)
+
+
+
+    ###################################################################################
+ 
+    ##filler for spacing
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    #############################################################
+
+
+
 ###############  pie chart ################ 
 ###########################################
 
@@ -408,93 +473,13 @@ def show_general_stats():
 
     ############################
    
-
-
-
-    ###################################################################################
- 
-    ##filler for spacing
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    #############################################################
-
-
-    ##########################  HEATMAP  ###########################
-    ################################################################
-
-    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event Addresses</h2>", unsafe_allow_html=True)
-        
-    # Filter out rows with missing latitude or longitude
-    
-    filtered_df = df_att.loc[(df_att['Status'] == 'Completed') & df_att['lat'].notna() & df_att['lon'].notna()]
-        
-    # Create a Folium map centered around Moscow
-    m = folium.Map(location=[55.7558, 37.6173], zoom_start=10)  # Coordinates for Moscow
-
-    # Add a HeatMap layer to the map using the latitudes and longitudes from filtered_df
-    heat_data = filtered_df[['lat', 'lon']].values.tolist()
-    folium.plugins.HeatMap(heat_data).add_to(m)
-
-    # Convert the Folium map to HTML
-    html_map = m._repr_html_()
-  
-
-    # Display the map in Streamlit
-    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Geographic Heatmap of Moscow</h2>", unsafe_allow_html=True)
-    components.html(html_map, height=500)
-    
-
-    #############################################################################
  
 
-    tab1, tab2 = st.tabs(["MLC Event Locations", "MLC Heatmap"])
-
-    
-
-    with tab1:
-        st.write('<h2 style="text-align: center;">MLC Event Locations</h2>', unsafe_allow_html=True)
-
-
-        html_code = """
-        <div style="display: flex; justify-content: center;">
-            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1gRGSSbVfXoknonZODAVIcfEdAeh0vac&ehbc=2E312F&noprof=1" 
-                style="width: 100%; height: 500px; border: 0;" 
-                allowfullscreen="" loading="lazy">
-            </iframe>
-        </div>
-        """
-        st.markdown(html_code, unsafe_allow_html=True)
-
-    with tab2:
-        st.write('<h2 style="text-align: center;">MLC Heatmap</h2>', unsafe_allow_html=True)
-
-        st.markdown("<h2 style='font-size: 24px; text-align: center;'>Geographic Heatmap of Moscow</h2>", unsafe_allow_html=True)
-        components.html(html_map, height=500)
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-        
+                   
       
 
 ########################################################
-    ##Total Events/Avg Events per week chart
-    # Set title
-    
-    st.write('<h2 style="text-align: center;">Total Events and Avg. Events per Week per Year</h2>', unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>2013 has 8 weeks of data, 2022 has 11 weeks of data</p>", unsafe_allow_html=True)
-
-
+       
 
     # Create a Plotly figure with subplots
     fig = make_subplots(specs=[[{'secondary_y': True}]])
@@ -536,21 +521,10 @@ def show_general_stats():
     )
 
 
-    # Display the plot in Streamlit
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.markdown("<p style='text-align: center;'>Practices were conducted from 2010 but were recorded only starting at the end of 2013 at which the rate of practice was 2.1 per week. </p>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Same with the beginning of 2022, at that time, for those first weeks of 2022 the rate of practice was 1.2. </p>", unsafe_allow_html=True)
-    
-
-
-
 
 #########################################
 
 ###Team practices should go before skill practices
-
-    st.write('<h2 style="text-align: center;">Total Team Practices and Avg. Team Practices per Week per Year</h2>', unsafe_allow_html=True)
     
     team_practice_data = df_att[df_att['Type'] == 'Team Practice']
     team_practice_counts = team_practice_data.groupby('Year').size()
@@ -590,11 +564,6 @@ def show_general_stats():
         legend=dict(x=.3, y=1, traceorder='normal', orientation='h')
     )
 
-    # Display the plot in Streamlit
-    st.plotly_chart(fig3, use_container_width=True)
-
-    st.markdown("<p style='text-align: center;'>conclusion text here</p>", unsafe_allow_html=True)
-
 
 
 
@@ -607,9 +576,6 @@ def show_general_stats():
    
 
 ############################################
-
-    st.write('<h2 style="text-align: center;">Total Skills Practices and Avg. Skills Practices per Week per Year</h2>', unsafe_allow_html=True)
-    
 
     # Assuming df_att is your DataFrame containing the data
     skills_practice_data = df_att[df_att['Type'] == 'Skills Practice']
@@ -652,39 +618,10 @@ def show_general_stats():
         yaxis2=dict(title='Events per Week', overlaying='y', side='right', showgrid=False, range=[0, 4]),
         legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
     )
-
-    # Display the plot in Streamlit
-    st.plotly_chart(fig2, use_container_width=True)
-
-    st.markdown("<p style='text-align: center;'>conclusion text here</p>", unsafe_allow_html=True)
-
-
+  
 
 ###################################################################
 
-    tab1, tab2 = st.tabs(["MLC Event Locations", "MLC Heatmap"])
-
-    with tab1:
-        st.write('<h2 style="text-align: center;">MLC Event Locations</h2>', unsafe_allow_html=True)
-
-
-        html_code = """
-        <div style="display: flex; justify-content: center;">
-            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1gRGSSbVfXoknonZODAVIcfEdAeh0vac&ehbc=2E312F&noprof=1" 
-                style="width: 100%; height: 500px; border: 0;" 
-                allowfullscreen="" loading="lazy">
-            </iframe>
-        </div>
-        """
-        st.markdown(html_code, unsafe_allow_html=True)
-
-    with tab2:
-        st.write('<h2 style="text-align: center;">MLC Heatmap</h2>', unsafe_allow_html=True)
-
-        st.markdown("<h2 style='font-size: 24px; text-align: center;'>Geographic Heatmap of Moscow</h2>", unsafe_allow_html=True)
-        components.html(html_map, height=500)
-
-###################################################################
 
 
     ##filler for spacing
@@ -695,30 +632,26 @@ def show_general_stats():
 
 ###################################################################
 
-    tab3, tab4, tab5 = st.tabs(['Total Team Practices and Avg. Team Practices per Week per Year', 'Total Skills Practices and Avg. Skills Practices per Week per Year', 'Total Events and Avg. Events per Week per Year'])
-
-    with tab3:
-        st.plotly_chart(fig3, use_container_width=True)
-    
-    with tab4:
-        st.plotly_chart(fig2, use_container_width=True)
-
-    with tab5:
-        st.plotly_chart(fig, use_container_width=True)
+  
 
 #####################################################################
 
 
     with st.expander('Total Team Practices and Avg. Team Practices per Week per Year'):
         st.plotly_chart(fig3, use_container_width=True)
-    
+        st.markdown("<p style='text-align: center;'>Practices were conducted from 2010 but were recorded only starting at the end of 2013. 2013 has 8 weeks of data, 2022 has 11 weeks of data.</p>", unsafe_allow_html=True)
+        
+
     with st.expander('Total Skills Practices and Avg. Skills Practices per Week per Year'):
         st.plotly_chart(fig2, use_container_width=True)
+        st.markdown("<p style='text-align: center;'>Skills practices were started in 2015 by two people. One of them moved to a different part of the city after 2016, which decreased the amount of practices they had.</p>", unsafe_allow_html=True)
 
     with st.expander('Total Events and Avg. Events per Week per Year'):
         st.plotly_chart(fig, use_container_width=True)
+        st.markdown("<p style='text-align: center;'>This includes all events</p>", unsafe_allow_html=True)
 
 
+    
 
 
 
@@ -1372,7 +1305,7 @@ def show_attendance_data():
             st.warning("No data available for the selected event types.")
         
 
-        
+        st.markdown("<p style='text-align: center;'>add attendance by month on this page</p>", unsafe_allow_html=True)
         
         st.write("<h3 style='text-align: center;'>Conclusions</h3>", unsafe_allow_html=True)
 
