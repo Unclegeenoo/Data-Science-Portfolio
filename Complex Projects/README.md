@@ -176,6 +176,8 @@ This Data is original and was complied over the course of a decade by me and my 
    * Added sections for analysis (financial, attendance, general, etc)
    * Uploaded code for first draft
    * due to streamlit issues, the "mlcapp" and all config and reference files (images, etc) need to be in the main branch folder of the git repository for it to function properly
+   * added format types like columns, tabs, drop down elements to save space and make the webapp more visually cleaner
+     
   
    
  
