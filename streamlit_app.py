@@ -33,7 +33,7 @@ df_fin_usd = df_fin[df_fin['Classification'].str.contains('USD')]
 df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
 
 df_att = pd.read_csv("D:\Python\WebApp\MLC_Attendance_Eng_FInal_UTF8.csv")
-df_att_names = pd.read_csv("D:\Python\WebApp\MLC_Attendance_Eng_UTF8 - Only names.csv")
+
 
 df_att['Date_Date_Excel'] = pd.to_datetime(df_att['Date_Date_Excel'], format='%A, %B %d, %Y')
 
@@ -95,19 +95,6 @@ tournament_df = df_att[df_att['Type'] == 'Tournament']
 
 # Calculate average attendance per Tournament event per year
 average_attendance_tournament_per_year = tournament_df.groupby('Year')['Attendance'].mean()
-
-
-############calculations for events per year
-
-############BELOW calculations dont account for less than 52 available weeks in 2013 and 2022########
-#events_per_year = df_att['Year'].value_counts().sort_index()
-#events_per_year = events_per_year.reset_index()
-#events_per_year.columns = ['Year', 'Total Events']
-#events_per_year['Events per Week'] = events_per_year['Total Events'] / 52
-
-# Assuming 'Date_Date_Excel' is in datetime format
-#df_att['Year'] = df_att['Date_Date_Excel'].dt.year
-############ABOVE calculations dont account for less than 52 available weeks in 2013 and 2022########
 
 
 # Calculate events per week and add it as a new column
@@ -319,8 +306,6 @@ def show_general_stats():
             unsafe_allow_html=True
         )
 
-
- 
     
     ###################################################################################
  
@@ -329,10 +314,16 @@ def show_general_stats():
 
     #############################################################
 
+    st.markdown("<p style='text-align: center;'>Practices were conducted from 2010 but were recorded only starting at the end of 2013 at which the rate of practice was 2.1 per week. </p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Same with the beginning of 2022, at that time, for those first weeks of 2022 the rate of practice was 1.2. </p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>2013 has 8 weeks of data, 2022 has 11 weeks of data</p>", unsafe_allow_html=True)
     
+      
 
-    # Display a title
-    st.write('<h2 style="text-align: center;">MLC Event Locations</h2>', unsafe_allow_html=True)
+    
+    
+    
+  
 
     html_code = """
     <div style="display: flex; justify-content: center;">
@@ -343,11 +334,7 @@ def show_general_stats():
     </div>
     """
 
-
-
-
-    # Display the Google Map using the HTML code
-    st.markdown(html_code, unsafe_allow_html=True)
+ 
 
     ##################################################################
 
@@ -379,7 +366,88 @@ def show_general_stats():
 
 
 
-###########################################
+
+    ###################################################################################
+ 
+    ##filler for spacing
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    #############################################################
+
+
+    ##########################  HEATMAP  ###########################
+    ################################################################
+
+            
+    # Filter out rows with missing latitude or longitude
+    
+    filtered_df = df_att.loc[(df_att['Status'] == 'Completed') & df_att['lat'].notna() & df_att['lon'].notna()]
+        
+    # Create a Folium map centered around Moscow
+    m = folium.Map(location=[55.7558, 37.6173], zoom_start=10)  # Coordinates for Moscow
+
+    # Add a HeatMap layer to the map using the latitudes and longitudes from filtered_df
+    heat_data = filtered_df[['lat', 'lon']].values.tolist()
+    folium.plugins.HeatMap(heat_data).add_to(m)
+
+    # Convert the Folium map to HTML
+    html_map = m._repr_html_()
+     
+
+    #############################################################################
+    ###########################################
+
+
+
+
+
+
+
+    ###################################################################################
+ 
+    ##filler for spacing
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    #############################################################
+
+
+
+
+    tab1, tab2 = st.tabs(["MLC Event Locations", "MLC Heatmap"])
+
+    
+
+    with tab1:
+        st.write('<h2 style="text-align: center;">MLC Event Locations</h2>', unsafe_allow_html=True)
+
+
+        html_code = """
+        <div style="display: flex; justify-content: center;">
+            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1gRGSSbVfXoknonZODAVIcfEdAeh0vac&ehbc=2E312F&noprof=1" 
+                style="width: 100%; height: 500px; border: 0;" 
+                allowfullscreen="" loading="lazy">
+            </iframe>
+        </div>
+        """
+        st.markdown(html_code, unsafe_allow_html=True)
+
+    with tab2:
+        st.write('<h2 style="text-align: center;">MLC Heatmap</h2>', unsafe_allow_html=True)
+
+        
+        components.html(html_map, height=500)
+
+
+
+    ###################################################################################
+ 
+    ##filler for spacing
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    #############################################################
+
+
+
 ###############  pie chart ################ 
 ###########################################
 
@@ -405,70 +473,13 @@ def show_general_stats():
 
     ############################
    
-
-
-
-    ###################################################################################
- 
-    ##filler for spacing
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    #############################################################
-
-
-    ##########################  HEATMAP  ###########################
-    ################################################################
-
-    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event Addresses</h2>", unsafe_allow_html=True)
-        
-    # Filter out rows with missing latitude or longitude
-    
-    filtered_df = df_att.loc[(df_att['Status'] == 'Completed') & df_att['lat'].notna() & df_att['lon'].notna()]
-
-    # Create a scatter mapbox plot
-    #fig = px.scatter_mapbox(filtered_df, lat='lat', lon='lon', zoom=10)
-
-    # Set map layout and display the map
-    #fig.update_layout(mapbox_style="open-street-map")
-    #fig.update_layout(
-        #title='Geographic Scatter Map of Moscow',
-        #margin=dict(l=0, r=0, t=30, b=0)
-    #)
-    #st.plotly_chart(fig)
-        
-    # Create a Folium map centered around Moscow
-    m = folium.Map(location=[55.7558, 37.6173], zoom_start=10)  # Coordinates for Moscow
-
-    # Add a HeatMap layer to the map using the latitudes and longitudes from filtered_df
-    heat_data = filtered_df[['lat', 'lon']].values.tolist()
-    folium.plugins.HeatMap(heat_data).add_to(m)
-
-    # Convert the Folium map to HTML
-    html_map = m._repr_html_()
-  
-
-    # Display the map in Streamlit
-    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Geographic Heatmap of Moscow</h2>", unsafe_allow_html=True)
-    components.html(html_map, height=500)
-    
-
-    #############################################################################
  
 
-
-
-        
-        
+                   
       
 
 ########################################################
-    ##Total Events/Avg Events per week chart
-    # Set title
-    
-    st.write('<h2 style="text-align: center;">Total Events and Avg. Events per Week per Year</h2>', unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>2013 has 8 weeks of data, 2022 has 11 weeks of data</p>", unsafe_allow_html=True)
-
-
+       
 
     # Create a Plotly figure with subplots
     fig = make_subplots(specs=[[{'secondary_y': True}]])
@@ -510,21 +521,10 @@ def show_general_stats():
     )
 
 
-    # Display the plot in Streamlit
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.markdown("<p style='text-align: center;'>Practices were conducted from 2010 but were recorded only starting at the end of 2013 at which the rate of practice was 2.1 per week. </p>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Same with the beginning of 2022, at that time, for those first weeks of 2022 the rate of practice was 1.2. </p>", unsafe_allow_html=True)
-    
-
-
-
 
 #########################################
 
 ###Team practices should go before skill practices
-
-    st.write('<h2 style="text-align: center;">Total Team Practices and Avg. Team Practices per Week per Year</h2>', unsafe_allow_html=True)
     
     team_practice_data = df_att[df_att['Type'] == 'Team Practice']
     team_practice_counts = team_practice_data.groupby('Year').size()
@@ -564,31 +564,6 @@ def show_general_stats():
         legend=dict(x=.3, y=1, traceorder='normal', orientation='h')
     )
 
-    # Display the plot in Streamlit
-    st.plotly_chart(fig3, use_container_width=True)
-
-    st.markdown("<p style='text-align: center;'>conclusion text here</p>", unsafe_allow_html=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -601,9 +576,6 @@ def show_general_stats():
    
 
 ############################################
-
-    st.write('<h2 style="text-align: center;">Total Skills Practices and Avg. Skills Practices per Week per Year</h2>', unsafe_allow_html=True)
-    
 
     # Assuming df_att is your DataFrame containing the data
     skills_practice_data = df_att[df_att['Type'] == 'Skills Practice']
@@ -646,15 +618,47 @@ def show_general_stats():
         yaxis2=dict(title='Events per Week', overlaying='y', side='right', showgrid=False, range=[0, 4]),
         legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
     )
+  
 
-    # Display the plot in Streamlit
-    st.plotly_chart(fig2, use_container_width=True)
-
-    st.markdown("<p style='text-align: center;'>conclusion text here</p>", unsafe_allow_html=True)
+###################################################################
 
 
+
+    ##filler for spacing
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    ## double space
+
+
+
+###################################################################
+
+  
 
 #####################################################################
+
+
+    with st.expander('Total Team Practices and Avg. Team Practices per Week per Year'):
+        st.plotly_chart(fig3, use_container_width=True)
+        st.markdown("<p style='text-align: center;'>Practices were conducted from 2010 but were recorded only starting at the end of 2013. 2013 has 8 weeks of data, 2022 has 11 weeks of data.</p>", unsafe_allow_html=True)
+        
+
+    with st.expander('Total Skills Practices and Avg. Skills Practices per Week per Year'):
+        st.plotly_chart(fig2, use_container_width=True)
+        st.markdown("<p style='text-align: center;'>Skills practices were started in 2015 by two people. One of them moved to a different part of the city after 2016, which decreased the amount of practices they had.</p>", unsafe_allow_html=True)
+
+    with st.expander('Total Events and Avg. Events per Week per Year'):
+        st.plotly_chart(fig, use_container_width=True)
+        st.markdown("<p style='text-align: center;'>This includes all events</p>", unsafe_allow_html=True)
+
+
+    
+
+
+
+
+
+
+######################################################################
 
 
 
@@ -877,7 +881,7 @@ def show_attendance_data():
 #############################################################
         #############################################################################
         # Title of chart
-        st.write("<h3 style='text-align: center;'>Event Attendance</h3>", unsafe_allow_html=True)
+        st.write("<h3 style='text-align: center;'>Attendance Over Time</h3>", unsafe_allow_html=True)
 
         # Filter DataFrame for 'Completed' events
         completed_events = df_att[df_att['Status'] == 'Completed']
@@ -940,7 +944,6 @@ def show_attendance_data():
 
         # Calculate total attendance for team practices per year
         total_attendance_team_practices = team_practices.groupby('Year')['Attendance'].sum()
-
         # Calculate total attendance for skills practices per year
         total_attendance_skills_practices = skills_practices.groupby('Year')['Attendance'].sum()
 
@@ -953,16 +956,203 @@ def show_attendance_data():
         rounded_average_attendance_skills_practice = average_attendance_skills_practice_per_year.round(1)
 
 
+        # Assign the categorical data to the DataFrame
+        df_att['Month_Name'] = df_att['Date_Date_Excel'].dt.strftime('%B')
+        team_practices['Month_Name'] = team_practices['Date_Date_Excel'].dt.strftime('%B')
+        skills_practices['Month_Name'] = skills_practices['Date_Date_Excel'].dt.strftime('%B')
+
+        # Create a categorical data type with month names in correct order
+        months_order = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ]
+        cat_month = pd.Categorical(df_att['Month_Name'], categories=months_order, ordered=True)
+        cat_month1 = pd.Categorical(team_practices['Month_Name'], categories=months_order, ordered=True)
+        cat_month2 = pd.Categorical(skills_practices['Month_Name'], categories=months_order, ordered=True)
+
+        # Assign the categorical data to the DataFrame
+        df_att['Month_Name'] = cat_month
+        team_practices['Month_Name'] = cat_month1
+        skills_practices['Month_Name'] = cat_month2
+        
+
+        
+        event_attendance_per_month = df_att.groupby('Month_Name')['Attendance'].sum()
+        avg_attendance_per_event_per_month = df_att.groupby('Month_Name')['Attendance'].mean()
+        rounded_avg_attendance_per_event_per_month = avg_attendance_per_event_per_month.round(1)
+
+
+        total_attendance_team_practices_month = team_practices.groupby('Month_Name')['Attendance'].sum()
+        avg_attendance_team_practices_month = team_practices.groupby('Month_Name')['Attendance'].mean()
+        rounded_avg_attendance_team_practices_month = avg_attendance_team_practices_month.round(1)
+
+        total_attendance_skills_practices_month = skills_practices.groupby('Month_Name')['Attendance'].sum()
+        avg_attendance_skills_practices_month = skills_practices.groupby('Month_Name')['Attendance'].mean()
+        rounded_avg_attendance_skills_practices_month = avg_attendance_skills_practices_month.round(1)
+
+
+
+
+
+        # Create subplots with secondary y-axis
+        fig_events = make_subplots(specs=[[{'secondary_y': True}]])
+
+        # Add bar chart for total events per month
+        fig_events.add_trace(go.Bar(
+            x=event_attendance_per_month.index,
+            y=event_attendance_per_month.values,
+            name="Total Attendance per Month",
+            text=event_attendance_per_month.values, 
+            textposition='inside',
+            insidetextanchor='end',
+            textfont=dict(size=16, color='black'),
+            marker=dict(color='skyblue')
+        ), secondary_y=False)
+
+        # Add line chart for average attendance per event per month
+        fig_events.add_trace(go.Scatter(
+            x=avg_attendance_per_event_per_month.index,
+            y=avg_attendance_per_event_per_month.values,
+            mode='lines+markers+text',
+            name='Avg Attendance per Event',
+            marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+            text=rounded_avg_attendance_per_event_per_month,  # Replace with your rounded average values
+            textposition='top center',
+            textfont=dict(size=16, color='red'),
+        ), secondary_y=True)
+
+        # Set layout for the chart
+        fig_events.update_layout(
+            xaxis=dict(title='Month'),
+            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, event_attendance_per_month.max() + 50]),
+            yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False),
+            legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
+        )
+
+        # Display the figure
+       
+        st.plotly_chart(fig_events, use_container_width=True)
+
+
+
+##########################################################33
+
+
+         # Create subplots with secondary y-axis
+        fig_tp_mo = make_subplots(specs=[[{'secondary_y': True}]])
+
+        # Add bar chart for total events per month
+        fig_tp_mo.add_trace(go.Bar(
+            x=total_attendance_team_practices_month.index,
+            y=total_attendance_team_practices_month.values,
+            name="Total Team Practice Attendance per Month",
+            text=total_attendance_team_practices_month.values, 
+            textposition='inside',
+            insidetextanchor='end',
+            textfont=dict(size=16, color='black'),
+            marker=dict(color='skyblue')
+        ), secondary_y=False)
+
+         # Add line chart for average attendance per event per month
+        fig_tp_mo.add_trace(go.Scatter(
+            x=avg_attendance_team_practices_month.index,
+            y=avg_attendance_team_practices_month.values,
+            mode='lines+markers+text',
+            name='Avg Attendance per Team Practice',
+            marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+            text=rounded_avg_attendance_team_practices_month,  # Replace with your rounded average values
+            textposition='top center',
+            textfont=dict(size=16, color='red'),
+        ), secondary_y=True)
+
+        # Set layout for the chart
+        fig_tp_mo.update_layout(
+            xaxis=dict(title='Month'),
+            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, total_attendance_team_practices_month.max() + 50]),
+            yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False),
+            legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
+        )
+
+
+        st.plotly_chart(fig_tp_mo, use_container_width=True)
+
+
+
+###################################################################
+       
+
+         # Create subplots with secondary y-axis
+        fig_sp_mo = make_subplots(specs=[[{'secondary_y': True}]])
+
+        # Add bar chart for total events per month
+        fig_sp_mo.add_trace(go.Bar(
+            x=total_attendance_skills_practices_month.index,
+            y=total_attendance_skills_practices_month.values,
+            name="Total Skills Practice Attendance per Month",
+            text=total_attendance_skills_practices_month.values, 
+            textposition='inside',
+            insidetextanchor='end',
+            textfont=dict(size=16, color='black'),
+            marker=dict(color='skyblue')
+        ), secondary_y=False)
+
+         # Add line chart for average attendance per event per month
+        fig_sp_mo.add_trace(go.Scatter(
+            x=avg_attendance_skills_practices_month.index,
+            y=avg_attendance_skills_practices_month.values,
+            mode='lines+markers+text',
+            name='Avg Attendance per Skills Practice',
+            marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+            text=rounded_avg_attendance_skills_practices_month,  # Replace with your rounded average values
+            textposition='top center',
+            textfont=dict(size=16, color='red'),
+        ), secondary_y=True)
+
+        # Set layout for the chart
+        fig_sp_mo.update_layout(
+            xaxis=dict(title='Month'),
+            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, total_attendance_skills_practices_month.max() + 50]),
+            yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False),
+            legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
+        )
+
+
+        st.plotly_chart(fig_sp_mo, use_container_width=True)
+
+
+
+
+
+
+
+
+
+
+
+###################################################################
+
+
+
+
+
+
+
+
+
+
+
+        st.write("<h3 style='text-align: center;'>Lacrosse Event Attendance Segmented</h3>", unsafe_allow_html=True)
+
 
         # Create the layout for the dashboard row 1
-        col1, col2, = st.columns(2)
+        col1, col2, = st.columns(2) 
 
         
 
 
         # First row
         with col1:
-            st.write("<h3 style='text-align: center;'>Team Practice Attendance</h3>", unsafe_allow_html=True)
+            st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
             fig_team = go.Figure()
 
             fig_team.add_trace(go.Bar(
@@ -996,14 +1186,14 @@ def show_attendance_data():
                 legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
             )
 
-
-            st.plotly_chart(fig_team, use_container_width=True)
+            
+            
 
 
 
 
         with col2:
-            st.write("<h3 style='text-align: center;'>Skills Practice Attendance</h3>", unsafe_allow_html=True)
+            st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
 
             fig_skills = go.Figure()
             fig_skills.add_trace(go.Bar(
@@ -1037,8 +1227,8 @@ def show_attendance_data():
 
 
             # Set the x-axis to start from 2013
-            fig_skills.update_xaxes(range=[2013, 2022])  
-            st.plotly_chart(fig_skills, use_container_width=True)
+            fig_skills.update_xaxes(range=[2013, 2022])
+           
 
 
 
@@ -1096,7 +1286,7 @@ def show_attendance_data():
 
         # second row
         with col1:
-            st.write("<h3 style='text-align: center;'>Championship Attendance</h3>", unsafe_allow_html=True)
+            st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
             fig_championship = go.Figure()
 
             # Add bar chart for total attendance
@@ -1129,12 +1319,18 @@ def show_attendance_data():
                 yaxis2=dict(overlaying='y', side='right', showgrid=False, range=[0, 35], showticklabels=False, showline=False),
                 legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
             )
-            st.plotly_chart(fig_championship, use_container_width=True)
+
+            with st.expander('Team Practice Attendance'):
+                st.plotly_chart(fig_team, use_container_width=True)
+            with st.expander('Championship Attendance'):
+                st.plotly_chart(fig_championship, use_container_width=True)
+            
+                
 
 
         
         with col2:
-            st.write("<h3 style='text-align: center;'>Intra-Squad Game and Tournament Attendance</h3>", unsafe_allow_html=True)
+            st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
             fig_intra_tour = go.Figure()
 
             # Add bar chart for total attendance - Tournament
@@ -1181,7 +1377,32 @@ def show_attendance_data():
                 legend=dict(x=0.1, y=1, traceorder='normal', orientation='h'),
                 barmode='stack'  # Stacked bar mode
             )
-            st.plotly_chart(fig_intra_tour, use_container_width=True)
+
+
+            with st.expander('Skills Practice Attendance'):  
+                st.plotly_chart(fig_skills, use_container_width=True)
+            with st.expander('Intra-Squad Game and Tournament Attendance'):
+                st.plotly_chart(fig_intra_tour, use_container_width=True)
+            
+                
+
+
+
+
+###################################################################################
+ 
+        ##filler for spacing
+        st.markdown("<br><br>", unsafe_allow_html=True)
+
+#############################################################
+
+
+
+
+
+
+
+
 
 
         st.write("<h3 style='text-align: center;'>Total and Avg Attendance per Type</h3>", unsafe_allow_html=True)
@@ -1200,6 +1421,11 @@ def show_attendance_data():
 
 
         fig_att_type = go.Figure()
+
+
+
+#######################################################
+############### Attendance per type ###################
 
         # Add a horizontal bar chart
         fig_att_type.add_trace(go.Bar(
@@ -1301,7 +1527,7 @@ def show_attendance_data():
             st.warning("No data available for the selected event types.")
         
 
-        
+        st.markdown("<p style='text-align: center;'>add attendance by month on this page</p>", unsafe_allow_html=True)
         
         st.write("<h3 style='text-align: center;'>Conclusions</h3>", unsafe_allow_html=True)
 
@@ -1439,14 +1665,14 @@ def show_attendance_data():
 ###################################################################################
  
         ##filler for spacing
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<br><br>", unsafe_allow_html=True)
 
 #############################################################
         #############################################################################
 
 
         
-        st.write('<h2 style="text-align: center;">Individual Stats</h2>', unsafe_allow_html=True)
+        st.write('<h2 style="text-align: center;">Individual Attendance Data</h2>', unsafe_allow_html=True)
 
 
         
@@ -1570,16 +1796,40 @@ def show_attendance_data():
 
 
             # Display metrics with formatted dates and rankings
-            st.subheader(f"Metrics for {selected_name}")
-            st.write(f"Total Team Practices Attended: {total_team_practices}, Rank: {int(rank_team_practices) if rank_team_practices else 'N/A'}")
-            st.write(f"Total Skills Practices Attended: {total_skills_practices}, Rank: {int(rank_skills_practices) if rank_skills_practices else 'N/A'}")
-            st.write(f"Total Events Attended: {total_events_attended}, Rank: {int(rank_total_events) if rank_total_events else 'N/A'}")
-            st.write(f"Percentage of All Events Attended by {selected_name}: {total_events_attended / df_att.shape[0] * 100:.2f}%, Rank: {int(rank_percentage_attended)}")
-            st.write(f"Date of First Event Attended: {formatted_first_date}")
-            st.write(f"Date of Last Event Attended: {formatted_last_date}")
-            st.write(f"Average Events Attended per Month: {avg_events_per_month:.2f}")
-            st.write(f"Time spent at events: {total_hours} hr {remaining_minutes} min | Rank: {rank_selected_name[0]}" if rank_selected_name else f"Time spent by {selected_name} at events: {total_hours} hr {remaining_minutes} min | No rank found for {selected_name}")
+            st.markdown(
+                f"""
+                <div style='text-align: center;'>
+                    <h3 style='margin-bottom: 0;'>Attendance Ranks and Stats for {selected_name}</h3>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
             
+            #st.write(f"Total Team Practices Attended: {total_team_practices}, # {int(rank_team_practices) if rank_team_practices else 'N/A'}")
+            #st.write(f"Total Skills Practices Attended: {total_skills_practices}, # {int(rank_skills_practices) if rank_skills_practices else 'N/A'}")
+            #st.write(f"Total Events Attended: {total_events_attended}, # {int(rank_total_events) if rank_total_events else 'N/A'}")
+            #st.write(f"Percentage of All Events Attended by {selected_name}: {total_events_attended / df_att.shape[0] * 100:.2f}%, # {int(rank_percentage_attended)}")
+            #st.write(f"Date of First Event Attended: {formatted_first_date}")
+            #st.write(f"Date of Last Event Attended: {formatted_last_date}")
+            #st.write(f"Average Events Attended per Month: {avg_events_per_month:.2f}")
+            #st.write(f"Time spent at events: {total_hours} hr {remaining_minutes} min | # {rank_selected_name[0]}" if rank_selected_name else f"Time spent by {selected_name} at events: {total_hours} hr {remaining_minutes} min | No rank found for {selected_name}")
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1591,8 +1841,10 @@ def show_attendance_data():
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>First Event Attended</span>
-                        <p style='font-size: 16px;'>{formatted_first_date}</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>First Event Attended</span>
+                        </div>
+                        <p style='font-size: 30px;'>{formatted_first_date}</p>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -1602,8 +1854,10 @@ def show_attendance_data():
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>Avg Events Attended per Month</span>
-                        <p style='font-size: 16px;'>{avg_events_per_month:.2f}</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>Avg Events Attended per Month</span>
+                        </div>
+                        <p style='font-size: 30px;'>{avg_events_per_month:.2f}</p>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -1613,8 +1867,10 @@ def show_attendance_data():
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>Last Event Attended</span>
-                        <p style='font-size: 16px;'>{formatted_last_date}</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>Last Event Attended</span>
+                        </div>
+                        <p style='font-size: 30px;'>{formatted_last_date}</p>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -1633,8 +1889,10 @@ def show_attendance_data():
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>Team Practices Attended</span>
-                        <p style='font-size: 16px;'>{total_team_practices}, Rank: {int(rank_team_practices) if rank_team_practices else 'N/A'}</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>Team Practices Attended</span>
+                        </div>
+                        <p style='font-size: 30px;'># {int(rank_team_practices) if rank_team_practices else 'N/A'}  ({total_team_practices})</p>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -1644,8 +1902,10 @@ def show_attendance_data():
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>Skills Practices Attended</span>
-                        <p style='font-size: 16px;'>{total_skills_practices}, Rank: {int(rank_skills_practices) if rank_skills_practices else 'N/A'}</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>Skills Practices Attended</span>
+                        </div>
+                        <p style='font-size: 30px;'># {int(rank_skills_practices) if rank_skills_practices else 'N/A'}  ({total_skills_practices})</p>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -1655,8 +1915,10 @@ def show_attendance_data():
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>All Events Attended</span>
-                        <p style='font-size: 16px;'>{total_events_attended}, Rank: {int(rank_total_events) if rank_total_events else 'N/A'}</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>All Events Attended</span>
+                        </div>
+                        <p style='font-size: 30px;'># {int(rank_total_events) if rank_total_events else 'N/A'}  ({total_events_attended})</p>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -1668,8 +1930,10 @@ def show_attendance_data():
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>Percentage of All Events Attended</span>
-                        <p style='font-size: 16px;'>{total_events_attended / df_att.shape[0] * 100:.2f}%, Rank: {int(rank_percentage_attended)}%</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>Percentage of All Events Attended</span>
+                        </div>
+                        <p style='font-size: 30px;'># {int(rank_percentage_attended)}  ({total_events_attended / df_att.shape[0] * 100:.2f}%)</p>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -1681,8 +1945,10 @@ def show_attendance_data():
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <span style='font-size: 20px; font-weight: bold;'>Time spent at events</span>
-                        <p style='font-size: 16px;'>{total_hours} hr {remaining_minutes} min | Rank: {rank_selected_name[0] if rank_selected_name else 'N/A'}</p>
+                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                            <span style='font-size: 16px; font-weight: bold;'>Time spent at events</span>
+                        </div>
+                        <p style='font-size: 30px;'># {rank_selected_name[0] if rank_selected_name else 'N/A'}  ({total_hours} hr {remaining_minutes} min)</p>
                     </div>
                     """,
                     unsafe_allow_html=True
