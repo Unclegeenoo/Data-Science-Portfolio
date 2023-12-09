@@ -881,7 +881,7 @@ def show_attendance_data():
 #############################################################
         #############################################################################
         # Title of chart
-        st.write("<h3 style='text-align: center;'>Event Attendance</h3>", unsafe_allow_html=True)
+        st.write("<h3 style='text-align: center;'>Attendance Over Time</h3>", unsafe_allow_html=True)
 
         # Filter DataFrame for 'Completed' events
         completed_events = df_att[df_att['Status'] == 'Completed']
@@ -944,7 +944,6 @@ def show_attendance_data():
 
         # Calculate total attendance for team practices per year
         total_attendance_team_practices = team_practices.groupby('Year')['Attendance'].sum()
-
         # Calculate total attendance for skills practices per year
         total_attendance_skills_practices = skills_practices.groupby('Year')['Attendance'].sum()
 
@@ -957,16 +956,203 @@ def show_attendance_data():
         rounded_average_attendance_skills_practice = average_attendance_skills_practice_per_year.round(1)
 
 
+        # Assign the categorical data to the DataFrame
+        df_att['Month_Name'] = df_att['Date_Date_Excel'].dt.strftime('%B')
+        team_practices['Month_Name'] = team_practices['Date_Date_Excel'].dt.strftime('%B')
+        skills_practices['Month_Name'] = skills_practices['Date_Date_Excel'].dt.strftime('%B')
+
+        # Create a categorical data type with month names in correct order
+        months_order = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ]
+        cat_month = pd.Categorical(df_att['Month_Name'], categories=months_order, ordered=True)
+        cat_month1 = pd.Categorical(team_practices['Month_Name'], categories=months_order, ordered=True)
+        cat_month2 = pd.Categorical(skills_practices['Month_Name'], categories=months_order, ordered=True)
+
+        # Assign the categorical data to the DataFrame
+        df_att['Month_Name'] = cat_month
+        team_practices['Month_Name'] = cat_month1
+        skills_practices['Month_Name'] = cat_month2
+        
+
+        
+        event_attendance_per_month = df_att.groupby('Month_Name')['Attendance'].sum()
+        avg_attendance_per_event_per_month = df_att.groupby('Month_Name')['Attendance'].mean()
+        rounded_avg_attendance_per_event_per_month = avg_attendance_per_event_per_month.round(1)
+
+
+        total_attendance_team_practices_month = team_practices.groupby('Month_Name')['Attendance'].sum()
+        avg_attendance_team_practices_month = team_practices.groupby('Month_Name')['Attendance'].mean()
+        rounded_avg_attendance_team_practices_month = avg_attendance_team_practices_month.round(1)
+
+        total_attendance_skills_practices_month = skills_practices.groupby('Month_Name')['Attendance'].sum()
+        avg_attendance_skills_practices_month = skills_practices.groupby('Month_Name')['Attendance'].mean()
+        rounded_avg_attendance_skills_practices_month = avg_attendance_skills_practices_month.round(1)
+
+
+
+
+
+        # Create subplots with secondary y-axis
+        fig_events = make_subplots(specs=[[{'secondary_y': True}]])
+
+        # Add bar chart for total events per month
+        fig_events.add_trace(go.Bar(
+            x=event_attendance_per_month.index,
+            y=event_attendance_per_month.values,
+            name="Total Attendance per Month",
+            text=event_attendance_per_month.values, 
+            textposition='inside',
+            insidetextanchor='end',
+            textfont=dict(size=16, color='black'),
+            marker=dict(color='skyblue')
+        ), secondary_y=False)
+
+        # Add line chart for average attendance per event per month
+        fig_events.add_trace(go.Scatter(
+            x=avg_attendance_per_event_per_month.index,
+            y=avg_attendance_per_event_per_month.values,
+            mode='lines+markers+text',
+            name='Avg Attendance per Event',
+            marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+            text=rounded_avg_attendance_per_event_per_month,  # Replace with your rounded average values
+            textposition='top center',
+            textfont=dict(size=16, color='red'),
+        ), secondary_y=True)
+
+        # Set layout for the chart
+        fig_events.update_layout(
+            xaxis=dict(title='Month'),
+            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, event_attendance_per_month.max() + 50]),
+            yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False),
+            legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
+        )
+
+        # Display the figure
+       
+        st.plotly_chart(fig_events, use_container_width=True)
+
+
+
+##########################################################33
+
+
+         # Create subplots with secondary y-axis
+        fig_tp_mo = make_subplots(specs=[[{'secondary_y': True}]])
+
+        # Add bar chart for total events per month
+        fig_tp_mo.add_trace(go.Bar(
+            x=total_attendance_team_practices_month.index,
+            y=total_attendance_team_practices_month.values,
+            name="Total Team Practice Attendance per Month",
+            text=total_attendance_team_practices_month.values, 
+            textposition='inside',
+            insidetextanchor='end',
+            textfont=dict(size=16, color='black'),
+            marker=dict(color='skyblue')
+        ), secondary_y=False)
+
+         # Add line chart for average attendance per event per month
+        fig_tp_mo.add_trace(go.Scatter(
+            x=avg_attendance_team_practices_month.index,
+            y=avg_attendance_team_practices_month.values,
+            mode='lines+markers+text',
+            name='Avg Attendance per Team Practice',
+            marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+            text=rounded_avg_attendance_team_practices_month,  # Replace with your rounded average values
+            textposition='top center',
+            textfont=dict(size=16, color='red'),
+        ), secondary_y=True)
+
+        # Set layout for the chart
+        fig_tp_mo.update_layout(
+            xaxis=dict(title='Month'),
+            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, total_attendance_team_practices_month.max() + 50]),
+            yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False),
+            legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
+        )
+
+
+        st.plotly_chart(fig_tp_mo, use_container_width=True)
+
+
+
+###################################################################
+       
+
+         # Create subplots with secondary y-axis
+        fig_sp_mo = make_subplots(specs=[[{'secondary_y': True}]])
+
+        # Add bar chart for total events per month
+        fig_sp_mo.add_trace(go.Bar(
+            x=total_attendance_skills_practices_month.index,
+            y=total_attendance_skills_practices_month.values,
+            name="Total Skills Practice Attendance per Month",
+            text=total_attendance_skills_practices_month.values, 
+            textposition='inside',
+            insidetextanchor='end',
+            textfont=dict(size=16, color='black'),
+            marker=dict(color='skyblue')
+        ), secondary_y=False)
+
+         # Add line chart for average attendance per event per month
+        fig_sp_mo.add_trace(go.Scatter(
+            x=avg_attendance_skills_practices_month.index,
+            y=avg_attendance_skills_practices_month.values,
+            mode='lines+markers+text',
+            name='Avg Attendance per Skills Practice',
+            marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+            text=rounded_avg_attendance_skills_practices_month,  # Replace with your rounded average values
+            textposition='top center',
+            textfont=dict(size=16, color='red'),
+        ), secondary_y=True)
+
+        # Set layout for the chart
+        fig_sp_mo.update_layout(
+            xaxis=dict(title='Month'),
+            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, total_attendance_skills_practices_month.max() + 50]),
+            yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False),
+            legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
+        )
+
+
+        st.plotly_chart(fig_sp_mo, use_container_width=True)
+
+
+
+
+
+
+
+
+
+
+
+###################################################################
+
+
+
+
+
+
+
+
+
+
+
+        st.write("<h3 style='text-align: center;'>Lacrosse Event Attendance Segmented</h3>", unsafe_allow_html=True)
+
 
         # Create the layout for the dashboard row 1
-        col1, col2, = st.columns(2)
+        col1, col2, = st.columns(2) 
 
         
 
 
         # First row
         with col1:
-            st.write("<h3 style='text-align: center;'>Team Practice Attendance</h3>", unsafe_allow_html=True)
+            st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
             fig_team = go.Figure()
 
             fig_team.add_trace(go.Bar(
@@ -1000,14 +1186,14 @@ def show_attendance_data():
                 legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
             )
 
-
-            st.plotly_chart(fig_team, use_container_width=True)
+            
+            
 
 
 
 
         with col2:
-            st.write("<h3 style='text-align: center;'>Skills Practice Attendance</h3>", unsafe_allow_html=True)
+            st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
 
             fig_skills = go.Figure()
             fig_skills.add_trace(go.Bar(
@@ -1041,8 +1227,8 @@ def show_attendance_data():
 
 
             # Set the x-axis to start from 2013
-            fig_skills.update_xaxes(range=[2013, 2022])  
-            st.plotly_chart(fig_skills, use_container_width=True)
+            fig_skills.update_xaxes(range=[2013, 2022])
+           
 
 
 
@@ -1100,7 +1286,7 @@ def show_attendance_data():
 
         # second row
         with col1:
-            st.write("<h3 style='text-align: center;'>Championship Attendance</h3>", unsafe_allow_html=True)
+            st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
             fig_championship = go.Figure()
 
             # Add bar chart for total attendance
@@ -1133,12 +1319,18 @@ def show_attendance_data():
                 yaxis2=dict(overlaying='y', side='right', showgrid=False, range=[0, 35], showticklabels=False, showline=False),
                 legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
             )
-            st.plotly_chart(fig_championship, use_container_width=True)
+
+            with st.expander('Team Practice Attendance'):
+                st.plotly_chart(fig_team, use_container_width=True)
+            with st.expander('Championship Attendance'):
+                st.plotly_chart(fig_championship, use_container_width=True)
+            
+                
 
 
         
         with col2:
-            st.write("<h3 style='text-align: center;'>Intra-Squad Game and Tournament Attendance</h3>", unsafe_allow_html=True)
+            st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
             fig_intra_tour = go.Figure()
 
             # Add bar chart for total attendance - Tournament
@@ -1185,7 +1377,32 @@ def show_attendance_data():
                 legend=dict(x=0.1, y=1, traceorder='normal', orientation='h'),
                 barmode='stack'  # Stacked bar mode
             )
-            st.plotly_chart(fig_intra_tour, use_container_width=True)
+
+
+            with st.expander('Skills Practice Attendance'):  
+                st.plotly_chart(fig_skills, use_container_width=True)
+            with st.expander('Intra-Squad Game and Tournament Attendance'):
+                st.plotly_chart(fig_intra_tour, use_container_width=True)
+            
+                
+
+
+
+
+###################################################################################
+ 
+        ##filler for spacing
+        st.markdown("<br><br>", unsafe_allow_html=True)
+
+#############################################################
+
+
+
+
+
+
+
+
 
 
         st.write("<h3 style='text-align: center;'>Total and Avg Attendance per Type</h3>", unsafe_allow_html=True)
@@ -1204,6 +1421,11 @@ def show_attendance_data():
 
 
         fig_att_type = go.Figure()
+
+
+
+#######################################################
+############### Attendance per type ###################
 
         # Add a horizontal bar chart
         fig_att_type.add_trace(go.Bar(
