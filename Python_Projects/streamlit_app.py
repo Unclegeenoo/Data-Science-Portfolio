@@ -936,7 +936,7 @@ def show_attendance_data():
 
 
         #####################################################################
-        #################### Double Chart ###################################
+        #######################################################
 
         # Filter DataFrame for team practices and skills practices
         team_practices = completed_events[completed_events['Type'] == 'Team Practice']
@@ -1031,7 +1031,7 @@ def show_attendance_data():
 
         # Display the figure
        
-        st.plotly_chart(fig_events, use_container_width=True)
+        
 
 
 
@@ -1074,7 +1074,7 @@ def show_attendance_data():
         )
 
 
-        st.plotly_chart(fig_tp_mo, use_container_width=True)
+        
 
 
 
@@ -1117,12 +1117,38 @@ def show_attendance_data():
         )
 
 
-        st.plotly_chart(fig_sp_mo, use_container_width=True)
+       
+
+
+
+##################################################################
+
+        ##filler for spacing
+        st.markdown("<br><br>", unsafe_allow_html=True)
+
+
+#################################################################
+
+
+
+        st.write("<h3 style='text-align: center;'>Attendance per Month</h3>", unsafe_allow_html=True)
+        
+
+        ##filler for spacing
+        st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 
 
+        with st.expander('Total Attendees per Month'):
+                st.plotly_chart(fig_events, use_container_width=True)
+        
+        with st.expander('Total Team Practice Attendees per Month'):
+                st.plotly_chart(fig_tp_mo, use_container_width=True)
 
+        with st.expander('Total Skills Practice Attendees per Month'):
+                st.plotly_chart(fig_sp_mo, use_container_width=True)
+           
 
 
 
@@ -1130,7 +1156,13 @@ def show_attendance_data():
 
 
 ###################################################################
+##################################################################
 
+        ##filler for spacing
+        st.markdown("<br><br>", unsafe_allow_html=True)
+
+
+#################################################################
 
 
 
@@ -1228,7 +1260,9 @@ def show_attendance_data():
 
             # Set the x-axis to start from 2013
             fig_skills.update_xaxes(range=[2013, 2022])
-           
+
+
+            
 
 
 
