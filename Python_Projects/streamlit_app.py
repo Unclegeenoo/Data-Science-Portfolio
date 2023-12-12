@@ -636,6 +636,8 @@ def show_general_stats():
 
 #####################################################################
 
+    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event Frequency</h2>", unsafe_allow_html=True)
+
 
     with st.expander('Total Team Practices and Avg. Team Practices per Week per Year'):
         st.plotly_chart(fig3, use_container_width=True)
@@ -1693,16 +1695,39 @@ def show_attendance_data():
 
 
 
-    
 
-                   ############################################################################
-###################################################################################
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################
+#############################################################################
  
         ##filler for spacing
         st.markdown("<br><br>", unsafe_allow_html=True)
 
-#############################################################
-        #############################################################################
+#############################################################################
+#############################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         
@@ -1849,18 +1874,6 @@ def show_attendance_data():
             #st.write(f"Average Events Attended per Month: {avg_events_per_month:.2f}")
             #st.write(f"Time spent at events: {total_hours} hr {remaining_minutes} min | # {rank_selected_name[0]}" if rank_selected_name else f"Time spent by {selected_name} at events: {total_hours} hr {remaining_minutes} min | No rank found for {selected_name}")
             
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
