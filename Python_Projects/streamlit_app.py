@@ -630,7 +630,7 @@ def show_general_stats():
 
 
 
-###################################################################
+#####################################################################
 
   
 
@@ -938,6 +938,54 @@ def show_attendance_data():
 
 
         #####################################################################
+        # Title of chart
+        st.write("<h3 style='text-align: center;'>Unique Players Over Time</h3>", unsafe_allow_html=True)
+
+
+
+        def calculate_cumulative_unique_attendees(df):
+            cumulative_unique_attendees = []
+            unique_attendees = set()
+
+            for year in range(2015, df['Date_Date_Excel'].dt.year.max() + 1):
+                attendees_in_year = df[df['Date_Date_Excel'].dt.year <= year]['Going'].str.split(', ').explode()
+                # Filter out specific entries
+                attendees_filtered = [attendee for attendee in attendees_in_year if attendee not in ["No Data", "No Name"] and len(attendee.split()) <= 3]
+                unique_attendees.update(attendees_filtered)
+                cumulative_unique_attendees.append(len(unique_attendees))
+
+            return cumulative_unique_attendees
+
+    
+
+        # Calculate cumulative unique attendees
+        cumulative_counts = calculate_cumulative_unique_attendees(df_att)
+
+        # Plot cumulative unique attendees count for each year using Plotly
+        years = range(2015, df_att['Date_Date_Excel'].dt.year.max() + 1)
+        data = {"Year": years, "Cumulative Unique Attendees": cumulative_counts}
+        fig_unique = px.line(data, x="Year", y="Cumulative Unique Attendees")
+        fig_unique.update_traces(line=dict(color='skyblue'))  # Set the line color
+
+        # Display Plotly figure in Streamlit
+        st.plotly_chart(fig_unique)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         #######################################################
 
         # Filter DataFrame for team practices and skills practices
