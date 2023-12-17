@@ -630,11 +630,13 @@ def show_general_stats():
 
 
 
-###################################################################
+#####################################################################
 
   
 
 #####################################################################
+
+    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event Frequency</h2>", unsafe_allow_html=True)
 
 
     with st.expander('Total Team Practices and Avg. Team Practices per Week per Year'):
@@ -936,7 +938,55 @@ def show_attendance_data():
 
 
         #####################################################################
-        #################### Double Chart ###################################
+        # Title of chart
+        st.write("<h3 style='text-align: center;'>Unique Players Over Time</h3>", unsafe_allow_html=True)
+
+
+
+        def calculate_cumulative_unique_attendees(df):
+            cumulative_unique_attendees = []
+            unique_attendees = set()
+
+            for year in range(2015, df['Date_Date_Excel'].dt.year.max() + 1):
+                attendees_in_year = df[df['Date_Date_Excel'].dt.year <= year]['Going'].str.split(', ').explode()
+                # Filter out specific entries
+                attendees_filtered = [attendee for attendee in attendees_in_year if attendee not in ["No Data", "No Name"] and len(attendee.split()) <= 3]
+                unique_attendees.update(attendees_filtered)
+                cumulative_unique_attendees.append(len(unique_attendees))
+
+            return cumulative_unique_attendees
+
+    
+
+        # Calculate cumulative unique attendees
+        cumulative_counts = calculate_cumulative_unique_attendees(df_att)
+
+        # Plot cumulative unique attendees count for each year using Plotly
+        years = range(2015, df_att['Date_Date_Excel'].dt.year.max() + 1)
+        data = {"Year": years, "Cumulative Unique Attendees": cumulative_counts}
+        fig_unique = px.line(data, x="Year", y="Cumulative Unique Attendees")
+        fig_unique.update_traces(line=dict(color='skyblue'))  # Set the line color
+
+        # Display Plotly figure in Streamlit
+        st.plotly_chart(fig_unique, use_container_width=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        #######################################################
 
         # Filter DataFrame for team practices and skills practices
         team_practices = completed_events[completed_events['Type'] == 'Team Practice']
@@ -1031,7 +1081,7 @@ def show_attendance_data():
 
         # Display the figure
        
-        st.plotly_chart(fig_events, use_container_width=True)
+        
 
 
 
@@ -1074,7 +1124,7 @@ def show_attendance_data():
         )
 
 
-        st.plotly_chart(fig_tp_mo, use_container_width=True)
+        
 
 
 
@@ -1117,12 +1167,38 @@ def show_attendance_data():
         )
 
 
-        st.plotly_chart(fig_sp_mo, use_container_width=True)
+       
+
+
+
+##################################################################
+
+        ##filler for spacing
+        st.markdown("<br><br>", unsafe_allow_html=True)
+
+
+#################################################################
+
+
+
+        st.write("<h3 style='text-align: center;'>Attendance per Month</h3>", unsafe_allow_html=True)
+        
+
+        ##filler for spacing
+        st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 
 
+        with st.expander('Total Attendees per Month'):
+                st.plotly_chart(fig_events, use_container_width=True)
+        
+        with st.expander('Total Team Practice Attendees per Month'):
+                st.plotly_chart(fig_tp_mo, use_container_width=True)
 
+        with st.expander('Total Skills Practice Attendees per Month'):
+                st.plotly_chart(fig_sp_mo, use_container_width=True)
+           
 
 
 
@@ -1130,7 +1206,13 @@ def show_attendance_data():
 
 
 ###################################################################
+##################################################################
 
+        ##filler for spacing
+        st.markdown("<br><br>", unsafe_allow_html=True)
+
+
+#################################################################
 
 
 
@@ -1228,7 +1310,9 @@ def show_attendance_data():
 
             # Set the x-axis to start from 2013
             fig_skills.update_xaxes(range=[2013, 2022])
-           
+
+
+            
 
 
 
@@ -1659,16 +1743,39 @@ def show_attendance_data():
 
 
 
-    
 
-                   ############################################################################
-###################################################################################
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################
+#############################################################################
  
         ##filler for spacing
         st.markdown("<br><br>", unsafe_allow_html=True)
 
-#############################################################
-        #############################################################################
+#############################################################################
+#############################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         
@@ -1815,18 +1922,6 @@ def show_attendance_data():
             #st.write(f"Average Events Attended per Month: {avg_events_per_month:.2f}")
             #st.write(f"Time spent at events: {total_hours} hr {remaining_minutes} min | # {rank_selected_name[0]}" if rank_selected_name else f"Time spent by {selected_name} at events: {total_hours} hr {remaining_minutes} min | No rank found for {selected_name}")
             
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
