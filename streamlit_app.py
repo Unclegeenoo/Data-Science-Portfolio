@@ -442,7 +442,7 @@ def show_general_stats():
     ###################################################################################
  
     ##filler for spacing
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br><br>", unsafe_allow_html=True)
 
     #############################################################
 
@@ -455,7 +455,7 @@ def show_general_stats():
 
 
     # Plot the pie chart with the specified color palette
-    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event by Types</h2>", unsafe_allow_html=True)
+   
     fig, ax = plt.subplots(figsize=(10, 6))  # Set the size here (width, height)
     pie = type_counts_grouped.plot(kind='pie', startangle=140, labels=[None]*len(type_counts_grouped), ax=ax, colors=colors)
     plt.title('Event Distribution by Types')
@@ -636,7 +636,7 @@ def show_general_stats():
 
 #####################################################################
 
-    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event Frequency</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event Frequency Charts</h2>", unsafe_allow_html=True)
 
 
     with st.expander('Total Team Practices and Avg. Team Practices per Week per Year'):
@@ -693,7 +693,7 @@ def show_financial_analysis():
     st.header("Financial Data")
 
     # Display the selected subsection content
-    selected_subsection = st.sidebar.radio("Go to", ("Summary", "Income", "Expenses"))
+    selected_subsection = st.sidebar.radio("Go to", ("Summary", "Income", "Expenses", "Equipment Data"))
 
     if selected_subsection == "Summary":
         # Add your summary analysis and visualizations here
@@ -763,6 +763,9 @@ def show_financial_analysis():
         # Display the chart using Streamlit
         st.pyplot(fig)
 
+    elif selected_subsection == "Summary":
+        st.subheader("Expenses Section Content")
+
 
 
 
@@ -790,14 +793,14 @@ def show_attendance_data():
         
     # Display the selected subsection content
     selected_subsection = st.sidebar.radio("Go to", ("Summary", "Player Stats"))
-    st.write('<h1 style="text-align: center;">Team/Skill Practice Attendance</h1>', unsafe_allow_html=True)
+    st.write('<h1 style="text-align: center;">Attendance Data</h1>', unsafe_allow_html=True)
         
 
 
 
     if selected_subsection == "Summary":
                 
-        st.write('<h2 style="text-align: center;">Attendance Data</h2>', unsafe_allow_html=True)
+        st.write('<h2 style="text-align: center;">All Events</h2>', unsafe_allow_html=True)
 
         # Add CSS for styling the dashboard
         st.markdown(
@@ -846,7 +849,7 @@ def show_attendance_data():
         
 
         all_attendees = df_att['Going'].str.split(', ').explode()
-        filtered_attendees = [attendee for attendee in all_attendees if attendee != "No Data" and len(attendee.split()) == 2]
+        filtered_attendees = [attendee for attendee in all_attendees if attendee != "No Data" and len(attendee.split()) <= 3]
         unique_attendees = list(set(filtered_attendees))
         unique_attendees_count = len(unique_attendees)
 
@@ -1659,6 +1662,8 @@ def show_attendance_data():
 
         # Filter the DataFrame for 'Team Practice'
         team_practice_df = df_att[df_att['Type'] == 'Team Practice']
+        team_practice_count = len(team_practice_df)
+        
 
         # Explode and count attendees
         team_practice_attendees = team_practice_df['Going'].str.split(', ').explode()
@@ -1666,6 +1671,7 @@ def show_attendance_data():
 
         # Filter the DataFrame for 'Skills Practice'
         skills_practice_df = df_att[df_att['Type'] == 'Skills Practice']
+        skills_practice_count = len(skills_practice_df)
 
         # Explode and count attendees
         skills_practice_attendees = skills_practice_df['Going'].str.split(', ').explode()
@@ -1813,8 +1819,8 @@ def show_attendance_data():
 
 
             # Calculate metrics
-            total_team_practices = attendee_data[attendee_data['Type'] == 'Team Practice'].shape[0]
-            total_skills_practices = attendee_data[attendee_data['Type'] == 'Skills Practice'].shape[0]
+            total_team_practices_attended = attendee_data[attendee_data['Type'] == 'Team Practice'].shape[0]
+            total_skills_practices_attended = attendee_data[attendee_data['Type'] == 'Skills Practice'].shape[0]
             total_events_attended = attendee_data.shape[0]
             first_event_date = attendee_data['Date_Date_Excel'].min()
             last_event_date = attendee_data['Date_Date_Excel'].max()
@@ -1878,11 +1884,11 @@ def show_attendance_data():
             selected_name_durations = selected_name_events['Duration']
 
             # Convert the duration strings to minutes and sum them
-            total_minutes = sum([convert_duration_to_minutes(duration) for duration in selected_name_durations])
+            total_player_minutes = sum([convert_duration_to_minutes(duration) for duration in selected_name_durations])
 
             # Convert the total minutes back to hours and minutes
-            total_hours = total_minutes // 60
-            remaining_minutes = total_minutes % 60
+            total_player_hours = total_player_minutes // 60
+            remaining_player_minutes = total_player_minutes % 60
 
              # Create a dictionary to store minutes attended by each attendee
             attendees_minutes = {}
@@ -1891,8 +1897,8 @@ def show_attendance_data():
             for attendee in unique_attendees:
                 attendee_events = df_att[df_att['Going'].str.contains(attendee, case=False)]
                 attendee_durations = attendee_events['Duration']
-                total_minutes = sum([convert_duration_to_minutes(duration) for duration in attendee_durations])
-                attendees_minutes[attendee] = total_minutes
+                total_player_minutes = sum([convert_duration_to_minutes(duration) for duration in attendee_durations])
+                attendees_minutes[attendee] = total_player_minutes
 
 
             # Sort attendees by the total minutes attended in descending order to get ranks
@@ -1913,8 +1919,8 @@ def show_attendance_data():
             )
 
             
-            #st.write(f"Total Team Practices Attended: {total_team_practices}, # {int(rank_team_practices) if rank_team_practices else 'N/A'}")
-            #st.write(f"Total Skills Practices Attended: {total_skills_practices}, # {int(rank_skills_practices) if rank_skills_practices else 'N/A'}")
+            #st.write(f"Total Team Practices Attended: {total_team_practices_attended}, # {int(rank_team_practices) if rank_team_practices else 'N/A'}")
+            #st.write(f"Total Skills Practices Attended: {total_skills_practices_attended}, # {int(rank_skills_practices) if rank_skills_practices else 'N/A'}")
             #st.write(f"Total Events Attended: {total_events_attended}, # {int(rank_total_events) if rank_total_events else 'N/A'}")
             #st.write(f"Percentage of All Events Attended by {selected_name}: {total_events_attended / df_att.shape[0] * 100:.2f}%, # {int(rank_percentage_attended)}")
             #st.write(f"Date of First Event Attended: {formatted_first_date}")
@@ -1978,7 +1984,7 @@ def show_attendance_data():
 
           
 
-            col1, col2, col3 = st.columns(3)
+            col1, col2 = st.columns(2)
 
             with col1:
                 st.markdown(
@@ -1987,11 +1993,54 @@ def show_attendance_data():
                         <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
                             <span style='font-size: 16px; font-weight: bold;'>Team Practices Attended</span>
                         </div>
-                        <p style='font-size: 30px;'># {int(rank_team_practices) if rank_team_practices else 'N/A'}  ({total_team_practices})</p>
+                        <p style='font-size: 30px;'># {int(rank_team_practices) if rank_team_practices else 'N/A'}  ({total_team_practices_attended})</p>
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
+
+                percentage_attended_team = total_team_practices_attended / 381 * 100
+
+                # Create the gauge chart for team practices attended
+                fig_team_practices = go.Figure(go.Indicator(
+                    mode="gauge+number",
+                    value = percentage_attended_team,
+                    title={'text': "Percentage of Team Practices Attended"},
+                    gauge={
+                        'axis': {'range': [None, 100]},
+                        'bar': {'color': "darkgreen"},
+                        'steps': [
+                            {'range': [0, 25], 'color': "lightgray"},
+                            {'range': [25, 50], 'color': "lightblue"},
+                            {'range': [50, 75], 'color': "skyblue"},
+                            {'range': [75, 100], 'color': "steelblue"}
+                        ],
+                    },
+                    number={
+                        'suffix': "%",
+                        'font': {'size': 70}
+                    }
+                ))
+
+                # Display the centered gauge chart in Streamlit using plotly_chart with use_container_width=True
+                st.plotly_chart(fig_team_practices, use_container_width=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             with col2:
                 st.markdown(
@@ -2000,13 +2049,55 @@ def show_attendance_data():
                         <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
                             <span style='font-size: 16px; font-weight: bold;'>Skills Practices Attended</span>
                         </div>
-                        <p style='font-size: 30px;'># {int(rank_skills_practices) if rank_skills_practices else 'N/A'}  ({total_skills_practices})</p>
+                        <p style='font-size: 30px;'># {int(rank_skills_practices) if rank_skills_practices else 'N/A'}  ({total_skills_practices_attended})</p>
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
 
-            with col3:
+                percentage_attended_skills = total_skills_practices_attended / skills_practice_count * 100
+
+                # Create the gauge chart for skills practices attended
+                fig_skills_practices = go.Figure(go.Indicator(
+                    mode="gauge+number",
+                    value=percentage_attended_skills,
+                    title={'text': "Percentage of Skills Practices Attended"},
+                    gauge={
+                        'axis': {'range': [None, 100]},
+                        'bar': {'color': "darkgreen"},
+                        'steps': [
+                            {'range': [0, 25], 'color': "lightgray"},
+                            {'range': [25, 50], 'color': "lightblue"},
+                            {'range': [50, 75], 'color': "skyblue"},
+                            {'range': [75, 100], 'color': "steelblue"}
+                        ],
+                    },
+                    number={
+                        'suffix': "%",
+                        'font': {'size': 70}
+                    }
+                ))
+
+                # Display the centered gauge chart in Streamlit using plotly_chart with use_container_width=True
+                st.plotly_chart(fig_skills_practices, use_container_width=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            col4, col5 = st.columns(2)
+
+            with col4:
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
@@ -2019,20 +2110,30 @@ def show_attendance_data():
                     unsafe_allow_html=True
                 )
 
-            col4, col5 = st.columns(2)
 
-            with col4:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>Percentage of All Events Attended</span>
-                        </div>
-                        <p style='font-size: 30px;'># {int(rank_percentage_attended)}  ({total_events_attended / df_att.shape[0] * 100:.2f}%)</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                percentage_attended = total_events_attended / df_att.shape[0] * 100
+                fig_total_events = go.Figure(go.Indicator(
+                    mode = "gauge+number",
+                    value=percentage_attended,
+                    title={'text': "Percent of all Events Attended"},
+                    gauge = {
+                        'axis': {'range': [None, 100]},
+                        'bar': {'color': "darkgreen"},
+                        'steps' : [
+                            {'range': [0, 25], 'color': "lightgray"},
+                            {'range': [25, 50], 'color': "lightblue"},
+                            {'range': [50, 75], 'color': "skyblue"},
+                            {'range': [75, 100], 'color': "steelblue"}
+                        ],
+                    },
+                    number={
+                        'suffix': "%",
+                        'font': {'size': 70}
+                    }
+                ))
+
+                # Display the gauge chart in Streamlit
+                st.plotly_chart(fig_total_events, use_container_width=True)
 
                 
       
@@ -2043,11 +2144,38 @@ def show_attendance_data():
                         <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
                             <span style='font-size: 16px; font-weight: bold;'>Time spent at events</span>
                         </div>
-                        <p style='font-size: 30px;'># {rank_selected_name[0] if rank_selected_name else 'N/A'}  ({total_hours} hr {remaining_minutes} min)</p>
+                        <p style='font-size: 30px;'># {rank_selected_name[0] if rank_selected_name else 'N/A'}  ({total_player_hours} hr {remaining_player_minutes} min)</p>
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
+
+                # Calculate the percentage of total time spent at events
+                percentage_time_spent = (total_player_hours / total_hours) * 100
+
+                # Create the gauge chart for time spent at events
+                fig_time_spent = go.Figure(go.Indicator(
+                    mode="gauge+number",
+                    value=percentage_time_spent,
+                    title={'text': "Percent of all events"},
+                    gauge={
+                        'axis': {'range': [None, 100]},
+                        'bar': {'color': "darkgreen"},
+                        'steps': [
+                            {'range': [0, 25], 'color': "lightgray"},
+                            {'range': [25, 50], 'color': "lightblue"},
+                            {'range': [50, 75], 'color': "skyblue"},
+                            {'range': [75, 100], 'color': "steelblue"}
+                        ],
+                    },
+                    number={
+                        'suffix': "%",
+                        'font': {'size': 70}
+                    }
+                ))
+
+                # Display the gauge chart in Streamlit
+                st.plotly_chart(fig_time_spent, use_container_width=True)
 
               
 
