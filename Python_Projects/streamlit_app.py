@@ -32,9 +32,14 @@ df_fin['Date'] = pd.to_datetime(df_fin['Date'], format='%d/%m/%Y', errors='coerc
 df_fin_usd = df_fin[df_fin['Classification'].str.contains('USD')]
 df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
 
+
+
 df_att = pd.read_csv("D:\Python\WebApp\MLC_Attendance_Eng_FInal_UTF8.csv")
 
+df_forex = pd.read_csv("USD_RUB.csv")
 
+
+df_forex['Date'] = pd.to_datetime(df_forex['Date'])
 df_att['Date_Date_Excel'] = pd.to_datetime(df_att['Date_Date_Excel'], format='%A, %B %d, %Y')
 
 
@@ -442,7 +447,7 @@ def show_general_stats():
     ###################################################################################
  
     ##filler for spacing
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br><br>", unsafe_allow_html=True)
 
     #############################################################
 
@@ -455,7 +460,7 @@ def show_general_stats():
 
 
     # Plot the pie chart with the specified color palette
-    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event by Types</h2>", unsafe_allow_html=True)
+   
     fig, ax = plt.subplots(figsize=(10, 6))  # Set the size here (width, height)
     pie = type_counts_grouped.plot(kind='pie', startangle=140, labels=[None]*len(type_counts_grouped), ax=ax, colors=colors)
     plt.title('Event Distribution by Types')
@@ -636,7 +641,7 @@ def show_general_stats():
 
 #####################################################################
 
-    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event Frequency</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event Frequency Charts</h2>", unsafe_allow_html=True)
 
 
     with st.expander('Total Team Practices and Avg. Team Practices per Week per Year'):
@@ -686,31 +691,154 @@ def show_general_stats():
 
 
 
-
-
-
 def show_financial_analysis():
-    st.header("Financial Data")
+    st.write('<h1 style="text-align: center;">Financial Data</h1>', unsafe_allow_html=True)
+
+    
 
     # Display the selected subsection content
-    selected_subsection = st.sidebar.radio("Go to", ("Summary", "Income", "Expenses"))
+    selected_subsection = st.sidebar.radio("Go to", ("Summary", "Income", "Expenses", "Equipment Data"))
 
     if selected_subsection == "Summary":
         # Add your summary analysis and visualizations here
 
-        st.subheader("Summary Section Content")
+        st.write('<h2 style="text-align: center;">Team Fund Statistics (RUB/USD)</h2>', unsafe_allow_html=True)
 
+
+        # Add CSS for styling the dashboard
+        st.markdown(
+            """
+            <style>
+                .dashboard-column {
+                    text-align: center;
+                    background-color: skyblue;
+                    border-radius: 10px;
+                    padding: 15px;
+                }
+        
+                .larger-text {
+                    font-size: 26px; /* Adjust the font size here */
+                }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+        bg_color = 'skyblue'
+    
+        # Add CSS for rounded corners
+        st.markdown(
+            """
+            <style>
+            .dashboard-column {
+                border-radius: 10px;
+                padding: 10px;
+                font-weight: bold;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+
+
+        # Create the layout for the dashboard
+        col1, col2, col3 = st.columns(3)
+
+
+        
+        average_attendance_per_event = round(df_att[df_att['Status'] == 'Completed']['Attendance'].mean(), 1)
+        total_attendees_completed_events = df_att[df_att['Status'] == 'Completed']['Attendance'].sum()
+        
+
+        all_attendees = df_att['Going'].str.split(', ').explode()
+        filtered_attendees = [attendee for attendee in all_attendees if attendee != "No Data" and len(attendee.split()) <= 3]
+        unique_attendees = list(set(filtered_attendees))
+        unique_attendees_count = len(unique_attendees)
+
+
+        # First row
+        with col1:
+            # Display unique location counts
+            st.markdown(
+                f"<div class='dashboard-column'>Total Turnover<br><span class='larger-text'>{total_attendees_completed_events}</span></div>",
+                unsafe_allow_html=True
+            )
+
+        with col2:
+            # Display average events per week cumulative
+            st.markdown(
+                f"<div class='dashboard-column'>Total Transactions<br><span class='larger-text'>{average_attendance_per_event}</span></div>",
+                unsafe_allow_html=True
+            )
+
+        with col3:
+            # Display average events per year cumulative
+            st.markdown(
+                f"<div class='dashboard-column'>P/L Margin<br><span class='larger-text'>{unique_attendees_count}</span></div>",
+                unsafe_allow_html=True
+            )
+                
+        ##filler for spacing
+        st.markdown("<br><br><br><br>", unsafe_allow_html=True)
+        ## double space
+
+        df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
+        df_fin_usd = df_fin[df_fin['Classification'].str.contains('USD')]
+        
+
+        df_fin_rub = df_fin_rub.assign(**{'Fund Cumulative': df_fin_rub['Sum'].cumsum()})
+        df_fin_usd = df_fin_usd.assign(**{'Fund Cumulative': df_fin_usd['Sum'].cumsum()})
+
+        # Merge the DataFrames on the 'Date' column
+        merged_df = pd.merge(df_fin_rub, df_forex, on='Date', how='inner')
+        merged_df['Fund Cumulative in USD'] = merged_df['Fund Cumulative'] / merged_df['Price']
+
+        # Create a line graph to visualize the cumulative sum over time
+        fig_cumulative_sum_rub = px.line(df_fin_rub, x='Date', y='Fund Cumulative',
+                                        title='Cumulative Sum Over Time (RUB)')
+        
+        fig_cumulative_sum_usd = px.line(df_fin_usd, x='Date', y='Fund Cumulative',
+                                        title='Cumulative Sum Over Time (USD)')
+        
+        fig_forex = px.line(df_forex, x='Date', y='Price', title='USD to RUB Exchange Rate Over Time')
+
+        
+        fig_fund_forex = px.line(merged_df, x='Date', y='Fund Cumulative in USD', title='Fund Cumulative in USD over Time')
+        fig_fund_forex.update_xaxes(title='Date')
+        fig_fund_forex.update_yaxes(title='Fund Cumulative in USD')
+
+        # Show the interactive graph
+        #st.pyplot(fig_cumulative_sum_rub)
+
+        st.plotly_chart(fig_cumulative_sum_rub, use_container_width=True)
+        st.plotly_chart(fig_cumulative_sum_usd, use_container_width=True)
+        st.plotly_chart(fig_forex, use_container_width=True)
+        st.plotly_chart(fig_fund_forex, use_container_width=True)
+
+   
+       
+       
+
+        
+
+        
         st.write("text here text here text here text here")
 
-        data['Growth'] = data['Apr'] - data['Jan']
 
-        # Create a bar chart using st.bar_chart (use st.altair_chart if the app doesnt guess the chart correctly)
-        st.bar_chart(data, x="Source", y="Growth",  width=0, height=0, use_container_width=True)
-        
-        
-        st.write("Growth in Gold Bars per Source:")
-        st.write("text here text here text here text here")
-        st.dataframe(data[['Source', 'Growth']])
+
+
+
+
+
+
+
+
+
+
+
+
+       
 
         
         
@@ -763,6 +891,9 @@ def show_financial_analysis():
         # Display the chart using Streamlit
         st.pyplot(fig)
 
+    elif selected_subsection == "Summary":
+        st.subheader("Expenses Section Content")
+
 
 
 
@@ -790,14 +921,14 @@ def show_attendance_data():
         
     # Display the selected subsection content
     selected_subsection = st.sidebar.radio("Go to", ("Summary", "Player Stats"))
-    st.write('<h1 style="text-align: center;">Team/Skill Practice Attendance</h1>', unsafe_allow_html=True)
+    st.write('<h1 style="text-align: center;">Attendance Data</h1>', unsafe_allow_html=True)
         
 
 
 
     if selected_subsection == "Summary":
                 
-        st.write('<h2 style="text-align: center;">Attendance Data</h2>', unsafe_allow_html=True)
+        st.write('<h2 style="text-align: center;">All Events</h2>', unsafe_allow_html=True)
 
         # Add CSS for styling the dashboard
         st.markdown(
@@ -846,7 +977,7 @@ def show_attendance_data():
         
 
         all_attendees = df_att['Going'].str.split(', ').explode()
-        filtered_attendees = [attendee for attendee in all_attendees if attendee != "No Data" and len(attendee.split()) == 2]
+        filtered_attendees = [attendee for attendee in all_attendees if attendee != "No Data" and len(attendee.split()) <= 3]
         unique_attendees = list(set(filtered_attendees))
         unique_attendees_count = len(unique_attendees)
 
@@ -2020,7 +2151,13 @@ def show_attendance_data():
                 ))
 
                 # Display the centered gauge chart in Streamlit using plotly_chart with use_container_width=True
-                st.plotly_chart(fig_team_practices, use_container_width=True)
+                
+                with st.expander('Expand'):
+                    st.plotly_chart(fig_team_practices, use_container_width=True)
+                
+                
+                
+                
 
 
 
@@ -2076,7 +2213,11 @@ def show_attendance_data():
                 ))
 
                 # Display the centered gauge chart in Streamlit using plotly_chart with use_container_width=True
-                st.plotly_chart(fig_skills_practices, use_container_width=True)
+                with st.expander('Expand'):
+                    st.plotly_chart(fig_skills_practices, use_container_width=True)
+
+                
+                    
 
 
 
@@ -2130,7 +2271,10 @@ def show_attendance_data():
                 ))
 
                 # Display the gauge chart in Streamlit
-                st.plotly_chart(fig_total_events, use_container_width=True)
+                with st.expander('Expand'):
+                    st.plotly_chart(fig_total_events, use_container_width=True)
+
+                
 
                 
       
@@ -2172,7 +2316,13 @@ def show_attendance_data():
                 ))
 
                 # Display the gauge chart in Streamlit
-                st.plotly_chart(fig_time_spent, use_container_width=True)
+                with st.expander('Expand'):
+                    st.plotly_chart(fig_time_spent, use_container_width=True)
+
+                
+
+
+                
 
               
 
