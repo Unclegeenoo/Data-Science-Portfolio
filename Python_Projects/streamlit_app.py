@@ -742,8 +742,6 @@ def show_financial_analysis():
         )
 
 
-        # Create the layout for the dashboard
-        col1, col2, col3 = st.columns(3)
 
 
         
@@ -756,35 +754,14 @@ def show_financial_analysis():
         unique_attendees = list(set(filtered_attendees))
         unique_attendees_count = len(unique_attendees)
 
-
-        # First row
-        with col1:
-            # Display unique location counts
-            st.markdown(
-                f"<div class='dashboard-column'>Total Turnover<br><span class='larger-text'>{total_attendees_completed_events}</span></div>",
-                unsafe_allow_html=True
-            )
-
-        with col2:
-            # Display average events per week cumulative
-            st.markdown(
-                f"<div class='dashboard-column'>Total Transactions<br><span class='larger-text'>{average_attendance_per_event}</span></div>",
-                unsafe_allow_html=True
-            )
-
-        with col3:
-            # Display average events per year cumulative
-            st.markdown(
-                f"<div class='dashboard-column'>P/L Margin<br><span class='larger-text'>{unique_attendees_count}</span></div>",
-                unsafe_allow_html=True
-            )
-                
-        ##filler for spacing
-        st.markdown("<br><br><br><br>", unsafe_allow_html=True)
-        ## double space
-
-        df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
         df_fin_usd = df_fin[df_fin['Classification'].str.contains('USD')]
+        df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
+
+        total_turnover_usd = df_fin_usd['Sum'].abs().sum()
+        total_turnover_rub = df_fin_rub['Sum'].abs().sum()
+
+        total_transactions_usd = df_fin_usd.shape[0]
+        total_transactions_rub = df_fin_rub.shape[0]
         
 
         df_fin_rub = df_fin_rub.assign(**{'Fund Cumulative': df_fin_rub['Sum'].cumsum()})
@@ -808,11 +785,71 @@ def show_financial_analysis():
         fig_fund_forex.update_xaxes(title='Date')
         fig_fund_forex.update_yaxes(title='Fund Cumulative in USD')
 
-        # Show the interactive graph
-        #st.pyplot(fig_cumulative_sum_rub)
+        # Create the layout for the dashboard
+        col11, col22 = st.columns(2)
 
-        st.plotly_chart(fig_cumulative_sum_rub, use_container_width=True)
-        st.plotly_chart(fig_cumulative_sum_usd, use_container_width=True)
+        container = st.container(border=True)
+
+        
+        # First row
+        with col11:
+            container = st.container(border=True)  
+            with container:
+                col1, col2 = st.columns(2)
+                with col1:
+                    
+
+                    st.markdown(
+                        f"<div class='dashboard-column'>Total Turnover RUB<br><span class='larger-text'>{total_turnover_rub}</span></div>",
+                        unsafe_allow_html=True
+                    )
+
+                    st.markdown("<br>", unsafe_allow_html=True)
+
+            
+                with col2:
+
+                    st.markdown(
+                    f"<div class='dashboard-column'>Total Transactions RUB<br><span class='larger-text'>{total_transactions_rub}</span></div>",
+                    unsafe_allow_html=True
+                    )
+
+                    st.markdown("<br>", unsafe_allow_html=True)
+
+                st.plotly_chart(fig_cumulative_sum_rub, use_container_width=True)
+            
+
+                    
+            
+        with col22:
+            container = st.container(border=True)  
+            with container:
+                col1, col2 = st.columns(2)
+                with col1:
+                        
+                    st.markdown(
+                        f"<div class='dashboard-column'>Total Turnover USD<br><span class='larger-text'>{total_turnover_usd}</span></div>",
+                        unsafe_allow_html=True
+                    )
+
+                    st.markdown("<br>", unsafe_allow_html=True)
+                
+                with col2:
+
+                    st.markdown(
+                        f"<div class='dashboard-column'>Total Transactions USD<br><span class='larger-text'>{total_transactions_usd}</span></div>",
+                        unsafe_allow_html=True
+                    )
+
+                    st.markdown("<br>", unsafe_allow_html=True)
+
+                st.plotly_chart(fig_cumulative_sum_usd, use_container_width=True) 
+                    
+     
+   
+
+        
+
         st.plotly_chart(fig_forex, use_container_width=True)
         st.plotly_chart(fig_fund_forex, use_container_width=True)
 
