@@ -40,7 +40,10 @@ df_forex = pd.read_csv("USD_RUB.csv")
 
 
 df_forex['Date'] = pd.to_datetime(df_forex['Date'])
+df_forex.dropna(subset=['Date', 'Price'], inplace=True)
+
 df_att['Date_Date_Excel'] = pd.to_datetime(df_att['Date_Date_Excel'], format='%A, %B %d, %Y')
+
 
 
 
@@ -697,7 +700,7 @@ def show_financial_analysis():
     
 
     # Display the selected subsection content
-    selected_subsection = st.sidebar.radio("Go to", ("Summary", "Income", "Expenses", "Equipment Data"))
+    selected_subsection = st.sidebar.radio("Go to", ("Summary", "Income/Expenses", "Equipment Data"))
 
     if selected_subsection == "Summary":
         # Add your summary analysis and visualizations here
@@ -778,10 +781,12 @@ def show_financial_analysis():
         fig_cumulative_sum_usd = px.line(df_fin_usd, x='Date', y='Fund Cumulative',
                                         title='Cumulative Sum Over Time (USD)')
         
+
+
         fig_forex = px.line(df_forex, x='Date', y='Price', title='USD to RUB Exchange Rate Over Time')
 
         
-        fig_fund_forex = px.line(merged_df, x='Date', y='Fund Cumulative in USD', title='Fund Cumulative in USD over Time')
+        fig_fund_forex = px.line(merged_df, x='Date', y='Fund Cumulative in USD', title='RUB Fund Cumulative in USD over Time')
         fig_fund_forex.update_xaxes(title='Date')
         fig_fund_forex.update_yaxes(title='Fund Cumulative in USD')
 
@@ -848,10 +853,51 @@ def show_financial_analysis():
      
    
 
-        
 
+        col111, col222 = st.columns(2)
+
+       
+        
+        with col111:
+            container = st.container(border=True)
+            with container:
+                st.plotly_chart(fig_fund_forex, use_container_width=True)
+
+
+        
+        with col222:
+            container = st.container(border=True)
+            with container:
+                st.write("total fund usd + rub")
+            
+                st.write("ruble 30, then 60-80")
+            
+                st.write("dollar fund started for international payments (tournaments, equipent)")    
+        
         st.plotly_chart(fig_forex, use_container_width=True)
-        st.plotly_chart(fig_fund_forex, use_container_width=True)
+
+
+        
+        combined_data = pd.read_csv("D:\Python\WebApp\combined_data.csv")
+        combined_data['Date'] = pd.to_datetime(combined_data['Date'])
+
+        # Calculate 'Total Fund USD' after filling NaN values
+        combined_data['Total Fund USD'] = combined_data['Fund Cumulative'].add(combined_data['Fund Cumulative in USD'], fill_value=0)
+
+        # Create a line plot using Plotly Express
+        fig_combined = px.line(combined_data, x='Date', y='Total Fund USD', 
+                            labels={'Date': 'Date', 'Total Fund USD': 'Total Fund USD'},
+                            title='Total Fund USD Over Date')
+
+       
+  
+
+        # Show the combined graph
+        st.plotly_chart(fig_combined, use_container_width=True)
+
+
+       
+        
 
    
        
@@ -881,9 +927,9 @@ def show_financial_analysis():
         
 
 
-    elif selected_subsection == "Income":
-        # Add your income analysis and visualizations here
-        st.subheader("Income Section Content")
+    elif selected_subsection == "Income/Expenses":
+        # Add your income/Expenses analysis and visualizations here
+        st.subheader("Income/Expenses Section Content")
 
         fig, ax = plt.subplots(figsize=(8, 4))
         bars = ax.bar(data['Source'], data['Growth'])
@@ -902,34 +948,10 @@ def show_financial_analysis():
         st.write("text here text here text here text here")
 
 
-    elif selected_subsection == "Expenses":
-        # Add your expenses analysis and visualizations here
-        st.subheader("Expenses Section Content")
-        st.bar_chart(data, x="Source", y="Growth",  width=0, height=0, use_container_width=True)
-        
-        
-        st.write("Growth in Gold Bars per Source:")
-        st.dataframe(data[['Source', 'Growth']])
+   
 
-        st.write("text here text here text here text here")
-
-        selected_source = st.selectbox("Select a Source", data['Source'])
-
-        # Filter the data for the selected Source
-        filtered_data = data[data['Source'] == selected_source].drop('Source', axis=1)
-
-        # Plot a bar chart for the selected Source
-        fig, ax = plt.subplots(figsize=(8, 4))
-        ax.bar(filtered_data.columns, filtered_data.values.tolist()[0])
-        ax.set_xlabel('Month', fontsize=12)
-        ax.set_ylabel('Value', fontsize=12)
-        ax.set_title(f'{selected_source} Data', fontsize=16)
-
-        # Display the chart using Streamlit
-        st.pyplot(fig)
-
-    elif selected_subsection == "Summary":
-        st.subheader("Expenses Section Content")
+    elif selected_subsection == "Equipment Data":
+        st.subheader("Equipment data Content. Under Construction")
 
 
 
@@ -1050,93 +1072,99 @@ def show_attendance_data():
 
 #############################################################
         #############################################################################
-        # Title of chart
-        st.write("<h3 style='text-align: center;'>Attendance Over Time</h3>", unsafe_allow_html=True)
 
-        # Filter DataFrame for 'Completed' events
-        completed_events = df_att[df_att['Status'] == 'Completed']
+        container = st.container(border=True)  
+        with container:
 
-        # Calculate average attendance per event per year
-        avg_attendance_per_event_per_year = completed_events.groupby('Year')['Attendance'].mean()
+            # Title of chart
+            st.write("<h3 style='text-align: center;'>Attendance Over Time</h3>", unsafe_allow_html=True)
 
+            # Filter DataFrame for 'Completed' events
+            completed_events = df_att[df_att['Status'] == 'Completed']
 
-        # Group by year and sum the attendees
-        total_attendees_per_year = completed_events.groupby('Year')['Attendance'].sum()
-
-        # Create a Plotly figure with subplots
-        fig = make_subplots(specs=[[{'secondary_y': True}]])
-
-        # Add bar chart for total attendees per year
-        fig.add_trace(go.Bar(
-            x=total_attendees_per_year.index,
-            y=total_attendees_per_year.values,
-            name='Total Attendees',
-            marker=dict(color='skyblue'),  # Set the bar color here
-            text=total_attendees_per_year.values,
-            textposition='inside',
-            textfont=dict(size=16, color='black'),
-        ), secondary_y=False)
-
-        # Round average values to tenths
-        rounded_avg_values = avg_attendance_per_event_per_year.round(1)
-
-        # Add line chart for average attendance per event per year
-        fig.add_trace(go.Scatter(
-            x=avg_attendance_per_event_per_year.index,
-            y=avg_attendance_per_event_per_year.values,
-            mode='lines+markers+text',
-            name='Avg Attendance per Event',
-            marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
-            text=rounded_avg_values,
-            textposition='top center',
-            textfont=dict(size=16, color='red'),
-        ), secondary_y=True)
+            # Calculate average attendance per event per year
+            avg_attendance_per_event_per_year = completed_events.groupby('Year')['Attendance'].mean()
 
 
-        # Set layout
-        fig.update_layout(
-            xaxis=dict(title='Year'),
-            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, 1300]),
-            yaxis2=dict(title='Avg. Attendance per Week', showgrid=False, range=[5, 11]),
-            legend=dict(x=.3, y=1, traceorder='normal', orientation='h'),
-        )
+            # Group by year and sum the attendees
+            total_attendees_per_year = completed_events.groupby('Year')['Attendance'].sum()
 
-        # Display the plot in Streamlit
-        st.plotly_chart(fig, use_container_width=True)
+            # Create a Plotly figure with subplots
+            fig = make_subplots(specs=[[{'secondary_y': True}]])
+
+            # Add bar chart for total attendees per year
+            fig.add_trace(go.Bar(
+                x=total_attendees_per_year.index,
+                y=total_attendees_per_year.values,
+                name='Total Attendees',
+                marker=dict(color='skyblue'),  # Set the bar color here
+                text=total_attendees_per_year.values,
+                textposition='inside',
+                textfont=dict(size=16, color='black'),
+            ), secondary_y=False)
+
+            # Round average values to tenths
+            rounded_avg_values = avg_attendance_per_event_per_year.round(1)
+
+            # Add line chart for average attendance per event per year
+            fig.add_trace(go.Scatter(
+                x=avg_attendance_per_event_per_year.index,
+                y=avg_attendance_per_event_per_year.values,
+                mode='lines+markers+text',
+                name='Avg Attendance per Event',
+                marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+                text=rounded_avg_values,
+                textposition='top center',
+                textfont=dict(size=16, color='red'),
+            ), secondary_y=True)
+
+
+            # Set layout
+            fig.update_layout(
+                xaxis=dict(title='Year'),
+                yaxis=dict(title='Total Attendees', showgrid=False, range=[0, 1300]),
+                yaxis2=dict(title='Avg. Attendance per Week', showgrid=False, range=[5, 11]),
+                legend=dict(x=.3, y=1, traceorder='normal', orientation='h'),
+            )
+
+            # Display the plot in Streamlit
+            st.plotly_chart(fig, use_container_width=True)
 
 
         #####################################################################
         # Title of chart
-        st.write("<h3 style='text-align: center;'>Unique Players Over Time</h3>", unsafe_allow_html=True)
+        container = st.container(border=True)  
+        with container:    
+            st.write("<h3 style='text-align: center;'>Unique Players Over Time</h3>", unsafe_allow_html=True)
 
 
 
-        def calculate_cumulative_unique_attendees(df):
-            cumulative_unique_attendees = []
-            unique_attendees = set()
+            def calculate_cumulative_unique_attendees(df):
+                cumulative_unique_attendees = []
+                unique_attendees = set()
 
-            for year in range(2015, df['Date_Date_Excel'].dt.year.max() + 1):
-                attendees_in_year = df[df['Date_Date_Excel'].dt.year <= year]['Going'].str.split(', ').explode()
-                # Filter out specific entries
-                attendees_filtered = [attendee for attendee in attendees_in_year if attendee not in ["No Data", "No Name"] and len(attendee.split()) <= 3]
-                unique_attendees.update(attendees_filtered)
-                cumulative_unique_attendees.append(len(unique_attendees))
+                for year in range(2015, df['Date_Date_Excel'].dt.year.max() + 1):
+                    attendees_in_year = df[df['Date_Date_Excel'].dt.year <= year]['Going'].str.split(', ').explode()
+                    # Filter out specific entries
+                    attendees_filtered = [attendee for attendee in attendees_in_year if attendee not in ["No Data", "No Name"] and len(attendee.split()) <= 3]
+                    unique_attendees.update(attendees_filtered)
+                    cumulative_unique_attendees.append(len(unique_attendees))
 
-            return cumulative_unique_attendees
+                return cumulative_unique_attendees
 
-    
+        
 
-        # Calculate cumulative unique attendees
-        cumulative_counts = calculate_cumulative_unique_attendees(df_att)
+            # Calculate cumulative unique attendees
+            cumulative_counts = calculate_cumulative_unique_attendees(df_att)
 
-        # Plot cumulative unique attendees count for each year using Plotly
-        years = range(2015, df_att['Date_Date_Excel'].dt.year.max() + 1)
-        data = {"Year": years, "Cumulative Unique Attendees": cumulative_counts}
-        fig_unique = px.line(data, x="Year", y="Cumulative Unique Attendees")
-        fig_unique.update_traces(line=dict(color='skyblue'))  # Set the line color
+            # Plot cumulative unique attendees count for each year using Plotly
+            years = range(2015, df_att['Date_Date_Excel'].dt.year.max() + 1)
+            data = {"Year": years, "Cumulative Unique Attendees": cumulative_counts}
+            fig_unique = px.line(data, x="Year", y="Cumulative Unique Attendees")
+            fig_unique.update_traces(line=dict(color='skyblue'))  # Set the line color
 
-        # Display Plotly figure in Streamlit
-        st.plotly_chart(fig_unique, use_container_width=True)
+            # Display Plotly figure in Streamlit
+            st.plotly_chart(fig_unique, use_container_width=True)
 
 
 
