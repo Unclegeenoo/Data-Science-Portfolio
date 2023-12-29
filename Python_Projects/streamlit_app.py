@@ -705,6 +705,13 @@ def show_financial_analysis():
     if selected_subsection == "Summary":
         # Add your summary analysis and visualizations here
 
+
+
+
+
+
+
+
         st.write('<h2 style="text-align: center;">Team Fund Statistics (RUB/USD)</h2>', unsafe_allow_html=True)
 
 
@@ -786,11 +793,31 @@ def show_financial_analysis():
         fig_forex = px.line(df_forex, x='Date', y='Price', title='USD to RUB Exchange Rate Over Time')
 
         
-        fig_fund_forex = px.line(merged_df, x='Date', y='Fund Cumulative in USD', title='RUB Fund Cumulative in USD over Time')
+        fig_fund_forex = px.line(merged_df, x='Date', y='Fund Cumulative in USD', title='RUB Fund in USD by Exchange Rate of that Time')
         fig_fund_forex.update_xaxes(title='Date')
         fig_fund_forex.update_yaxes(title='Fund Cumulative in USD')
 
-        # Create the layout for the dashboard
+        combined_data = pd.read_csv("D:\Python\WebApp\combined_data.csv")
+        combined_data['Date'] = pd.to_datetime(combined_data['Date'])
+
+        # Calculate 'Total Fund USD' after filling NaN values
+        combined_data['Total Fund USD'] = combined_data['Fund Cumulative'].add(combined_data['Fund Cumulative in USD'], fill_value=0)
+
+        # Create a line plot using Plotly Express
+        fig_combined = px.line(combined_data, x='Date', y='Total Fund USD', 
+                            labels={'Date': 'Date', 'Total Fund USD': 'Amount in USD'},
+                            title='Combined Funds in USD')
+        
+
+        container = st.container(border=True)  
+        with container:
+            st.plotly_chart(fig_combined, use_container_width=True)
+
+
+
+
+
+        ################### Create the layout for the financial summary page
         col11, col22 = st.columns(2)
 
         container = st.container(border=True)
@@ -868,32 +895,17 @@ def show_financial_analysis():
         with col222:
             container = st.container(border=True)
             with container:
-                st.write("total fund usd + rub")
-            
-                st.write("ruble 30, then 60-80")
-            
-                st.write("dollar fund started for international payments (tournaments, equipent)")    
-        
-        st.plotly_chart(fig_forex, use_container_width=True)
-
+                       
+                st.plotly_chart(fig_forex, use_container_width=True)
 
         
-        combined_data = pd.read_csv("D:\Python\WebApp\combined_data.csv")
-        combined_data['Date'] = pd.to_datetime(combined_data['Date'])
-
-        # Calculate 'Total Fund USD' after filling NaN values
-        combined_data['Total Fund USD'] = combined_data['Fund Cumulative'].add(combined_data['Fund Cumulative in USD'], fill_value=0)
-
-        # Create a line plot using Plotly Express
-        fig_combined = px.line(combined_data, x='Date', y='Total Fund USD', 
-                            labels={'Date': 'Date', 'Total Fund USD': 'Total Fund USD'},
-                            title='Total Fund USD Over Date')
+        st.write("total fund usd + rub")
+            
+        st.write("ruble 30, then 60-80")
+            
+        st.write("dollar fund started for international payments (tournaments, equipent)")    
 
        
-  
-
-        # Show the combined graph
-        st.plotly_chart(fig_combined, use_container_width=True)
 
 
        
