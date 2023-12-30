@@ -954,6 +954,35 @@ def show_financial_analysis():
         for bar in bars:
             bar.set_height(bar.get_height() + slider_value)  # Adjust the bar heights
 
+
+        link = {
+            'source': [0, 1, 0, 2],  # Indices correspond to the nodes
+            'target': [2, 2, 3, 3],
+            'value': [8, 4, 2, 6]  # The flows/quantities
+        }
+
+        figx = go.Figure(data=[go.Sankey(
+            node=dict(
+                pad=15,
+                thickness=20,
+                line=dict(color="black", width=0.5),
+                label=["A", "B", "C", "D"]  # Replace with your node labels
+            ),
+            link=link
+        )])
+
+        st.plotly_chart(figx)
+
+
+
+
+
+
+
+
+
+
+
         # Display the chart using Streamlit
         st.pyplot(fig)
 
