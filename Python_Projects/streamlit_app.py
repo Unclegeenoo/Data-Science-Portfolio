@@ -461,22 +461,23 @@ def show_general_stats():
 
 
 
+    container = st.container(border=True)  
+    with container:
+        # Plot the pie chart with the specified color palette
+    
+        fig, ax = plt.subplots(figsize=(10, 6))  # Set the size here (width, height)
+        pie = type_counts_grouped.plot(kind='pie', startangle=140, labels=[None]*len(type_counts_grouped), ax=ax, colors=colors)
+        plt.title('Event Distribution by Types')
+        plt.axis('equal')  # Equal aspect ratio ensures the pie chart is circular
 
-    # Plot the pie chart with the specified color palette
-   
-    fig, ax = plt.subplots(figsize=(10, 6))  # Set the size here (width, height)
-    pie = type_counts_grouped.plot(kind='pie', startangle=140, labels=[None]*len(type_counts_grouped), ax=ax, colors=colors)
-    plt.title('Event Distribution by Types')
-    plt.axis('equal')  # Equal aspect ratio ensures the pie chart is circular
+        # Get percentages for legend labels
+        percentages_grouped = ['{:1.0f}%'.format(val * 100) for val in type_counts_grouped / type_counts_grouped.sum()]
+        legend_labels_grouped = [f'{type_counts_grouped.index[i]}: {percentages_grouped[i]}' for i in range(len(type_counts_grouped))]
 
-    # Get percentages for legend labels
-    percentages_grouped = ['{:1.0f}%'.format(val * 100) for val in type_counts_grouped / type_counts_grouped.sum()]
-    legend_labels_grouped = [f'{type_counts_grouped.index[i]}: {percentages_grouped[i]}' for i in range(len(type_counts_grouped))]
-
-    # Create a legend with percentages multiplied by 100
-    plt.legend(legend_labels_grouped, loc='center right', bbox_to_anchor=(1.2, 0.5), title="Event Types")
-    plt.ylabel('')  # Remove the y-label
-    st.pyplot(fig)
+        # Create a legend with percentages multiplied by 100
+        plt.legend(legend_labels_grouped, loc='center right', bbox_to_anchor=(1.2, 0.5), title="Event Types")
+        plt.ylabel('')  # Remove the y-label
+        st.pyplot(fig)
 
 
     ############################
@@ -813,6 +814,8 @@ def show_financial_analysis():
         with container:
             st.plotly_chart(fig_combined, use_container_width=True)
 
+        
+            
 
 
 
@@ -886,9 +889,20 @@ def show_financial_analysis():
        
         
         with col111:
-            container = st.container(border=True)
-            with container:
+            with st.expander('Exchange Rate from Aug 2015 - April 2022'):
+                st.plotly_chart(fig_forex, use_container_width=True)
+            with st.expander('RUB fund denominated in US Dollars'):
                 st.plotly_chart(fig_fund_forex, use_container_width=True)
+            transaction_count = df_fin.groupby('Date').size().reset_index(name='Transaction Volume')
+
+            # Create a line plot using Plotly Express
+            with st.expander('Volume of Transactions'):
+                fig_transactions = px.line(transaction_count, x='Date', y='Transaction Volume', 
+                                            labels={'Date': 'Date', 'Transaction Volume': 'Transaction Volume'},
+                                            title='Transaction Volume Over Time')
+
+                # Show the graph for transaction volume
+                st.plotly_chart(fig_transactions, use_container_width=True)
 
 
         
@@ -896,14 +910,20 @@ def show_financial_analysis():
             container = st.container(border=True)
             with container:
                        
-                st.plotly_chart(fig_forex, use_container_width=True)
-
-        
-        st.write("total fund usd + rub")
-            
-        st.write("ruble 30, then 60-80")
-            
-        st.write("dollar fund started for international payments (tournaments, equipent)")    
+                    
+                st.write('''Due to fluctuations and subsequent devaluation of the Ruble over time, 
+                        the club decided to open a second fund in 2018 that would hold foreign currency. 
+                        This would protect against the Ruble's inflation and devaluation, 
+                        facilitate payments for events and federation memberships abroad, 
+                        as well as equipment purchases.                        
+                        ''')
+                    
+                st.write('''Throughout the club's history the value of the Ruble dropped from 30 RUB for 1 USD to near 150 RUB for 1 USD.
+                        The fund ledger started in 2015, and even then we had to deal with fluctuations of the rate betwwen 60-80 RUB for 1 USD for 
+                        the majority of the time, with the exchange rate average rising (value decreasing) over time.
+                        ''')
+                    
+                
 
        
 
@@ -915,21 +935,7 @@ def show_financial_analysis():
        
        
 
-        
-
-        
-        st.write("text here text here text here text here")
-
-
-
-
-
-
-
-
-
-
-
+    
 
 
 
@@ -1725,127 +1731,133 @@ def show_attendance_data():
 
 
 
+        container = st.container(border=True)  
+        with container:
+            st.write("<h3 style='text-align: center;'>Total and Avg Attendance per Type</h3>", unsafe_allow_html=True)
 
-        st.write("<h3 style='text-align: center;'>Total and Avg Attendance per Type</h3>", unsafe_allow_html=True)
+            # Calculate total attendance per event type
+            total_attendance_per_type = df_att.groupby('Type')['Attendance'].sum()
 
-        # Calculate total attendance per event type
-        total_attendance_per_type = df_att.groupby('Type')['Attendance'].sum()
+            # Sort the total attendance per event type in descending order
+            total_attendance_per_type = total_attendance_per_type.sort_values(ascending=True) 
 
-        # Sort the total attendance per event type in descending order
-        total_attendance_per_type = total_attendance_per_type.sort_values(ascending=True) 
+            # Calculate average attendance per event type
+            average_attendance_per_type = df_att.groupby('Type')['Attendance'].mean()
 
-        # Calculate average attendance per event type
-        average_attendance_per_type = df_att.groupby('Type')['Attendance'].mean()
-
-        # Sort the average attendance per event type based on the total attendance order
-        average_attendance_per_type = average_attendance_per_type.loc[total_attendance_per_type.index]
+            # Sort the average attendance per event type based on the total attendance order
+            average_attendance_per_type = average_attendance_per_type.loc[total_attendance_per_type.index]
 
 
-        fig_att_type = go.Figure()
+            fig_att_type = go.Figure()
 
 
 
 #######################################################
 ############### Attendance per type ###################
 
-        # Add a horizontal bar chart
-        fig_att_type.add_trace(go.Bar(
-            x=total_attendance_per_type.values,  # Total attendance values
-            y=total_attendance_per_type.index,   # Event types
-            text=total_attendance_per_type.values,
-            textposition='auto',
-            textfont=dict(size=16, color='black'),
-            orientation='h',                    # Horizontal orientation
-            marker=dict(color='skyblue'),
-            name='Attendance by Type'       # Bar color
-        ))
+            # Add a horizontal bar chart
+            fig_att_type.add_trace(go.Bar(
+                x=total_attendance_per_type.values,  # Total attendance values
+                y=total_attendance_per_type.index,   # Event types
+                text=total_attendance_per_type.values,
+                textposition='auto',
+                textfont=dict(size=16, color='black'),
+                orientation='h',                    # Horizontal orientation
+                marker=dict(color='skyblue'),
+                name='Attendance by Type'       # Bar color
+            ))
 
 
-        # Add a line chart for average attendance per event type
-        fig_att_type.add_trace(go.Scatter(
-            x=average_attendance_per_type.values,  # Average attendance values
-            y=average_attendance_per_type.index,   # Event types
-            mode='lines+markers+text',
-            name='Average Attendance',            # Line chart name
-            marker=dict(color='red', size=10),
-            text=average_attendance_per_type.round(1),
-            textposition='top center',
-            textfont=dict(size=16, color='red'),
-            line=dict(color='red'),            # Line color
-            xaxis ='x2'
-        ))
+            # Add a line chart for average attendance per event type
+            fig_att_type.add_trace(go.Scatter(
+                x=average_attendance_per_type.values,  # Average attendance values
+                y=average_attendance_per_type.index,   # Event types
+                mode='lines+markers+text',
+                name='Average Attendance',            # Line chart name
+                marker=dict(color='red', size=10),
+                text=average_attendance_per_type.round(1),
+                textposition='top center',
+                textfont=dict(size=16, color='red'),
+                line=dict(color='red'),            # Line color
+                xaxis ='x2'
+            ))
 
 
 
-        fig_att_type.update_layout(
-            
-            xaxis=dict(showgrid=False, showticklabels=False, range=[0, 4700]),  # Adjust the x-axis range
-            yaxis=dict(showgrid=True),  
-            height=800,  # Set the height of the chart
-            bargap=0.1,  # Set the gap between bars
-            legend=dict(x=.5, y=.3),
-            xaxis2=dict(title='Average Attendance', range=[0, 30], overlaying='x', side='bottom', showticklabels=False, showgrid=False),  # Adjust the second x-axis
-        )
+            fig_att_type.update_layout(
+                
+                xaxis=dict(showgrid=False, showticklabels=False, range=[0, 4700]),  # Adjust the x-axis range
+                yaxis=dict(showgrid=True),  
+                height=800,  # Set the height of the chart
+                bargap=0.1,  # Set the gap between bars
+                legend=dict(x=.5, y=.3),
+                xaxis2=dict(title=None, range=[0, 30], overlaying='x', side='bottom', showticklabels=False, showgrid=False),  # Adjust the second x-axis
+            )
 
 
-        # Display the plot
-        st.plotly_chart(fig_att_type, use_container_width=True)
+            # Display the plot
+            st.plotly_chart(fig_att_type, use_container_width=True)
 
   
         #####################################################################
         ####################   interactive attendance chart   ##########################
-        st.write("<h3 style='text-align: center;'>Event Type Attendance Per Year Interactive Chart</h3>", unsafe_allow_html=True)
+        container = st.container(border=True)  
+        with container:
 
-        # Create a multiselect element for selecting event types
-        selected_types = st.multiselect("Select Event Type ", df_att['Type'].unique(),label_visibility='collapsed')
-      
+            st.write("<h3 style='text-align: center;'>Event Type Attendance Per Year Interactive Chart</h3>", unsafe_allow_html=True)
 
-        # Filter the DataFrame based on the selected event types
-        filtered_data = df_att[df_att['Type'].isin(selected_types)]
+            # Create a multiselect element for selecting event types
+            selected_types = st.multiselect("Select Event Type ", df_att['Type'].unique(),label_visibility='collapsed')
+        
 
-        # Group by year and calculate total attendance per year
-        total_attendance_per_year = filtered_data.groupby(['Year', 'Type'])['Attendance'].sum().reset_index()
+            # Filter the DataFrame based on the selected event types
+            filtered_data = df_att[df_att['Type'].isin(selected_types)]
 
-        # Create an interactive line chart using Plotly Express
-        fig_int_att = px.line(total_attendance_per_year, x='Year', y='Attendance', color='Type')
-        fig_int_att.update_xaxes(type='category')  # Ensure the x-axis is treated as categorical (years)
+            # Group by year and calculate total attendance per year
+            total_attendance_per_year = filtered_data.groupby(['Year', 'Type'])['Attendance'].sum().reset_index()
 
-        # Update layout to remove axis labels and tick marks
-        fig_int_att.update_xaxes(title_text=None, showticklabels=True)
-        fig_int_att.update_yaxes(title_text=None, showticklabels=True)
+            # Create an interactive line chart using Plotly Express
+            fig_int_att = px.line(total_attendance_per_year, x='Year', y='Attendance', color='Type')
+            fig_int_att.update_xaxes(type='category')  # Ensure the x-axis is treated as categorical (years)
 
-        # Display the chart in Streamlit
-        st.plotly_chart(fig_int_att, use_container_width=True)
+            # Update layout to remove axis labels and tick marks
+            fig_int_att.update_xaxes(title_text=None, showticklabels=True)
+            fig_int_att.update_yaxes(title_text=None, showticklabels=True)
+
+            # Display the chart in Streamlit
+            st.plotly_chart(fig_int_att, use_container_width=True)
 
 
 
         ###########################################################
         ###################### histograms #########################
-        st.write("<h3 style='text-align: center;'>Event Attendance Boxplots</h3>", unsafe_allow_html=True)
+        container = st.container(border=True)  
+        with container:
+            st.write("<h3 style='text-align: center;'>Event Attendance Boxplots</h3>", unsafe_allow_html=True)
 
 
 
-        
-        # Multiselect element to select event types
-        selected_types = st.multiselect('Select Event Type', df_att['Type'].unique(), key='multiselect')
+            
+            # Multiselect element to select event types
+            selected_types = st.multiselect('Select Event Type', df_att['Type'].unique(), key='multiselect')
 
 
 
-        # Filter data based on selected event types
-        filtered_data = df_att[df_att['Type'].isin(selected_types)]
+            # Filter data based on selected event types
+            filtered_data = df_att[df_att['Type'].isin(selected_types)]
 
-        # Create an interactive boxplot chart using Plotly Express
-        if not filtered_data.empty:
-            fig_box = px.box(filtered_data, x='Type', y='Attendance', points="all")
+            # Create an interactive boxplot chart using Plotly Express
+            if not filtered_data.empty:
+                fig_box = px.box(filtered_data, x='Type', y='Attendance', points="all")
 
-            # Update layout to remove axis titles
-            fig_box.update_xaxes(title_text=None, showticklabels=True)
-            fig_box.update_yaxes(title_text='Attendance', showticklabels=True)
+                # Update layout to remove axis titles
+                fig_box.update_xaxes(title_text=None, showticklabels=True)
+                fig_box.update_yaxes(title_text='Attendance', showticklabels=True)
 
-            # Set the chart width using the use_container_width function
-            st.plotly_chart(fig_box, use_container_width=True)
-        else:
-            st.warning("No data available for the selected event types.")
+                # Set the chart width using the use_container_width function
+                st.plotly_chart(fig_box, use_container_width=True)
+            else:
+                st.warning("No data available for the selected event types.")
         
 
         st.markdown("<p style='text-align: center;'>add attendance by month on this page</p>", unsafe_allow_html=True)
@@ -2018,311 +2030,252 @@ def show_attendance_data():
 
 
 
-        
-        st.write('<h2 style="text-align: center;">Individual Attendance Data</h2>', unsafe_allow_html=True)
-
-
-        
-        all_attendees = df_att['Going'].str.split(', ').explode()
-        filtered_attendees = [attendee for attendee in all_attendees if attendee != "No Data" and len(attendee.split()) <= 3]
-        unique_attendees = sorted(list(set(filtered_attendees))) 
-
-
-        
-
-        # Dropdown menu to select an attendee's name
-        selected_name = st.selectbox("Select an Attendee", unique_attendees)
-
-
-
-        if selected_name:
-            # Filter data for the selected attendee
-            attendee_data = df_att[df_att['Going'].str.contains(selected_name)]
-
-            # Function to calculate the percentage of events attended by each attendee
-            def calculate_percentage_attended(df, selected_attendee):
-                total_events = df.shape[0]
-                events_attended = df[df['Going'].str.contains(selected_attendee, case=False)].shape[0]
-                return (events_attended / total_events) * 100 if total_events > 0 else 0
-            
-             # Calculate the percentage of events attended by each attendee
-            df_percentage_attended = pd.DataFrame(columns=['Attendee', 'Percentage'])
-            df_percentage_attended['Attendee'] = unique_attendees
-            df_percentage_attended['Percentage'] = df_percentage_attended['Attendee'].apply(
-                lambda x: calculate_percentage_attended(df_att, x))
-
-
-            # Calculate metrics
-            total_team_practices_attended = attendee_data[attendee_data['Type'] == 'Team Practice'].shape[0]
-            total_skills_practices_attended = attendee_data[attendee_data['Type'] == 'Skills Practice'].shape[0]
-            total_events_attended = attendee_data.shape[0]
-            first_event_date = attendee_data['Date_Date_Excel'].min()
-            last_event_date = attendee_data['Date_Date_Excel'].max()
-
-            # Calculate the number of months between the first and last event
-            months_attended = max((last_event_date - first_event_date).days / 30, 1)
-            avg_events_per_month = total_events_attended / months_attended if months_attended != 0 else total_events_attended
-
-             # Create a DataFrame to store average events per month for each attendee
-            attendees_avg_events = pd.DataFrame(columns=['Attendee', 'AvgEventsPerMonth'])
-
-            
-
-            # Format first and last event dates to the desired format
-            formatted_first_date = first_event_date.strftime("%b %d, %Y")
-            formatted_last_date = last_event_date.strftime("%b %d, %Y")
-
-            # Compute rankings for different event types based on attendance count
-            df_team_practices = df_att[df_att['Type'] == 'Team Practice']
-            df_skills_practices = df_att[df_att['Type'] == 'Skills Practice']
-            df_total_events = df_att.copy()  # Create a copy of the original DataFrame
-            # Sort the DataFrame by percentage in descending order to assign ranks
-            df_percentage_attended = df_percentage_attended.sort_values(by='Percentage', ascending=False)
-            df_percentage_attended['Rank'] = df_percentage_attended['Percentage'].rank(ascending=False, method='min')
-
-
-                                  
-            
-            total_events_ranks = df_total_events['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
-            team_practices_ranks = df_team_practices['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
-            skills_practices_ranks = df_skills_practices['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
-        
-            rank_total_events = total_events_ranks[selected_name] if selected_name in total_events_ranks else None
-            rank_team_practices = team_practices_ranks[selected_name] if selected_name in team_practices_ranks else None
-            rank_skills_practices = skills_practices_ranks[selected_name] if selected_name in skills_practices_ranks else None
-            rank_percentage_attended = df_percentage_attended[df_percentage_attended['Attendee'] == selected_name]['Rank'].values[0]
-            
-
+        container = st.container(border=True)  
+        with container:    
+            st.write('<h2 style="text-align: center;">Individual Attendance Data</h2>', unsafe_allow_html=True)
 
 
             
-            # Function to convert a duration string to minutes
-            def convert_duration_to_minutes(duration_str):
-                parts = duration_str.split()
-                minutes = 0
+            all_attendees = df_att['Going'].str.split(', ').explode()
+            filtered_attendees = [attendee for attendee in all_attendees if attendee != "No Data" and len(attendee.split()) <= 3]
+            unique_attendees = sorted(list(set(filtered_attendees))) 
 
-                for i in range(len(parts)):
-                    if parts[i] == 'days':
-                        minutes += int(parts[i - 1]) * 24 * 60
-                    elif parts[i] == 'hr':
-                        minutes += int(parts[i - 1]) * 60
-                    elif parts[i] == 'min':
-                        minutes += int(parts[i - 1])
-
-                return minutes
-            
-            # Filter the DataFrame to select rows where the selected_name is in the "Going" column
-            selected_name_events = df_att[df_att['Going'].str.contains(selected_name, case=False)]
-
-            # Sample duration values from the filtered DataFrame
-            selected_name_durations = selected_name_events['Duration']
-
-            # Convert the duration strings to minutes and sum them
-            total_player_minutes = sum([convert_duration_to_minutes(duration) for duration in selected_name_durations])
-
-            # Convert the total minutes back to hours and minutes
-            total_player_hours = total_player_minutes // 60
-            remaining_player_minutes = total_player_minutes % 60
-
-             # Create a dictionary to store minutes attended by each attendee
-            attendees_minutes = {}
-
-            # Loop through unique attendees to calculate their total time spent at events
-            for attendee in unique_attendees:
-                attendee_events = df_att[df_att['Going'].str.contains(attendee, case=False)]
-                attendee_durations = attendee_events['Duration']
-                total_player_minutes = sum([convert_duration_to_minutes(duration) for duration in attendee_durations])
-                attendees_minutes[attendee] = total_player_minutes
-
-
-            # Sort attendees by the total minutes attended in descending order to get ranks
-            ranked_attendees = sorted(attendees_minutes.items(), key=lambda x: x[1], reverse=True)
-
-            # Get the rank for the selected attendee
-            rank_selected_name = [rank for rank, (name, _) in enumerate(ranked_attendees, 1) if name.lower() == selected_name.lower()]
-
-
-            # Display metrics with formatted dates and rankings
-            st.markdown(
-                f"""
-                <div style='text-align: center;'>
-                    <h3 style='margin-bottom: 0;'>Attendance Ranks and Stats for {selected_name}</h3>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
 
             
-            #st.write(f"Total Team Practices Attended: {total_team_practices_attended}, # {int(rank_team_practices) if rank_team_practices else 'N/A'}")
-            #st.write(f"Total Skills Practices Attended: {total_skills_practices_attended}, # {int(rank_skills_practices) if rank_skills_practices else 'N/A'}")
-            #st.write(f"Total Events Attended: {total_events_attended}, # {int(rank_total_events) if rank_total_events else 'N/A'}")
-            #st.write(f"Percentage of All Events Attended by {selected_name}: {total_events_attended / df_att.shape[0] * 100:.2f}%, # {int(rank_percentage_attended)}")
-            #st.write(f"Date of First Event Attended: {formatted_first_date}")
-            #st.write(f"Date of Last Event Attended: {formatted_last_date}")
-            #st.write(f"Average Events Attended per Month: {avg_events_per_month:.2f}")
-            #st.write(f"Time spent at events: {total_hours} hr {remaining_minutes} min | # {rank_selected_name[0]}" if rank_selected_name else f"Time spent by {selected_name} at events: {total_hours} hr {remaining_minutes} min | No rank found for {selected_name}")
+
+            # Dropdown menu to select an attendee's name
+            selected_name = st.selectbox("Select an Attendee", unique_attendees)
+
+
+
+            if selected_name:
+                # Filter data for the selected attendee
+                attendee_data = df_att[df_att['Going'].str.contains(selected_name)]
+
+                # Function to calculate the percentage of events attended by each attendee
+                def calculate_percentage_attended(df, selected_attendee):
+                    total_events = df.shape[0]
+                    events_attended = df[df['Going'].str.contains(selected_attendee, case=False)].shape[0]
+                    return (events_attended / total_events) * 100 if total_events > 0 else 0
+                
+                # Calculate the percentage of events attended by each attendee
+                df_percentage_attended = pd.DataFrame(columns=['Attendee', 'Percentage'])
+                df_percentage_attended['Attendee'] = unique_attendees
+                df_percentage_attended['Percentage'] = df_percentage_attended['Attendee'].apply(
+                    lambda x: calculate_percentage_attended(df_att, x))
+
+
+                # Calculate metrics
+                total_team_practices_attended = attendee_data[attendee_data['Type'] == 'Team Practice'].shape[0]
+                total_skills_practices_attended = attendee_data[attendee_data['Type'] == 'Skills Practice'].shape[0]
+                total_events_attended = attendee_data.shape[0]
+                first_event_date = attendee_data['Date_Date_Excel'].min()
+                last_event_date = attendee_data['Date_Date_Excel'].max()
+
+                # Calculate the number of months between the first and last event
+                months_attended = max((last_event_date - first_event_date).days / 30, 1)
+                avg_events_per_month = total_events_attended / months_attended if months_attended != 0 else total_events_attended
+
+                # Create a DataFrame to store average events per month for each attendee
+                attendees_avg_events = pd.DataFrame(columns=['Attendee', 'AvgEventsPerMonth'])
+
+                
+
+                # Format first and last event dates to the desired format
+                formatted_first_date = first_event_date.strftime("%b %d, %Y")
+                formatted_last_date = last_event_date.strftime("%b %d, %Y")
+
+                # Compute rankings for different event types based on attendance count
+                df_team_practices = df_att[df_att['Type'] == 'Team Practice']
+                df_skills_practices = df_att[df_att['Type'] == 'Skills Practice']
+                df_total_events = df_att.copy()  # Create a copy of the original DataFrame
+                # Sort the DataFrame by percentage in descending order to assign ranks
+                df_percentage_attended = df_percentage_attended.sort_values(by='Percentage', ascending=False)
+                df_percentage_attended['Rank'] = df_percentage_attended['Percentage'].rank(ascending=False, method='min')
+
+
+                                    
+                
+                total_events_ranks = df_total_events['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
+                team_practices_ranks = df_team_practices['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
+                skills_practices_ranks = df_skills_practices['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
             
+                rank_total_events = total_events_ranks[selected_name] if selected_name in total_events_ranks else None
+                rank_team_practices = team_practices_ranks[selected_name] if selected_name in team_practices_ranks else None
+                rank_skills_practices = skills_practices_ranks[selected_name] if selected_name in skills_practices_ranks else None
+                rank_percentage_attended = df_percentage_attended[df_percentage_attended['Attendee'] == selected_name]['Rank'].values[0]
+                
 
 
 
+                
+                # Function to convert a duration string to minutes
+                def convert_duration_to_minutes(duration_str):
+                    parts = duration_str.split()
+                    minutes = 0
+
+                    for i in range(len(parts)):
+                        if parts[i] == 'days':
+                            minutes += int(parts[i - 1]) * 24 * 60
+                        elif parts[i] == 'hr':
+                            minutes += int(parts[i - 1]) * 60
+                        elif parts[i] == 'min':
+                            minutes += int(parts[i - 1])
+
+                    return minutes
+                
+                # Filter the DataFrame to select rows where the selected_name is in the "Going" column
+                selected_name_events = df_att[df_att['Going'].str.contains(selected_name, case=False)]
+
+                # Sample duration values from the filtered DataFrame
+                selected_name_durations = selected_name_events['Duration']
+
+                # Convert the duration strings to minutes and sum them
+                total_player_minutes = sum([convert_duration_to_minutes(duration) for duration in selected_name_durations])
+
+                # Convert the total minutes back to hours and minutes
+                total_player_hours = total_player_minutes // 60
+                remaining_player_minutes = total_player_minutes % 60
+
+                # Create a dictionary to store minutes attended by each attendee
+                attendees_minutes = {}
+
+                # Loop through unique attendees to calculate their total time spent at events
+                for attendee in unique_attendees:
+                    attendee_events = df_att[df_att['Going'].str.contains(attendee, case=False)]
+                    attendee_durations = attendee_events['Duration']
+                    total_player_minutes = sum([convert_duration_to_minutes(duration) for duration in attendee_durations])
+                    attendees_minutes[attendee] = total_player_minutes
 
 
+                # Sort attendees by the total minutes attended in descending order to get ranks
+                ranked_attendees = sorted(attendees_minutes.items(), key=lambda x: x[1], reverse=True)
+
+                # Get the rank for the selected attendee
+                rank_selected_name = [rank for rank, (name, _) in enumerate(ranked_attendees, 1) if name.lower() == selected_name.lower()]
 
 
-            col1, col2, col3 = st.columns(3)
-            
-         
-            with col1:
+                # Display metrics with formatted dates and rankings
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>First Event Attended</span>
-                        </div>
-                        <p style='font-size: 30px;'>{formatted_first_date}</p>
+                        <h3 style='margin-bottom: 0;'>Attendance Ranks and Stats for {selected_name}</h3>
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
 
-            with col2:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>Avg Events Attended per Month</span>
-                        </div>
-                        <p style='font-size: 30px;'>{avg_events_per_month:.2f}</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                
+                #st.write(f"Total Team Practices Attended: {total_team_practices_attended}, # {int(rank_team_practices) if rank_team_practices else 'N/A'}")
+                #st.write(f"Total Skills Practices Attended: {total_skills_practices_attended}, # {int(rank_skills_practices) if rank_skills_practices else 'N/A'}")
+                #st.write(f"Total Events Attended: {total_events_attended}, # {int(rank_total_events) if rank_total_events else 'N/A'}")
+                #st.write(f"Percentage of All Events Attended by {selected_name}: {total_events_attended / df_att.shape[0] * 100:.2f}%, # {int(rank_percentage_attended)}")
+                #st.write(f"Date of First Event Attended: {formatted_first_date}")
+                #st.write(f"Date of Last Event Attended: {formatted_last_date}")
+                #st.write(f"Average Events Attended per Month: {avg_events_per_month:.2f}")
+                #st.write(f"Time spent at events: {total_hours} hr {remaining_minutes} min | # {rank_selected_name[0]}" if rank_selected_name else f"Time spent by {selected_name} at events: {total_hours} hr {remaining_minutes} min | No rank found for {selected_name}")
+                
 
-            with col3:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>Last Event Attended</span>
+
+
+
+
+
+
+                col1, col2, col3 = st.columns(3)
+                
+            
+                with col1:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>First Event Attended</span>
+                            </div>
+                            <p style='font-size: 30px;'>{formatted_first_date}</p>
                         </div>
-                        <p style='font-size: 30px;'>{formatted_last_date}</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                with col2:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>Avg Events Attended per Month</span>
+                            </div>
+                            <p style='font-size: 30px;'>{avg_events_per_month:.2f}</p>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                with col3:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>Last Event Attended</span>
+                            </div>
+                            <p style='font-size: 30px;'>{formatted_last_date}</p>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+
+                
+
 
 
             
 
+                col1, col2 = st.columns(2)
 
-
-          
-
-            col1, col2 = st.columns(2)
-
-            with col1:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>Team Practices Attended</span>
+                with col1:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>Team Practices Attended</span>
+                            </div>
+                            <p style='font-size: 30px;'># {int(rank_team_practices) if rank_team_practices else 'N/A'}  ({total_team_practices_attended})</p>
                         </div>
-                        <p style='font-size: 30px;'># {int(rank_team_practices) if rank_team_practices else 'N/A'}  ({total_team_practices_attended})</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                        """,
+                        unsafe_allow_html=True
+                    )
 
-                percentage_attended_team = total_team_practices_attended / 381 * 100
+                    percentage_attended_team = total_team_practices_attended / 381 * 100
 
-                # Create the gauge chart for team practices attended
-                fig_team_practices = go.Figure(go.Indicator(
-                    mode="gauge+number",
-                    value = percentage_attended_team,
-                    title={'text': "Percentage of Team Practices Attended"},
-                    gauge={
-                        'axis': {'range': [None, 100]},
-                        'bar': {'color': "darkgreen"},
-                        'steps': [
-                            {'range': [0, 25], 'color': "lightgray"},
-                            {'range': [25, 50], 'color': "lightblue"},
-                            {'range': [50, 75], 'color': "skyblue"},
-                            {'range': [75, 100], 'color': "steelblue"}
-                        ],
-                    },
-                    number={
-                        'suffix': "%",
-                        'font': {'size': 70}
-                    }
-                ))
+                    # Create the gauge chart for team practices attended
+                    fig_team_practices = go.Figure(go.Indicator(
+                        mode="gauge+number",
+                        value = percentage_attended_team,
+                        title={'text': "Percentage of Team Practices Attended"},
+                        gauge={
+                            'axis': {'range': [None, 100]},
+                            'bar': {'color': "darkgreen"},
+                            'steps': [
+                                {'range': [0, 25], 'color': "lightgray"},
+                                {'range': [25, 50], 'color': "lightblue"},
+                                {'range': [50, 75], 'color': "skyblue"},
+                                {'range': [75, 100], 'color': "steelblue"}
+                            ],
+                        },
+                        number={
+                            'suffix': "%",
+                            'font': {'size': 70}
+                        }
+                    ))
 
-                # Display the centered gauge chart in Streamlit using plotly_chart with use_container_width=True
-                
-                with st.expander('Expand'):
-                    st.plotly_chart(fig_team_practices, use_container_width=True)
-                
-                
-                
-                
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            with col2:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>Skills Practices Attended</span>
-                        </div>
-                        <p style='font-size: 30px;'># {int(rank_skills_practices) if rank_skills_practices else 'N/A'}  ({total_skills_practices_attended})</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-                percentage_attended_skills = total_skills_practices_attended / skills_practice_count * 100
-
-                # Create the gauge chart for skills practices attended
-                fig_skills_practices = go.Figure(go.Indicator(
-                    mode="gauge+number",
-                    value=percentage_attended_skills,
-                    title={'text': "Percentage of Skills Practices Attended"},
-                    gauge={
-                        'axis': {'range': [None, 100]},
-                        'bar': {'color': "darkgreen"},
-                        'steps': [
-                            {'range': [0, 25], 'color': "lightgray"},
-                            {'range': [25, 50], 'color': "lightblue"},
-                            {'range': [50, 75], 'color': "skyblue"},
-                            {'range': [75, 100], 'color': "steelblue"}
-                        ],
-                    },
-                    number={
-                        'suffix': "%",
-                        'font': {'size': 70}
-                    }
-                ))
-
-                # Display the centered gauge chart in Streamlit using plotly_chart with use_container_width=True
-                with st.expander('Expand'):
-                    st.plotly_chart(fig_skills_practices, use_container_width=True)
-
-                
+                    # Display the centered gauge chart in Streamlit using plotly_chart with use_container_width=True
+                    
+                    with st.expander('Expand'):
+                        st.plotly_chart(fig_team_practices, use_container_width=True)
+                    
+                    
+                    
                     
 
 
@@ -2339,91 +2292,151 @@ def show_attendance_data():
 
 
 
-            col4, col5 = st.columns(2)
 
-            with col4:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>All Events Attended</span>
+
+
+                with col2:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>Skills Practices Attended</span>
+                            </div>
+                            <p style='font-size: 30px;'># {int(rank_skills_practices) if rank_skills_practices else 'N/A'}  ({total_skills_practices_attended})</p>
                         </div>
-                        <p style='font-size: 30px;'># {int(rank_total_events) if rank_total_events else 'N/A'}  ({total_events_attended})</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                    percentage_attended_skills = total_skills_practices_attended / skills_practice_count * 100
+
+                    # Create the gauge chart for skills practices attended
+                    fig_skills_practices = go.Figure(go.Indicator(
+                        mode="gauge+number",
+                        value=percentage_attended_skills,
+                        title={'text': "Percentage of Skills Practices Attended"},
+                        gauge={
+                            'axis': {'range': [None, 100]},
+                            'bar': {'color': "darkgreen"},
+                            'steps': [
+                                {'range': [0, 25], 'color': "lightgray"},
+                                {'range': [25, 50], 'color': "lightblue"},
+                                {'range': [50, 75], 'color': "skyblue"},
+                                {'range': [75, 100], 'color': "steelblue"}
+                            ],
+                        },
+                        number={
+                            'suffix': "%",
+                            'font': {'size': 70}
+                        }
+                    ))
+
+                    # Display the centered gauge chart in Streamlit using plotly_chart with use_container_width=True
+                    with st.expander('Expand'):
+                        st.plotly_chart(fig_skills_practices, use_container_width=True)
+
+                    
+                        
 
 
-                percentage_attended = total_events_attended / df_att.shape[0] * 100
-                fig_total_events = go.Figure(go.Indicator(
-                    mode = "gauge+number",
-                    value=percentage_attended,
-                    title={'text': "Percent of all Events Attended"},
-                    gauge = {
-                        'axis': {'range': [None, 100]},
-                        'bar': {'color': "darkgreen"},
-                        'steps' : [
-                            {'range': [0, 25], 'color': "lightgray"},
-                            {'range': [25, 50], 'color': "lightblue"},
-                            {'range': [50, 75], 'color': "skyblue"},
-                            {'range': [75, 100], 'color': "steelblue"}
-                        ],
-                    },
-                    number={
-                        'suffix': "%",
-                        'font': {'size': 70}
-                    }
-                ))
 
-                # Display the gauge chart in Streamlit
-                with st.expander('Expand'):
-                    st.plotly_chart(fig_total_events, use_container_width=True)
 
-                
 
-                
-      
-            with col5:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>Time spent at events</span>
+
+
+
+
+
+
+
+
+
+
+                col4, col5 = st.columns(2)
+
+                with col4:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>All Events Attended</span>
+                            </div>
+                            <p style='font-size: 30px;'># {int(rank_total_events) if rank_total_events else 'N/A'}  ({total_events_attended})</p>
                         </div>
-                        <p style='font-size: 30px;'># {rank_selected_name[0] if rank_selected_name else 'N/A'}  ({total_player_hours} hr {remaining_player_minutes} min)</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                        """,
+                        unsafe_allow_html=True
+                    )
 
-                # Calculate the percentage of total time spent at events
-                percentage_time_spent = (total_player_hours / total_hours) * 100
 
-                # Create the gauge chart for time spent at events
-                fig_time_spent = go.Figure(go.Indicator(
-                    mode="gauge+number",
-                    value=percentage_time_spent,
-                    title={'text': "Percent of all events"},
-                    gauge={
-                        'axis': {'range': [None, 100]},
-                        'bar': {'color': "darkgreen"},
-                        'steps': [
-                            {'range': [0, 25], 'color': "lightgray"},
-                            {'range': [25, 50], 'color': "lightblue"},
-                            {'range': [50, 75], 'color': "skyblue"},
-                            {'range': [75, 100], 'color': "steelblue"}
-                        ],
-                    },
-                    number={
-                        'suffix': "%",
-                        'font': {'size': 70}
-                    }
-                ))
+                    percentage_attended = total_events_attended / df_att.shape[0] * 100
+                    fig_total_events = go.Figure(go.Indicator(
+                        mode = "gauge+number",
+                        value=percentage_attended,
+                        title={'text': "Percent of all Events Attended"},
+                        gauge = {
+                            'axis': {'range': [None, 100]},
+                            'bar': {'color': "darkgreen"},
+                            'steps' : [
+                                {'range': [0, 25], 'color': "lightgray"},
+                                {'range': [25, 50], 'color': "lightblue"},
+                                {'range': [50, 75], 'color': "skyblue"},
+                                {'range': [75, 100], 'color': "steelblue"}
+                            ],
+                        },
+                        number={
+                            'suffix': "%",
+                            'font': {'size': 70}
+                        }
+                    ))
 
-                # Display the gauge chart in Streamlit
-                with st.expander('Expand'):
-                    st.plotly_chart(fig_time_spent, use_container_width=True)
+                    # Display the gauge chart in Streamlit
+                    with st.expander('Expand'):
+                        st.plotly_chart(fig_total_events, use_container_width=True)
+
+                    
+
+                    
+        
+                with col5:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>Time spent at events</span>
+                            </div>
+                            <p style='font-size: 30px;'># {rank_selected_name[0] if rank_selected_name else 'N/A'}  ({total_player_hours} hr {remaining_player_minutes} min)</p>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                    # Calculate the percentage of total time spent at events
+                    percentage_time_spent = (total_player_hours / total_hours) * 100
+
+                    # Create the gauge chart for time spent at events
+                    fig_time_spent = go.Figure(go.Indicator(
+                        mode="gauge+number",
+                        value=percentage_time_spent,
+                        title={'text': "Percent of all events"},
+                        gauge={
+                            'axis': {'range': [None, 100]},
+                            'bar': {'color': "darkgreen"},
+                            'steps': [
+                                {'range': [0, 25], 'color': "lightgray"},
+                                {'range': [25, 50], 'color': "lightblue"},
+                                {'range': [50, 75], 'color': "skyblue"},
+                                {'range': [75, 100], 'color': "steelblue"}
+                            ],
+                        },
+                        number={
+                            'suffix': "%",
+                            'font': {'size': 70}
+                        }
+                    ))
+
+                    # Display the gauge chart in Streamlit
+                    with st.expander('Expand'):
+                        st.plotly_chart(fig_time_spent, use_container_width=True)
 
                 
 
