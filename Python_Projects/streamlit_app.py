@@ -1,6 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
-
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -949,6 +949,13 @@ def show_financial_analysis():
         # Add your income/Expenses analysis and visualizations here
         st.subheader("Income/Expenses Section Content")
 
+        df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
+
+
+
+
+
+
         fig, ax = plt.subplots(figsize=(8, 4))
         bars = ax.bar(data['Source'], data['Growth'])
         ax.set_xlabel('Source', fontsize=12)
@@ -962,10 +969,165 @@ def show_financial_analysis():
 
 
         link = {
-            'source': [0, 1, 0, 2],  # Indices correspond to the nodes
-            'target': [2, 2, 3, 3],
-            'value': [8, 4, 2, 6]  # The flows/quantities
+            'source': [0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8],  # Indices correspond to the nodes
+            'target': [8, 8, 8, 8, 8, 8, 8, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+            'value': [8, 4, 2, 1, 5, 5, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2]  # The flows/quantities
         }
+
+
+
+
+
+
+        figx = go.Figure(data=[go.Sankey(
+            node=dict(
+                pad=15,
+                thickness=20,
+                line=dict(color="black", width=0.5),
+                label=["A", "B", "C", "D", 'E', 'F', 'G', 'H', 'I']  # Replace with your node labels
+            ),
+            link=link
+        )])
+
+        st.plotly_chart(figx)
+
+
+       
+       
+        # Assuming df_fin_rub is your DataFrame containing transaction data
+        # Filtering income and expense transactions
+        income = df_fin_rub[df_fin_rub['Classification'] == 'Credit']
+        expenses = df_fin_rub[df_fin_rub['Classification'] == 'Debit']
+
+        
+
+        # Grouping expenses by category and calculating their total
+        income_categories = income.groupby('Category')['Sum'].sum().reset_index()
+        expense_categories = expenses.groupby('Category')['Sum'].sum().reset_index()
+
+        # Calculating total income and total expenses
+        total_income = income_categories['Sum'].sum()
+        total_expenses = expense_categories['Sum'].sum()
+
+        # Creating labels for nodes
+        labels = (
+            income_categories['Category'].tolist() +       # Individual income categories
+            ['Total Income'] +                     # Total Income node
+            expense_categories['Category'].tolist()        # Individual expense categories
+        )
+
+        # Calculating the sum of individual income sources
+        income_sum = total_income
+        
+
+        # Assigning source and target values
+        source = (
+            list(range(len(income_categories))) +          # Sources for income categories
+            [len(labels) - 2] * len(income_categories) +    # Links from income to total income
+             
+            list(range(len(expense_categories)))  # Sources for expense categories
+        )
+
+        target = (
+            [len(labels) - 2] * len(income_categories) +    # Targets for income categories to total income
+            list(range(len(labels) - len(expense_categories), len(labels)))  # Targets for expense categories
+        )
+
+        # Values for the links
+        value = (
+            income_categories['Sum'].tolist() +            # Values for income category links
+            [income_sum] +     # Value for income to total income
+            [abs(x) for x in expense_categories['Sum'].tolist()]            # Values for expense category links
+        )
+
+        # Creating the Sankey diagram
+        fig_sankey = go.Figure(data=[go.Sankey(
+            node=dict(
+                pad=15,
+                thickness=20,
+                line=dict(color='black', width=0.5),
+                label=labels,
+            ),
+            link=dict(
+                source=source,
+                target=target,
+                value=value,
+            )
+        )])
+
+        # Updating layout properties
+        fig_sankey.update_layout(title_text="Income and Expenses Sankey Diagram")
+
+        # Show the Sankey diagram
+        st.plotly_chart(fig_sankey, use_container_width=True)
+
+
+    
+
+        # Replace these with your income and expense sums
+        income_sums = [537468, 5800, 1447299, 1000, 1290, 33400, 15650, 147400]
+        expense_sums = [12430, 33936, 410529, 1410810, 33400, 90659, 40850, 15000, 26151, 5000, 4900, 7742, 97900] 
+
+        income_nodes = [
+            'Equipment', 'Event', 'Field', 'Fine', 'Interest Payment', 'Internal Transfer',
+            'Loan', 'Membership Fee'
+        ]
+
+        total_income_node = 'Total Income'
+
+        expense_nodes = [
+            'Accounting Services', 'Digital Services', 'Equipment', 'Field', 'Internal Transfer',
+            'International Membership Fee', 'Legal Services', 'Loan', 'Logistical Debits',
+            'Logistical Fees', 'Marketing', 'Misc', 'Payout'
+        ]
+
+        # Creating labels for nodes
+        labels = income_nodes + [total_income_node] + expense_nodes
+
+        # Assigning source and target values
+        num_income_nodes = len(income_nodes)
+        num_expense_nodes = len(expense_nodes)
+
+        source = [0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
+        target = [8, 8, 8, 8, 8, 8, 8, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+
+        # Values for the links
+        value = [537468, 5800, 1447299, 1000, 1290, 33400, 15650, 147400, 12430, 33936, 410529, 1410810, 33400, 90659, 40850, 15000, 26151, 5000, 4900, 7742, 97900 ]
+
+        # Creating the Sankey diagram
+        fig_sankey1 = go.Figure(data=[go.Sankey(
+            node=dict(
+                pad=15,
+                thickness=20,
+                line=dict(color='black', width=0.5),
+                
+                label=['Equipment', 'Event', 'Field', 'Fine', 'Interest Payment', 'Internal Transfer',
+            'Loan', 'Membership Fee', 'Total Income', 'Accounting Services', 'Digital Services', 'Equipment', 'Field', 'Internal Transfer',
+            'International Membership Fee', 'Legal Services', 'Loan', 'Logistical Debits',
+            'Logistical Fees', 'Marketing', 'Misc', 'Payout' ]
+            ),
+            link=dict(
+                source=source,
+                target=target,
+                value=value,
+            )
+        )])
+
+        # Updating layout properties
+        fig_sankey1.update_layout(title_text="Income and Expenses Sankey Diagram")
+
+        # Show the Sankey diagram
+        st.plotly_chart(fig_sankey1, use_container_width=True)
+
+
+        link1 = {
+            'source': [0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8],  # Indices correspond to the nodes
+            'target': [8, 8, 8, 8, 8, 8, 8, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+            'value': income_sums + [sum(income_sums)] + expense_sums  # The flows/quantities
+        }
+
+
+
 
         figx = go.Figure(data=[go.Sankey(
             node=dict(
@@ -974,10 +1136,32 @@ def show_financial_analysis():
                 line=dict(color="black", width=0.5),
                 label=["A", "B", "C", "D"]  # Replace with your node labels
             ),
-            link=link
+            link=link1
         )])
 
-        st.plotly_chart(figx)
+        st.plotly_chart(figx, use_container_width=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
