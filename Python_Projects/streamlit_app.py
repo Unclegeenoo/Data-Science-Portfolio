@@ -756,8 +756,7 @@ def show_financial_analysis():
 
 
         
-        average_attendance_per_event = round(df_att[df_att['Status'] == 'Completed']['Attendance'].mean(), 1)
-        total_attendees_completed_events = df_att[df_att['Status'] == 'Completed']['Attendance'].sum()
+        
         
 
         all_attendees = df_att['Going'].str.split(', ').explode()
@@ -947,98 +946,90 @@ def show_financial_analysis():
 
     elif selected_subsection == "Income/Expenses":
         # Add your income/Expenses analysis and visualizations here
-        st.subheader("Income/Expenses Section Content")
+        st.write('<h2 style="text-align: center;">Income/Expenses Cashflow</h2>', unsafe_allow_html=True)
 
         df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
-
-
-
-
-
-
-        fig, ax = plt.subplots(figsize=(8, 4))
-        bars = ax.bar(data['Source'], data['Growth'])
-        ax.set_xlabel('Source', fontsize=12)
-        ax.set_ylabel('Growth in Gold Bars', fontsize=12)
-        ax.set_title('Growth in Gold Bars per Source', fontsize=16)
-        
-        # Add a slider widget to interact with the chart
-        slider_value = st.slider("Adjust Data", min_value=0, max_value=5, value=1)
-        for bar in bars:
-            bar.set_height(bar.get_height() + slider_value)  # Adjust the bar heights
-
-
-        link = {
-            'source': [0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8],  # Indices correspond to the nodes
-            'target': [8, 8, 8, 8, 8, 8, 8, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-            'value': [8, 4, 2, 1, 5, 5, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2]  # The flows/quantities
-        }
-
-
-
-
-
-
-        figx = go.Figure(data=[go.Sankey(
-            node=dict(
-                pad=15,
-                thickness=20,
-                line=dict(color="black", width=0.5),
-                label=["A", "B", "C", "D", 'E', 'F', 'G', 'H', 'I']  # Replace with your node labels
-            ),
-            link=link
-        )])
-
-        st.plotly_chart(figx)
-
-
-       
-       
-        # Assuming df_fin_rub is your DataFrame containing transaction data
-        # Filtering income and expense transactions
-        income = df_fin_rub[df_fin_rub['Classification'] == 'Credit']
-        expenses = df_fin_rub[df_fin_rub['Classification'] == 'Debit']
+        df_fin_usd = df_fin[df_fin['Classification'].str.contains('USD')]
+     
+        col1, col2 = st.columns(2)
 
         
+        with col1:
+            container = st.container(border=True)  
+            with container: 
+                source = [0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
+                target = [8, 8, 8, 8, 8, 8, 8, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
 
-        # Grouping expenses by category and calculating their total
-        income_categories = income.groupby('Category')['Sum'].sum().reset_index()
-        expense_categories = expenses.groupby('Category')['Sum'].sum().reset_index()
+                # Values for the links
+                value = [537468, 5800, 1447299, 1000, 1290, 33400, 15650, 147400, 12430, 33936, 410529, 1410810, 33400, 90659, 40850, 15000, 26151, 5000, 4900, 7742, 97900 ]
 
-        # Calculating total income and total expenses
-        total_income = income_categories['Sum'].sum()
-        total_expenses = expense_categories['Sum'].sum()
+                # Creating the Sankey diagram
+                fig_sankey = go.Figure(data=[go.Sankey(
+                    node=dict(
+                        pad=15,
+                        thickness=20,
+                        line=dict(color='black', width=0.5),
+                        
+                        label=['Equipment', 'Event', 'Field', 'Fine', 'Interest Payment', 'Internal Transfer',
+                        'Loan', 'Membership Fee', 'Total Income', 'Accounting Services', 'Digital Services', 'Equipment', 'Field', 'Internal Transfer',
+                        'International Membership Fee', 'Legal Services', 'Loan', 'Logistical Debits',
+                        'Logistical Fees', 'Marketing', 'Misc', 'Payout' ],
 
-        # Creating labels for nodes
-        labels = (
-            income_categories['Category'].tolist() +       # Individual income categories
-            ['Total Income'] +                     # Total Income node
-            expense_categories['Category'].tolist()        # Individual expense categories
-        )
+                        color=[
+                        'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightblue',
+                        'indianred', 'indianred', 'indianred', 'indianred', 'indianred', 'indianred', 'indianred', 'indianred',
+                        'indianred', 'indianred', 'indianred', 'indianred', 'indianred'
+                        ]  
 
-        # Calculating the sum of individual income sources
-        income_sum = total_income
-        
+                    ),
+                    
+                    link=dict(
+                        source=source,
+                        target=target,
+                        value=value,
+                        color='rgba(0, 0, 0, .05)'  # Example: semi-transparent black lines
+                    )
+                )])
 
-        # Assigning source and target values
-        source = (
-            list(range(len(income_categories))) +          # Sources for income categories
-            [len(labels) - 2] * len(income_categories) +    # Links from income to total income
-             
-            list(range(len(expense_categories)))  # Sources for expense categories
-        )
+                # Updating layout properties
+                fig_sankey.update_layout(title_text="RUB Fund Cash Flow")
 
-        target = (
-            [len(labels) - 2] * len(income_categories) +    # Targets for income categories to total income
-            list(range(len(labels) - len(expense_categories), len(labels)))  # Targets for expense categories
-        )
+                # Show the Sankey diagram
+                st.plotly_chart(fig_sankey, use_container_width=True)
 
-        # Values for the links
-        value = (
-            income_categories['Sum'].tolist() +            # Values for income category links
-            [income_sum] +     # Value for income to total income
-            [abs(x) for x in expense_categories['Sum'].tolist()]            # Values for expense category links
-        )
+
+        with col2:
+            container = st.container(border=True)  
+            with container: 
+                source = [0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 10, 10, 10, 10]
+                target = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 12, 13, 14, 15]
+
+                # Values for the links
+                value = [310, 259, 250, 240, 195, 181, 80, 25, 5, 2000, 250, 181, 68, 2000, 1046]
+
+                # Creating the Sankey diagram
+                fig_sankey2 = go.Figure(data=[go.Sankey(
+                    node=dict(
+                        pad=15,
+                        thickness=20,
+                        line=dict(color='black', width=0.5),
+                        
+                        label=['Head Sale', 'Shafts Sale', 'Savings', 'Helmet Sale', 'Gloves Sale', 'Reimbursement', 'Elbows Sale', 'Strings Sale', 'Equipment Sale', 'Rolling Inventory', 'Total Income', 'Elbows Purchase', 'Ball Purchases', 'Strings Purchase', 'Rolling Inventory', 'Payout']
+                    ),
+                    link=dict(
+                        source=source,
+                        target=target,
+                        value=value,
+                        color='rgba(0, 0, 0, .05)'  # Example: semi-transparent black lines
+                    )
+                )])
+
+                # Updating layout properties
+                fig_sankey2.update_layout(title_text="USD Fund Cash Flow")
+
+                # Show the Sankey diagram
+                st.plotly_chart(fig_sankey2, use_container_width=True)
+
 
         # Creating the Sankey diagram
         fig_sankey = go.Figure(data=[go.Sankey(
@@ -1046,65 +1037,51 @@ def show_financial_analysis():
                 pad=15,
                 thickness=20,
                 line=dict(color='black', width=0.5),
-                label=labels,
+                label=[
+                    'Equipment', 'Event', 'Field', 'Fine', 'Interest Payment', 'Internal Transfer',
+                    'Loan', 'Membership Fee', 'Total Income', 'Accounting Services', 'Digital Services',
+                    'Equipment', 'Field', 'Internal Transfer', 'International Membership Fee',
+                    'Legal Services', 'Loan', 'Logistical Debits', 'Logistical Fees',
+                    'Marketing', 'Misc', 'Payout'
+                ],
+                # Setting node colors
+                color=[
+                    'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen',
+                    'lightgreen', 'lightblue', 'firebrick', 'firebrick', 'firebrick', 'crimson', 'darkred', 'indianred',
+                    'red', 'red', 'red', 'red', 'red'
+                ]
+                
             ),
             link=dict(
                 source=source,
                 target=target,
                 value=value,
+                # Setting link colors
+                color='rgba(0, 0, 0, .05)'  # Example: semi-transparent black lines
             )
         )])
 
         # Updating layout properties
-        fig_sankey.update_layout(title_text="Income and Expenses Sankey Diagram")
+        fig_sankey.update_layout(title_text="RUB Fund Cash Flow")
 
         # Show the Sankey diagram
         st.plotly_chart(fig_sankey, use_container_width=True)
 
-
-    
-
-        # Replace these with your income and expense sums
-        income_sums = [537468, 5800, 1447299, 1000, 1290, 33400, 15650, 147400]
-        expense_sums = [12430, 33936, 410529, 1410810, 33400, 90659, 40850, 15000, 26151, 5000, 4900, 7742, 97900] 
-
-        income_nodes = [
-            'Equipment', 'Event', 'Field', 'Fine', 'Interest Payment', 'Internal Transfer',
-            'Loan', 'Membership Fee'
-        ]
-
-        total_income_node = 'Total Income'
-
-        expense_nodes = [
-            'Accounting Services', 'Digital Services', 'Equipment', 'Field', 'Internal Transfer',
-            'International Membership Fee', 'Legal Services', 'Loan', 'Logistical Debits',
-            'Logistical Fees', 'Marketing', 'Misc', 'Payout'
-        ]
-
-        # Creating labels for nodes
-        labels = income_nodes + [total_income_node] + expense_nodes
-
-        # Assigning source and target values
-        num_income_nodes = len(income_nodes)
-        num_expense_nodes = len(expense_nodes)
-
-        source = [0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
-        target = [8, 8, 8, 8, 8, 8, 8, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
-
-        # Values for the links
-        value = [537468, 5800, 1447299, 1000, 1290, 33400, 15650, 147400, 12430, 33936, 410529, 1410810, 33400, 90659, 40850, 15000, 26151, 5000, 4900, 7742, 97900 ]
-
-        # Creating the Sankey diagram
-        fig_sankey1 = go.Figure(data=[go.Sankey(
+        fig_sankey = go.Figure(data=[go.Sankey(
             node=dict(
                 pad=15,
                 thickness=20,
                 line=dict(color='black', width=0.5),
-                
                 label=['Equipment', 'Event', 'Field', 'Fine', 'Interest Payment', 'Internal Transfer',
-            'Loan', 'Membership Fee', 'Total Income', 'Accounting Services', 'Digital Services', 'Equipment', 'Field', 'Internal Transfer',
-            'International Membership Fee', 'Legal Services', 'Loan', 'Logistical Debits',
-            'Logistical Fees', 'Marketing', 'Misc', 'Payout' ]
+                    'Loan', 'Membership Fee', 'Total Income', 'Accounting Services', 'Digital Services',
+                    'Equipment', 'Field', 'Internal Transfer', 'International Membership Fee',
+                    'Legal Services', 'Loan', 'Logistical Debits', 'Logistical Fees',
+                    'Marketing', 'Misc', 'Payout'],
+                color=[
+                    'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen',
+                    'lightgreen', 'lightblue', 'firebrick', 'firebrick', 'firebrick', 'crimson', 'darkred', 'indianred',
+                    'red', 'red', 'red', 'red', 'red'
+                ]
             ),
             link=dict(
                 source=source,
@@ -1114,32 +1091,22 @@ def show_financial_analysis():
         )])
 
         # Updating layout properties
-        fig_sankey1.update_layout(title_text="Income and Expenses Sankey Diagram")
+        fig_sankey.update_layout(title_text="RUB Fund Cash Flow")
 
         # Show the Sankey diagram
-        st.plotly_chart(fig_sankey1, use_container_width=True)
+        st.plotly_chart(fig_sankey, use_container_width=True)
 
-
-        link1 = {
-            'source': [0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8],  # Indices correspond to the nodes
-            'target': [8, 8, 8, 8, 8, 8, 8, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-            'value': income_sums + [sum(income_sums)] + expense_sums  # The flows/quantities
-        }
+        # Rest of your code to update layout and display the Sankey diagram using Streamlit
 
 
 
 
-        figx = go.Figure(data=[go.Sankey(
-            node=dict(
-                pad=15,
-                thickness=20,
-                line=dict(color="black", width=0.5),
-                label=["A", "B", "C", "D"]  # Replace with your node labels
-            ),
-            link=link1
-        )])
 
-        st.plotly_chart(figx, use_container_width=True)
+
+
+        
+
+       
 
 
 
@@ -1172,11 +1139,6 @@ def show_financial_analysis():
 
 
 
-
-        # Display the chart using Streamlit
-        st.pyplot(fig)
-
-        st.write("text here text here text here text here")
 
 
    
@@ -2044,7 +2006,7 @@ def show_attendance_data():
                 st.warning("No data available for the selected event types.")
         
 
-        st.markdown("<p style='text-align: center;'>add attendance by month on this page</p>", unsafe_allow_html=True)
+
         
         st.write("<h3 style='text-align: center;'>Conclusions</h3>", unsafe_allow_html=True)
 
@@ -2449,7 +2411,7 @@ def show_attendance_data():
                         },
                         number={
                             'suffix': "%",
-                            'font': {'size': 70}
+                            'font': {'size': 50}
                         }
                     ))
 
@@ -2511,7 +2473,7 @@ def show_attendance_data():
                         },
                         number={
                             'suffix': "%",
-                            'font': {'size': 70}
+                            'font': {'size': 50}
                         }
                     ))
 
@@ -2569,7 +2531,7 @@ def show_attendance_data():
                         },
                         number={
                             'suffix': "%",
-                            'font': {'size': 70}
+                            'font': {'size': 50}
                         }
                     ))
 
@@ -2614,7 +2576,7 @@ def show_attendance_data():
                         },
                         number={
                             'suffix': "%",
-                            'font': {'size': 70}
+                            'font': {'size': 50}
                         }
                     ))
 
