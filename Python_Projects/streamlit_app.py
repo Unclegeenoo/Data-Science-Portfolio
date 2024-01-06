@@ -713,7 +713,7 @@ def show_financial_analysis():
 
 
 
-        st.write('<h2 style="text-align: center;">Team Fund Statistics (RUB/USD)</h2>', unsafe_allow_html=True)
+        st.write('<h2 style="text-align: center;">Team Fund (Total in USD)</h2>', unsafe_allow_html=True)
 
 
         # Add CSS for styling the dashboard
@@ -950,9 +950,12 @@ def show_financial_analysis():
 
         df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
         df_fin_usd = df_fin[df_fin['Classification'].str.contains('USD')]
-     
+
+        
+
         col1, col2 = st.columns(2)
 
+        
         
         with col1:
             container = st.container(border=True)  
@@ -997,6 +1000,125 @@ def show_financial_analysis():
                 # Show the Sankey diagram
                 st.plotly_chart(fig_sankey, use_container_width=True)
 
+         
+
+
+            # Filter rows without "(Liquidation)" in the Commentary column
+            df_filtered_rub = df_fin_rub[~df_fin_rub['Commentary'].str.contains('(Liquidation)', na=False)]
+
+            # Extract the year from the 'Date' column  
+            df_filtered_rub['Year'] = df_filtered_rub['Date'].dt.year
+
+            # Calculate the sum of profits and losses for each year
+            profits = df_filtered_rub[df_filtered_rub['Sum'] > 0].groupby('Year')['Sum'].sum()
+            losses = df_filtered_rub[df_filtered_rub['Sum'] < 0].groupby('Year')['Sum'].sum()
+
+            # Calculate the net profit or loss for each year
+            net_profit_loss = profits.add(losses, fill_value=0)
+
+            # Convert 'Year' to strings
+            net_profit_loss.index = net_profit_loss.index.astype(str)
+
+            # Create a bar graph
+            fig_net_rub = px.bar(x=net_profit_loss.index, y=net_profit_loss.values, title='Net Profit/Loss by Year RUB Fund')
+            fig_net_rub.update_traces(marker_color='green', selector=dict(type='bar', marker_line_color='green'))
+            fig_net_rub.update_xaxes(title_text='Year')
+            fig_net_rub.update_yaxes(title_text='Net Profit/Loss')
+
+            
+
+            category_summary_rub = df_fin_rub.groupby('Category').agg({'Sum': ['sum', 'count']})
+            category_summary_rub.columns = ['Total Sum', 'Number of Transactions']
+            category_summary_rub = category_summary_rub.reset_index()
+
+            category_summary_rub['Profit/Loss per Transaction'] = category_summary_rub['Total Sum'] / category_summary_rub['Number of Transactions']
+
+            # Sort the DataFrame by 'Total Sum' in descending order and select the top 5 rows
+            top_5_total_sum_rub = category_summary_rub.sort_values(by='Total Sum', ascending=False).head(5)
+
+            # Create a horizontal bar graph for 'Total Sum'
+            fig_total_sum_rub = px.bar(top_5_total_sum_rub, x='Category', y='Total Sum',
+                                title='Top 5 Categories by Total Sum (RUB)')
+
+            # Create a horizontal bar graph for 'Number of Transactions'
+            top_10_transactions_rub = category_summary_rub.sort_values(by='Number of Transactions', ascending=False).head(5)
+            fig_transactions_rub = px.bar(top_10_transactions_rub, x='Category', y='Number of Transactions',
+                                    title='Top 5 Categories by Number of Transactions')
+
+            # Create a horizontal bar graph for 'Profit/Loss per Transaction'
+            top_10_profit_loss_rub = category_summary_rub.sort_values(by='Profit/Loss per Transaction', ascending=False).head(5)
+            fig_profit_loss_rub = px.bar(top_10_profit_loss_rub, x='Category', y='Profit/Loss per Transaction',
+                                    title='Top 5 Categories by Profit/Loss per Transaction (RUB)')
+            
+            # Extract the month from the 'Date' column
+            df_fin_rub['Month'] = df_fin_rub['Date'].dt.strftime('%B')
+
+            # Calculate the sum of profits and losses for each month
+            profits = df_fin_rub[df_fin_rub['Sum'] > 0].groupby('Month')['Sum'].sum().reset_index()
+            losses = df_fin_rub[df_fin_rub['Sum'] < 0].groupby('Month')['Sum'].sum().reset_index()
+
+            # Merge the profits and losses dataframes
+            merged = pd.merge(profits, losses, on='Month', how='outer', suffixes=('_Profit', '_Loss'))
+
+            # Fill missing values with 0
+            merged = merged.fillna(0)
+
+            # Calculate the net profit or loss for each month
+            merged['Net_Profit_Loss'] = merged['Sum_Profit'] + merged['Sum_Loss']
+
+
+            # Assuming you have a DataFrame named 'merged' containing the data
+
+            # Define the order of months
+            month_order = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ]
+
+            # Convert 'Month' column to categorical with defined order
+            merged['Month'] = pd.Categorical(merged['Month'], categories=month_order, ordered=True)
+
+            # Sort the DataFrame by the categorical 'Month' column
+            merged = merged.sort_values('Month')
+
+            # Create a bar graph
+            fig_month_rub = px.bar(merged, x='Month', y='Net_Profit_Loss',
+                                    title='Net Profit/Loss by Month (Grouped)')
+            fig_month_rub.update_traces(marker_color='green', selector=dict(type='bar', marker_line_color='green'))
+            fig_month_rub.update_xaxes(title_text='Month')
+            fig_month_rub.update_yaxes(title_text='Net Profit/Loss')
+            
+
+            container = st.container(border=True)  
+            with container: 
+                with st.expander('Profit/Loss by Month (Grouped)'):                
+                    st.plotly_chart(fig_month_rub, use_container_width=True)
+
+                st.write('FUCK YOU')
+
+                with st.expander('Profit/Loss by Year (Grouped)'): 
+                    st.plotly_chart(fig_net_rub, use_container_width=True)
+
+
+            st.write('FUCK YOU')    
+
+            container = st.container(border=True)  
+            with container: 
+                with st.expander('Total Sum Leading Categories'):
+                    st.plotly_chart(fig_total_sum_rub, use_container_width=True)
+                
+                with st.expander('Transactions per Category'):
+                    st.plotly_chart(fig_transactions_rub, use_container_width=True)
+
+                with st.expander('Leading Category for P/L per Transaction'):
+                    st.plotly_chart(fig_profit_loss_rub, use_container_width=True)
+
+            st.write('and one more time, go FUCK YOUrself')    
+
+        
+
+
+
 
         with col2:
             container = st.container(border=True)  
@@ -1014,7 +1136,15 @@ def show_financial_analysis():
                         thickness=20,
                         line=dict(color='black', width=0.5),
                         
-                        label=['Head Sale', 'Shafts Sale', 'Savings', 'Helmet Sale', 'Gloves Sale', 'Reimbursement', 'Elbows Sale', 'Strings Sale', 'Equipment Sale', 'Rolling Inventory', 'Total Income', 'Elbows Purchase', 'Ball Purchases', 'Strings Purchase', 'Rolling Inventory', 'Payout']
+                        label=['Head Sale', 'Shafts Sale', 'Savings', 'Helmet Sale', 'Gloves Sale', 'Reimbursement',
+                               'Elbows Sale', 'Strings Sale', 'Equipment Sale', 'Rolling Inventory', 'Total Income',
+                                'Elbows Purchase', 'Ball Purchases', 'Strings Purchase', 'Rolling Inventory', 'Payout'],
+
+                        color=[
+                        'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen',
+                        'lightgreen', 'lightgreen', 'lightblue',
+                        'indianred', 'indianred', 'indianred', 'indianred', 'indianred'
+                        ]  
                     ),
                     link=dict(
                         source=source,
@@ -1030,74 +1160,150 @@ def show_financial_analysis():
                 # Show the Sankey diagram
                 st.plotly_chart(fig_sankey2, use_container_width=True)
 
-
-        # Creating the Sankey diagram
-        fig_sankey = go.Figure(data=[go.Sankey(
-            node=dict(
-                pad=15,
-                thickness=20,
-                line=dict(color='black', width=0.5),
-                label=[
-                    'Equipment', 'Event', 'Field', 'Fine', 'Interest Payment', 'Internal Transfer',
-                    'Loan', 'Membership Fee', 'Total Income', 'Accounting Services', 'Digital Services',
-                    'Equipment', 'Field', 'Internal Transfer', 'International Membership Fee',
-                    'Legal Services', 'Loan', 'Logistical Debits', 'Logistical Fees',
-                    'Marketing', 'Misc', 'Payout'
-                ],
-                # Setting node colors
-                color=[
-                    'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen',
-                    'lightgreen', 'lightblue', 'firebrick', 'firebrick', 'firebrick', 'crimson', 'darkred', 'indianred',
-                    'red', 'red', 'red', 'red', 'red'
-                ]
                 
-            ),
-            link=dict(
-                source=source,
-                target=target,
-                value=value,
-                # Setting link colors
-                color='rgba(0, 0, 0, .05)'  # Example: semi-transparent black lines
-            )
-        )])
 
-        # Updating layout properties
-        fig_sankey.update_layout(title_text="RUB Fund Cash Flow")
+            
 
-        # Show the Sankey diagram
-        st.plotly_chart(fig_sankey, use_container_width=True)
 
-        fig_sankey = go.Figure(data=[go.Sankey(
-            node=dict(
-                pad=15,
-                thickness=20,
-                line=dict(color='black', width=0.5),
-                label=['Equipment', 'Event', 'Field', 'Fine', 'Interest Payment', 'Internal Transfer',
-                    'Loan', 'Membership Fee', 'Total Income', 'Accounting Services', 'Digital Services',
-                    'Equipment', 'Field', 'Internal Transfer', 'International Membership Fee',
-                    'Legal Services', 'Loan', 'Logistical Debits', 'Logistical Fees',
-                    'Marketing', 'Misc', 'Payout'],
-                color=[
-                    'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen',
-                    'lightgreen', 'lightblue', 'firebrick', 'firebrick', 'firebrick', 'crimson', 'darkred', 'indianred',
-                    'red', 'red', 'red', 'red', 'red'
-                ]
-            ),
-            link=dict(
-                source=source,
-                target=target,
-                value=value,
-            )
-        )])
 
-        # Updating layout properties
-        fig_sankey.update_layout(title_text="RUB Fund Cash Flow")
+            df_filtered_usd = df_fin_usd[~df_fin_usd['Commentary'].str.contains('(Liquidation)', na=False)]
 
-        # Show the Sankey diagram
-        st.plotly_chart(fig_sankey, use_container_width=True)
+            
+            # Extract the year from the 'Date' column
+            df_filtered_usd['Year'] = df_filtered_usd['Date'].dt.year
 
-        # Rest of your code to update layout and display the Sankey diagram using Streamlit
+            # Calculate the sum of profits and losses for each year
+            profits = df_filtered_usd[df_filtered_usd['Sum'] > 0].groupby('Year')['Sum'].sum()
+            losses = df_filtered_usd[df_filtered_usd['Sum'] < 0].groupby('Year')['Sum'].sum()
 
+            # Calculate the net profit or loss for each year
+            net_profit_loss = profits.add(losses, fill_value=0)
+
+            # Convert 'Year' to strings
+            net_profit_loss.index = net_profit_loss.index.astype(str)
+
+            # Create a bar graph
+            fig_net_usd = px.bar(x=net_profit_loss.index, y=net_profit_loss.values, title='Net Profit/Loss by Year USD Fund')
+            fig_net_usd.update_traces(marker_color='green', selector=dict(type='bar', marker_line_color='green'))
+            fig_net_usd.update_xaxes(title_text='Year')
+            fig_net_usd.update_yaxes(title_text='Net Profit/Loss')
+
+            # Show the graph
+
+            # Filter rows without "(Liquidation)" in the Commentary column
+            df_filtered_usd = df_fin_usd[~df_fin_usd['Commentary'].str.contains('(Liquidation)', na=False)]
+
+            # Extract the year from the 'Date' column  
+            df_filtered_usd['Year'] = df_filtered_usd['Date'].dt.year
+
+            # Calculate the sum of profits and losses for each year
+            profits = df_filtered_usd[df_filtered_usd['Sum'] > 0].groupby('Year')['Sum'].sum()
+            losses = df_filtered_usd[df_filtered_usd['Sum'] < 0].groupby('Year')['Sum'].sum()
+
+            # Calculate the net profit or loss for each year
+            net_profit_loss = profits.add(losses, fill_value=0)
+
+            # Convert 'Year' to strings
+            net_profit_loss.index = net_profit_loss.index.astype(str)
+
+            # Create a bar graph
+            fig_net_usd = px.bar(x=net_profit_loss.index, y=net_profit_loss.values, title='Net Profit/Loss by Year usd Fund')
+            fig_net_usd.update_traces(marker_color='green', selector=dict(type='bar', marker_line_color='green'))
+            fig_net_usd.update_xaxes(title_text='Year')
+            fig_net_usd.update_yaxes(title_text='Net Profit/Loss')
+
+
+
+            category_summary_usd = df_fin_usd.groupby('Category').agg({'Sum': ['sum', 'count']})
+            category_summary_usd.columns = ['Total Sum', 'Number of Transactions']
+            category_summary_usd = category_summary_usd.reset_index()
+
+            category_summary_usd['Profit/Loss per Transaction'] = category_summary_usd['Total Sum'] / category_summary_usd['Number of Transactions']
+
+            # Sort the DataFrame by 'Total Sum' in descending order and select the top 5 rows
+            top_5_total_sum_usd = category_summary_usd.sort_values(by='Total Sum', ascending=False).head(5)
+
+            # Create a horizontal bar graph for 'Total Sum'
+            fig_total_sum_usd = px.bar(top_5_total_sum_usd, x='Category', y='Total Sum',
+                                title='Top 5 Categories by Total Sum (usd)')
+
+            # Create a horizontal bar graph for 'Number of Transactions'
+            top_10_transactions_usd = category_summary_usd.sort_values(by='Number of Transactions', ascending=False).head(5)
+            fig_transactions_usd = px.bar(top_10_transactions_usd, x='Category', y='Number of Transactions',
+                                    title='Top 5 Categories by Number of Transactions')
+
+            # Create a horizontal bar graph for 'Profit/Loss per Transaction'
+            top_10_profit_loss_usd = category_summary_usd.sort_values(by='Profit/Loss per Transaction', ascending=False).head(5)
+            fig_profit_loss_usd = px.bar(top_10_profit_loss_usd, x='Category', y='Profit/Loss per Transaction',
+                                    title='Top 5 Categories by Profit/Loss per Transaction (usd)')
+
+            # Extract the month from the 'Date' column
+            df_fin_usd['Month'] = df_fin_usd['Date'].dt.strftime('%B')
+
+            # Calculate the sum of profits and losses for each month
+            profits = df_fin_usd[df_fin_usd['Sum'] > 0].groupby('Month')['Sum'].sum().reset_index()
+            losses = df_fin_usd[df_fin_usd['Sum'] < 0].groupby('Month')['Sum'].sum().reset_index()
+
+            # Merge the profits and losses dataframes
+            merged = pd.merge(profits, losses, on='Month', how='outer', suffixes=('_Profit', '_Loss'))
+
+            # Fill missing values with 0
+            merged = merged.fillna(0)
+
+            # Calculate the net profit or loss for each month
+            merged['Net_Profit_Loss'] = merged['Sum_Profit'] + merged['Sum_Loss']
+
+
+            # Assuming you have a DataFrame named 'merged' containing the data
+
+            # Define the order of months
+            month_order = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ]
+
+            # Convert 'Month' column to categorical with defined order
+            merged['Month'] = pd.Categorical(merged['Month'], categories=month_order, ordered=True)
+
+            # Sort the DataFrame by the categorical 'Month' column
+            merged = merged.sort_values('Month')
+
+            # Create a bar graph
+            fig_month_usd = px.bar(merged, x='Month', y='Net_Profit_Loss',
+                                    title='Net Profit/Loss by Month (Grouped)')
+            fig_month_usd.update_traces(marker_color='green', selector=dict(type='bar', marker_line_color='green'))
+            fig_month_usd.update_xaxes(title_text='Month')
+            fig_month_usd.update_yaxes(title_text='Net Profit/Loss')
+
+
+
+            
+
+            container = st.container(border=True) 
+            with container: 
+                with st.expander('Profit/Loss by Month (Grouped)'):                
+                    st.plotly_chart(fig_month_usd, use_container_width=True)
+
+                st.write('NOOooo, FUCK YOOOuuu')
+
+                with st.expander('Profit/Loss by Year (Grouped)'): 
+                    st.plotly_chart(fig_net_usd, use_container_width=True)
+
+
+            st.write('NOOooo, FUCK YOOOuuu')   
+
+            container = st.container(border=True)  
+            with container: 
+                with st.expander('Total Sum Leading Categories'):
+                    st.plotly_chart(fig_total_sum_usd, use_container_width=True)
+                
+                with st.expander('Transactions per Category'):
+                    st.plotly_chart(fig_transactions_usd, use_container_width=True)
+
+                with st.expander('Leading Category for P/L per Transaction'):
+                    st.plotly_chart(fig_profit_loss_usd, use_container_width=True)
+            
+            
 
 
 
@@ -1105,10 +1311,7 @@ def show_financial_analysis():
 
 
         
-
        
-
-
 
 
 
