@@ -1000,6 +1000,12 @@ def show_financial_analysis():
                 # Show the Sankey diagram
                 st.plotly_chart(fig_sankey, use_container_width=True)
 
+                st.markdown('''
+                    <h2 style='text-align: center; font-size: 12px;'>
+                        *Equipment in the RUB fund is all player and non-player equipment. From heads, shafts, gloves to goals, nets, cones, etc.
+                    </h2>
+                ''', unsafe_allow_html=True)
+
          
 
 
@@ -1043,7 +1049,7 @@ def show_financial_analysis():
             # Create a horizontal bar graph for 'Number of Transactions'
             top_10_transactions_rub = category_summary_rub.sort_values(by='Number of Transactions', ascending=False).head(5)
             fig_transactions_rub = px.bar(top_10_transactions_rub, x='Category', y='Number of Transactions',
-                                    title='Top 5 Categories by Number of Transactions')
+                                    title='Top 5 Categories by Number of Transactions (RUB)')
 
             # Create a horizontal bar graph for 'Profit/Loss per Transaction'
             top_10_profit_loss_rub = category_summary_rub.sort_values(by='Profit/Loss per Transaction', ascending=False).head(5)
@@ -1088,19 +1094,30 @@ def show_financial_analysis():
             fig_month_rub.update_xaxes(title_text='Month')
             fig_month_rub.update_yaxes(title_text='Net Profit/Loss')
             
-
+            st.write('<h4 style="text-align: center;">Profit/Loss by Time (RUB)</h4>', unsafe_allow_html=True)
             container = st.container(border=True)  
+
             with container: 
+                st.markdown('''
+                    <h2 style='text-align: center; font-size: 12px;'>
+                        July and the Summer in general were heavy expenditure months.
+                        Investments in Equipment were usually made in the summer as well as expenditures for accounting services and International
+                        Memberships such as the FIL/World Lacrosse.
+                    </h2>
+                ''', unsafe_allow_html=True)
+
                 with st.expander('Profit/Loss by Month (Grouped)'):                
                     st.plotly_chart(fig_month_rub, use_container_width=True)
 
-                st.write('FUCK YOU')
+                
+
 
                 with st.expander('Profit/Loss by Year (Grouped)'): 
                     st.plotly_chart(fig_net_rub, use_container_width=True)
 
 
-            st.write('FUCK YOU')    
+            st.write('<h4 style="text-align: center;">Profit Category Analysis (RUB)</h4>', unsafe_allow_html=True)
+    
 
             container = st.container(border=True)  
             with container: 
@@ -1110,7 +1127,7 @@ def show_financial_analysis():
                 with st.expander('Transactions per Category'):
                     st.plotly_chart(fig_transactions_rub, use_container_width=True)
 
-                with st.expander('Leading Category for P/L per Transaction'):
+                with st.expander('Profit per Transaction'):
                     st.plotly_chart(fig_profit_loss_rub, use_container_width=True)
 
             st.write('''In the RUB fund the Membership Fee (~100 RUB per person per practice) was the main source of income until 
@@ -1176,6 +1193,13 @@ def show_financial_analysis():
                 # Show the Sankey diagram
                 st.plotly_chart(fig_sankey2, use_container_width=True)
 
+                st.markdown('''
+                    <h2 style='text-align: center; font-size: 12px;'>
+                        *Since the USD fund does not have as many Categories, the Equipment Category was extrapolated to show a better
+                        cash flow picture. Therefore, in the USD fund chart "Equipment" is non-player equipment. Things such as goals, nets, cones, etc.
+                    </h2>
+                ''', unsafe_allow_html=True)
+
                 
 
             
@@ -1216,17 +1240,17 @@ def show_financial_analysis():
 
             # Create a horizontal bar graph for 'Total Sum'
             fig_total_sum_usd = px.bar(top_5_total_sum_usd, x='Category', y='Total Sum',
-                                title='Top 5 Categories by Total Sum (usd)')
+                                title='Categories by Total Sum (USD)')
 
             # Create a horizontal bar graph for 'Number of Transactions'
             top_10_transactions_usd = category_summary_usd.sort_values(by='Number of Transactions', ascending=False).head(5)
             fig_transactions_usd = px.bar(top_10_transactions_usd, x='Category', y='Number of Transactions',
-                                    title='Top 5 Categories by Number of Transactions')
+                                    title='Number of Transactions per Category (USD)')
 
             # Create a horizontal bar graph for 'Profit/Loss per Transaction'
             top_10_profit_loss_usd = category_summary_usd.sort_values(by='Profit/Loss per Transaction', ascending=False).head(5)
             fig_profit_loss_usd = px.bar(top_10_profit_loss_usd, x='Category', y='Profit/Loss per Transaction',
-                                    title='Top 5 Categories by Profit/Loss per Transaction (usd)')
+                                    title='Profit/Loss per Transaction (USD)')
 
             # Extract the month from the 'Date' column
             df_fin_usd['Month'] = df_fin_usd['Date'].dt.strftime('%B')
@@ -1269,29 +1293,44 @@ def show_financial_analysis():
 
 
             
+            st.write('<h4 style="text-align: center;">Profit/Loss by Time (USD)</h4>', unsafe_allow_html=True)
 
             container = st.container(border=True) 
             with container: 
-                with st.expander('Profit/Loss by Month (Grouped)'):                
+                st.markdown('''
+                    <h2 style='text-align: center; font-size: 12px;'>
+                        In the USD fund, May 2022 was the month of fund liquidation, all the cash in the fund was returned to the founders. While the RUB fund shows a 
+                        modest loss, RUB profits in May over the years helped offset the liquidation loss.
+                        However, since the USD fund was still young, the loss looks more severe as there were not as many years of profit in May
+                        to cover the liquidation loss. There were even some months and years that showed no transactions. 
+                        
+                    </h2>
+                ''', unsafe_allow_html=True)
+
+
+
+                with st.expander('Profit/Loss by Month (Grouped)'):   
+
+                                                     
                     st.plotly_chart(fig_month_usd, use_container_width=True)
 
-                st.write('NOOooo, FUCK YOOOuuu')
+         
 
                 with st.expander('Profit/Loss by Year (Grouped)'): 
                     st.plotly_chart(fig_net_usd, use_container_width=True)
 
 
-            st.write('NOOooo, FUCK YOOOuuu')   
+            st.write('<h4 style="text-align: center;">Profit Category Analysis (USD)</h4>', unsafe_allow_html=True)
 
             container = st.container(border=True)  
             with container: 
-                with st.expander('Total Sum Leading Categories'):
+                with st.expander('Profit/Loss per Category USD'):
                     st.plotly_chart(fig_total_sum_usd, use_container_width=True)
                 
-                with st.expander('Transactions per Category'):
+                with st.expander('Transactions per Category USD'):
                     st.plotly_chart(fig_transactions_usd, use_container_width=True)
 
-                with st.expander('Leading Category for P/L per Transaction'):
+                with st.expander('Leading Category for P/L per Transaction USD'):
                     st.plotly_chart(fig_profit_loss_usd, use_container_width=True)
             
 
