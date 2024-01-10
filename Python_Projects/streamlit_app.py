@@ -1038,7 +1038,7 @@ def show_financial_analysis():
 
             # Create a horizontal bar graph for 'Total Sum'
             fig_total_sum_rub = px.bar(top_5_total_sum_rub, x='Category', y='Total Sum',
-                                title='Top 5 Categories by Total Sum (RUB)')
+                                title='Top 5 Categories by Total Profit (RUB)')
 
             # Create a horizontal bar graph for 'Number of Transactions'
             top_10_transactions_rub = category_summary_rub.sort_values(by='Number of Transactions', ascending=False).head(5)
@@ -1048,7 +1048,7 @@ def show_financial_analysis():
             # Create a horizontal bar graph for 'Profit/Loss per Transaction'
             top_10_profit_loss_rub = category_summary_rub.sort_values(by='Profit/Loss per Transaction', ascending=False).head(5)
             fig_profit_loss_rub = px.bar(top_10_profit_loss_rub, x='Category', y='Profit/Loss per Transaction',
-                                    title='Top 5 Categories by Profit/Loss per Transaction (RUB)')
+                                    title='Top 5 Categories by Profit per Transaction (RUB)')
             
             # Extract the month from the 'Date' column
             df_fin_rub['Month'] = df_fin_rub['Date'].dt.strftime('%B')
@@ -1113,7 +1113,23 @@ def show_financial_analysis():
                 with st.expander('Leading Category for P/L per Transaction'):
                     st.plotly_chart(fig_profit_loss_rub, use_container_width=True)
 
-            st.write('and one more time, go FUCK YOUrself')    
+            st.write('''In the RUB fund the Membership Fee (~100 RUB per person per practice) was the main source of income until 
+                     2017 since practices were conducted on city property no field rental was needed. 
+                     Therefore to keep the cost of practices down, and to reimburse the fund for amortization of equipment,
+                     logistics, and other expenses were funded
+                     mostly by the Membership Fee. After the Membership Fee was discontinued, it was replaced by profit
+                     from equipment sales and field rental as well as other minor revenue sources.                     
+                        ''')   
+            st.write('''However, the most profitable transaction was having any type of Events, such as intra-squad games, championships,
+                     tournaments, where a large amount of players would come and provide a large profit boost for the fund, as well as a 
+                     boost in overall morale since these games were very competitive and of a high level (for Russia). In our experience, one event
+                     a quarter is a good frequency since doing it too many times lowered the attendance rate of each individual event. 
+                     i.e. Supply/Demand. Events once a quarter (instead of monthly) increased the intrinsic value of the event and gave people something to look forward to 
+                     and get excited about. Additionally, since
+                     the events were not common, people made an effort to come to them as they wouldn't have another chance to play
+                     on a high level for another 3 months.
+                        ''')    
+            
 
         
 
@@ -1187,32 +1203,7 @@ def show_financial_analysis():
             fig_net_usd.update_traces(marker_color='green', selector=dict(type='bar', marker_line_color='green'))
             fig_net_usd.update_xaxes(title_text='Year')
             fig_net_usd.update_yaxes(title_text='Net Profit/Loss')
-
-            # Show the graph
-
-            # Filter rows without "(Liquidation)" in the Commentary column
-            df_filtered_usd = df_fin_usd[~df_fin_usd['Commentary'].str.contains('(Liquidation)', na=False)]
-
-            # Extract the year from the 'Date' column  
-            df_filtered_usd['Year'] = df_filtered_usd['Date'].dt.year
-
-            # Calculate the sum of profits and losses for each year
-            profits = df_filtered_usd[df_filtered_usd['Sum'] > 0].groupby('Year')['Sum'].sum()
-            losses = df_filtered_usd[df_filtered_usd['Sum'] < 0].groupby('Year')['Sum'].sum()
-
-            # Calculate the net profit or loss for each year
-            net_profit_loss = profits.add(losses, fill_value=0)
-
-            # Convert 'Year' to strings
-            net_profit_loss.index = net_profit_loss.index.astype(str)
-
-            # Create a bar graph
-            fig_net_usd = px.bar(x=net_profit_loss.index, y=net_profit_loss.values, title='Net Profit/Loss by Year usd Fund')
-            fig_net_usd.update_traces(marker_color='green', selector=dict(type='bar', marker_line_color='green'))
-            fig_net_usd.update_xaxes(title_text='Year')
-            fig_net_usd.update_yaxes(title_text='Net Profit/Loss')
-
-
+                         
 
             category_summary_usd = df_fin_usd.groupby('Category').agg({'Sum': ['sum', 'count']})
             category_summary_usd.columns = ['Total Sum', 'Number of Transactions']
@@ -1303,39 +1294,15 @@ def show_financial_analysis():
                 with st.expander('Leading Category for P/L per Transaction'):
                     st.plotly_chart(fig_profit_loss_usd, use_container_width=True)
             
-            
 
+            st.write('''The USD fund shows that the majority of the revenue, (excluding a credit from savings of \$250) was all for Player Equipment. 
+                        Although the liquidation payout nullified any remaining funds from all sources, there still remained a 
+                        rolling inventory of about \$2000 that still belongs to the fund.
+                        ''')
 
-
-
-
-
-        
        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            
+            
 
 
 
@@ -1348,15 +1315,6 @@ def show_financial_analysis():
 
     elif selected_subsection == "Equipment Data":
         st.subheader("Equipment data Content. Under Construction")
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1525,42 +1483,104 @@ def show_attendance_data():
 
             # Display the plot in Streamlit
             st.plotly_chart(fig, use_container_width=True)
+        
+
+        #####################################################################
+        container = st.container(border=True)  
+        with container:
+            with st.expander('Field Rental Operations by Year'):
+                st.write("<h3 style='text-align: center;'>Field Rental Operations by Year</h3>", unsafe_allow_html=True)
+                # Filter the DataFrame for 'Field Rental' operations
+                field_rental_df = df_fin[df_fin['Operation'] == 'Field Rental']
+
+                # Group by year and count the occurrences
+                field_rental_df['Year'] = field_rental_df['Date'].dt.year
+                count_by_year = field_rental_df.groupby('Year').size().reset_index(name='Count')
+
+                # Create a line graph
+                fig_fieldrental = px.line(count_by_year, x='Year', y='Count')
+                fig_fieldrental.update_traces(line=dict(color='lightblue'))  # Change to your desired color
+                fig_fieldrental.update_xaxes(title_text='Year')
+                fig_fieldrental.update_yaxes(title_text='Count')
+
+                # Show the graph
+                
+                st.plotly_chart(fig_fieldrental, use_container_width=True)
+
+        ####################################################################
+        
+        container = st.container(border=True)  
+        with container:
+            with st.expander('Field Rental Operations by Month'):
+                st.write("<h3 style='text-align: center;'>Field Rental Operations by Month</h3>", unsafe_allow_html=True)
+
+                # Extract the month from the 'Date' column
+                field_rental_df['Month'] = field_rental_df['Date'].dt.strftime('%B')
+
+                # Define a custom sorting order for months
+                month_order = [
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ]
+
+                # Group by month and count the occurrences
+                count_by_month = field_rental_df.groupby('Month').size().reset_index(name='Count')
+
+                # Sort the months in chronological order
+                count_by_month['Month'] = pd.Categorical(count_by_month['Month'], categories=month_order, ordered=True)
+                count_by_month = count_by_month.sort_values('Month')
+
+                # Create a line graph
+                fig_rentalmonth = px.line(count_by_month, x='Month', y='Count')
+                fig_rentalmonth.update_traces(line=dict(color='lightblue'))  # Change to your desired color
+                fig_rentalmonth.update_xaxes(title_text='Month')
+                fig_rentalmonth.update_yaxes(title_text='Count')
+
+                # Show the graph
+                st.plotly_chart(fig_rentalmonth, use_container_width=True)
+
+
+
+
+
+
 
 
         #####################################################################
         # Title of chart
         container = st.container(border=True)  
-        with container:    
-            st.write("<h3 style='text-align: center;'>Unique Players Over Time</h3>", unsafe_allow_html=True)
+        with container: 
+            with st.expander('Unique Attendees per Year'):
+                st.write("<h3 style='text-align: center;'>Unique Attendees per Year</h3>", unsafe_allow_html=True)   
+           
 
 
+                def calculate_cumulative_unique_attendees(df):
+                    cumulative_unique_attendees = []
+                    unique_attendees = set()
 
-            def calculate_cumulative_unique_attendees(df):
-                cumulative_unique_attendees = []
-                unique_attendees = set()
+                    for year in range(2015, df['Date_Date_Excel'].dt.year.max() + 1):
+                        attendees_in_year = df[df['Date_Date_Excel'].dt.year <= year]['Going'].str.split(', ').explode()
+                        # Filter out specific entries
+                        attendees_filtered = [attendee for attendee in attendees_in_year if attendee not in ["No Data", "No Name"] and len(attendee.split()) <= 3]
+                        unique_attendees.update(attendees_filtered)
+                        cumulative_unique_attendees.append(len(unique_attendees))
 
-                for year in range(2015, df['Date_Date_Excel'].dt.year.max() + 1):
-                    attendees_in_year = df[df['Date_Date_Excel'].dt.year <= year]['Going'].str.split(', ').explode()
-                    # Filter out specific entries
-                    attendees_filtered = [attendee for attendee in attendees_in_year if attendee not in ["No Data", "No Name"] and len(attendee.split()) <= 3]
-                    unique_attendees.update(attendees_filtered)
-                    cumulative_unique_attendees.append(len(unique_attendees))
+                    return cumulative_unique_attendees
 
-                return cumulative_unique_attendees
+            
 
-        
+                # Calculate cumulative unique attendees
+                cumulative_counts = calculate_cumulative_unique_attendees(df_att)
 
-            # Calculate cumulative unique attendees
-            cumulative_counts = calculate_cumulative_unique_attendees(df_att)
+                # Plot cumulative unique attendees count for each year using Plotly
+                years = range(2015, df_att['Date_Date_Excel'].dt.year.max() + 1)
+                data = {"Year": years, "Cumulative Unique Attendees": cumulative_counts}
+                fig_unique = px.line(data, x="Year", y="Cumulative Unique Attendees")
+                fig_unique.update_traces(line=dict(color='skyblue'))  # Set the line color
 
-            # Plot cumulative unique attendees count for each year using Plotly
-            years = range(2015, df_att['Date_Date_Excel'].dt.year.max() + 1)
-            data = {"Year": years, "Cumulative Unique Attendees": cumulative_counts}
-            fig_unique = px.line(data, x="Year", y="Cumulative Unique Attendees")
-            fig_unique.update_traces(line=dict(color='skyblue'))  # Set the line color
-
-            # Display Plotly figure in Streamlit
-            st.plotly_chart(fig_unique, use_container_width=True)
+                # Display Plotly figure in Streamlit
+                st.plotly_chart(fig_unique, use_container_width=True)
 
 
 
@@ -1666,7 +1686,7 @@ def show_attendance_data():
         # Set layout for the chart
         fig_events.update_layout(
             xaxis=dict(title='Month'),
-            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, event_attendance_per_month.max() + 50]),
+            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, event_attendance_per_month.max() + 100]),
             yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False),
             legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
         )
@@ -1710,7 +1730,7 @@ def show_attendance_data():
         # Set layout for the chart
         fig_tp_mo.update_layout(
             xaxis=dict(title='Month'),
-            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, total_attendance_team_practices_month.max() + 50]),
+            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, total_attendance_team_practices_month.max() + 100]),
             yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False),
             legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
         )
@@ -1753,8 +1773,8 @@ def show_attendance_data():
         # Set layout for the chart
         fig_sp_mo.update_layout(
             xaxis=dict(title='Month'),
-            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, total_attendance_skills_practices_month.max() + 50]),
-            yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False),
+            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, total_attendance_skills_practices_month.max() + 100]),
+            yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False, range=[0, avg_attendance_skills_practices_month.max() + 1]),
             legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
         )
 
