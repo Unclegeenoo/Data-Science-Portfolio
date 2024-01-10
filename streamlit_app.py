@@ -1,6 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
-
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -461,22 +461,23 @@ def show_general_stats():
 
 
 
+    container = st.container(border=True)  
+    with container:
+        # Plot the pie chart with the specified color palette
+    
+        fig, ax = plt.subplots(figsize=(10, 6))  # Set the size here (width, height)
+        pie = type_counts_grouped.plot(kind='pie', startangle=140, labels=[None]*len(type_counts_grouped), ax=ax, colors=colors)
+        plt.title('Event Distribution by Types')
+        plt.axis('equal')  # Equal aspect ratio ensures the pie chart is circular
 
-    # Plot the pie chart with the specified color palette
-   
-    fig, ax = plt.subplots(figsize=(10, 6))  # Set the size here (width, height)
-    pie = type_counts_grouped.plot(kind='pie', startangle=140, labels=[None]*len(type_counts_grouped), ax=ax, colors=colors)
-    plt.title('Event Distribution by Types')
-    plt.axis('equal')  # Equal aspect ratio ensures the pie chart is circular
+        # Get percentages for legend labels
+        percentages_grouped = ['{:1.0f}%'.format(val * 100) for val in type_counts_grouped / type_counts_grouped.sum()]
+        legend_labels_grouped = [f'{type_counts_grouped.index[i]}: {percentages_grouped[i]}' for i in range(len(type_counts_grouped))]
 
-    # Get percentages for legend labels
-    percentages_grouped = ['{:1.0f}%'.format(val * 100) for val in type_counts_grouped / type_counts_grouped.sum()]
-    legend_labels_grouped = [f'{type_counts_grouped.index[i]}: {percentages_grouped[i]}' for i in range(len(type_counts_grouped))]
-
-    # Create a legend with percentages multiplied by 100
-    plt.legend(legend_labels_grouped, loc='center right', bbox_to_anchor=(1.2, 0.5), title="Event Types")
-    plt.ylabel('')  # Remove the y-label
-    st.pyplot(fig)
+        # Create a legend with percentages multiplied by 100
+        plt.legend(legend_labels_grouped, loc='center right', bbox_to_anchor=(1.2, 0.5), title="Event Types")
+        plt.ylabel('')  # Remove the y-label
+        st.pyplot(fig)
 
 
     ############################
@@ -705,7 +706,14 @@ def show_financial_analysis():
     if selected_subsection == "Summary":
         # Add your summary analysis and visualizations here
 
-        st.write('<h2 style="text-align: center;">Team Fund Statistics (RUB/USD)</h2>', unsafe_allow_html=True)
+
+
+
+
+
+
+
+        st.write('<h2 style="text-align: center;">Team Fund (Total in USD)</h2>', unsafe_allow_html=True)
 
 
         # Add CSS for styling the dashboard
@@ -748,8 +756,7 @@ def show_financial_analysis():
 
 
         
-        average_attendance_per_event = round(df_att[df_att['Status'] == 'Completed']['Attendance'].mean(), 1)
-        total_attendees_completed_events = df_att[df_att['Status'] == 'Completed']['Attendance'].sum()
+        
         
 
         all_attendees = df_att['Going'].str.split(', ').explode()
@@ -786,11 +793,33 @@ def show_financial_analysis():
         fig_forex = px.line(df_forex, x='Date', y='Price', title='USD to RUB Exchange Rate Over Time')
 
         
-        fig_fund_forex = px.line(merged_df, x='Date', y='Fund Cumulative in USD', title='RUB Fund Cumulative in USD over Time')
+        fig_fund_forex = px.line(merged_df, x='Date', y='Fund Cumulative in USD', title='RUB Fund in USD by Exchange Rate of that Time')
         fig_fund_forex.update_xaxes(title='Date')
         fig_fund_forex.update_yaxes(title='Fund Cumulative in USD')
 
-        # Create the layout for the dashboard
+        combined_data = pd.read_csv("D:\Python\WebApp\combined_data.csv")
+        combined_data['Date'] = pd.to_datetime(combined_data['Date'])
+
+        # Calculate 'Total Fund USD' after filling NaN values
+        combined_data['Total Fund USD'] = combined_data['Fund Cumulative'].add(combined_data['Fund Cumulative in USD'], fill_value=0)
+
+        # Create a line plot using Plotly Express
+        fig_combined = px.line(combined_data, x='Date', y='Total Fund USD', 
+                            labels={'Date': 'Date', 'Total Fund USD': 'Amount in USD'},
+                            title='Combined Funds in USD')
+        
+
+        container = st.container(border=True)  
+        with container:
+            st.plotly_chart(fig_combined, use_container_width=True)
+
+        
+            
+
+
+
+
+        ################### Create the layout for the financial summary page
         col11, col22 = st.columns(2)
 
         container = st.container(border=True)
@@ -859,41 +888,43 @@ def show_financial_analysis():
        
         
         with col111:
-            container = st.container(border=True)
-            with container:
+            with st.expander('Exchange Rate from Aug 2015 - April 2022'):
+                st.plotly_chart(fig_forex, use_container_width=True)
+            with st.expander('RUB fund denominated in US Dollars'):
                 st.plotly_chart(fig_fund_forex, use_container_width=True)
+            transaction_count = df_fin.groupby('Date').size().reset_index(name='Transaction Volume')
+
+            # Create a line plot using Plotly Express
+            with st.expander('Volume of Transactions'):
+                fig_transactions = px.line(transaction_count, x='Date', y='Transaction Volume', 
+                                            labels={'Date': 'Date', 'Transaction Volume': 'Transaction Volume'},
+                                            title='Transaction Volume Over Time')
+
+                # Show the graph for transaction volume
+                st.plotly_chart(fig_transactions, use_container_width=True)
 
 
         
         with col222:
             container = st.container(border=True)
             with container:
-                st.write("total fund usd + rub")
-            
-                st.write("ruble 30, then 60-80")
-            
-                st.write("dollar fund started for international payments (tournaments, equipent)")    
-        
-        st.plotly_chart(fig_forex, use_container_width=True)
-
-
-        
-        combined_data = pd.read_csv("D:\Python\WebApp\combined_data.csv")
-        combined_data['Date'] = pd.to_datetime(combined_data['Date'])
-
-        # Calculate 'Total Fund USD' after filling NaN values
-        combined_data['Total Fund USD'] = combined_data['Fund Cumulative'].add(combined_data['Fund Cumulative in USD'], fill_value=0)
-
-        # Create a line plot using Plotly Express
-        fig_combined = px.line(combined_data, x='Date', y='Total Fund USD', 
-                            labels={'Date': 'Date', 'Total Fund USD': 'Total Fund USD'},
-                            title='Total Fund USD Over Date')
+                       
+                    
+                st.write('''Due to fluctuations and subsequent devaluation of the Ruble over time, 
+                        the club decided to open a second fund in 2018 that would hold foreign currency. 
+                        This would protect against the Ruble's inflation and devaluation, 
+                        facilitate payments for events and federation memberships abroad, 
+                        as well as equipment purchases.                        
+                        ''')
+                    
+                st.write('''Throughout the club's history the value of the Ruble dropped from 30 RUB for 1 USD to near 150 RUB for 1 USD.
+                        The fund ledger started in 2015, and even then we had to deal with fluctuations of the rate betwwen 60-80 RUB for 1 USD for 
+                        the majority of the time, with the exchange rate average rising (value decreasing) over time.
+                        ''')
+                    
+                
 
        
-  
-
-        # Show the combined graph
-        st.plotly_chart(fig_combined, use_container_width=True)
 
 
        
@@ -903,21 +934,7 @@ def show_financial_analysis():
        
        
 
-        
-
-        
-        st.write("text here text here text here text here")
-
-
-
-
-
-
-
-
-
-
-
+    
 
 
 
@@ -929,38 +946,414 @@ def show_financial_analysis():
 
     elif selected_subsection == "Income/Expenses":
         # Add your income/Expenses analysis and visualizations here
-        st.subheader("Income/Expenses Section Content")
+        st.write('<h2 style="text-align: center;">Income/Expenses Cashflow</h2>', unsafe_allow_html=True)
 
-        fig, ax = plt.subplots(figsize=(8, 4))
-        bars = ax.bar(data['Source'], data['Growth'])
-        ax.set_xlabel('Source', fontsize=12)
-        ax.set_ylabel('Growth in Gold Bars', fontsize=12)
-        ax.set_title('Growth in Gold Bars per Source', fontsize=16)
+        df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
+        df_fin_usd = df_fin[df_fin['Classification'].str.contains('USD')]
+
         
-        # Add a slider widget to interact with the chart
-        slider_value = st.slider("Adjust Data", min_value=0, max_value=5, value=1)
-        for bar in bars:
-            bar.set_height(bar.get_height() + slider_value)  # Adjust the bar heights
 
-        # Display the chart using Streamlit
-        st.pyplot(fig)
+        col1, col2 = st.columns(2)
 
-        st.write("text here text here text here text here")
+        
+        
+        with col1:
+            container = st.container(border=True)  
+            with container: 
+                source = [0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
+                target = [8, 8, 8, 8, 8, 8, 8, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+
+                # Values for the links
+                value = [537468, 5800, 1447299, 1000, 1290, 33400, 15650, 147400, 12430, 33936, 410529, 1410810, 33400, 90659, 40850, 15000, 26151, 5000, 4900, 7742, 97900 ]
+
+                # Creating the Sankey diagram
+                fig_sankey = go.Figure(data=[go.Sankey(
+                    node=dict(
+                        pad=15,
+                        thickness=20,
+                        line=dict(color='black', width=0.5),
+                        
+                        label=['Equipment', 'Event', 'Field', 'Fine', 'Interest Payment', 'Internal Transfer',
+                        'Loan', 'Membership Fee', 'Total Income', 'Accounting Services', 'Digital Services', 'Equipment', 'Field', 'Internal Transfer',
+                        'International Membership Fee', 'Legal Services', 'Loan', 'Logistical Debits',
+                        'Logistical Fees', 'Marketing', 'Misc', 'Payout' ],
+
+                        color=[
+                        'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightblue',
+                        'indianred', 'indianred', 'indianred', 'indianred', 'indianred', 'indianred', 'indianred', 'indianred',
+                        'indianred', 'indianred', 'indianred', 'indianred', 'indianred'
+                        ]  
+
+                    ),
+                    
+                    link=dict(
+                        source=source,
+                        target=target,
+                        value=value,
+                        color='rgba(0, 0, 0, .05)'  # Example: semi-transparent black lines
+                    )
+                )])
+
+                # Updating layout properties
+                fig_sankey.update_layout(title_text="RUB Fund Cash Flow")
+
+                # Show the Sankey diagram
+                st.plotly_chart(fig_sankey, use_container_width=True)
+
+                st.markdown('''
+                    <h2 style='text-align: center; font-size: 12px;'>
+                        *Equipment in the RUB fund is all player and non-player equipment. From heads, shafts, gloves to goals, nets, cones, etc.
+                    </h2>
+                ''', unsafe_allow_html=True)
+
+         
+
+
+            # Filter rows without "(Liquidation)" in the Commentary column
+            df_filtered_rub = df_fin_rub[~df_fin_rub['Commentary'].str.contains('(Liquidation)', na=False)]
+
+            # Extract the year from the 'Date' column  
+            df_filtered_rub['Year'] = df_filtered_rub['Date'].dt.year
+
+            # Calculate the sum of profits and losses for each year
+            profits = df_filtered_rub[df_filtered_rub['Sum'] > 0].groupby('Year')['Sum'].sum()
+            losses = df_filtered_rub[df_filtered_rub['Sum'] < 0].groupby('Year')['Sum'].sum()
+
+            # Calculate the net profit or loss for each year
+            net_profit_loss = profits.add(losses, fill_value=0)
+
+            # Convert 'Year' to strings
+            net_profit_loss.index = net_profit_loss.index.astype(str)
+
+            # Create a bar graph
+            fig_net_rub = px.bar(x=net_profit_loss.index, y=net_profit_loss.values, title='Net Profit/Loss by Year RUB Fund')
+            fig_net_rub.update_traces(marker_color='green', selector=dict(type='bar', marker_line_color='green'))
+            fig_net_rub.update_xaxes(title_text='Year')
+            fig_net_rub.update_yaxes(title_text='Net Profit/Loss')
+
+            
+
+            category_summary_rub = df_fin_rub.groupby('Category').agg({'Sum': ['sum', 'count']})
+            category_summary_rub.columns = ['Total Sum', 'Number of Transactions']
+            category_summary_rub = category_summary_rub.reset_index()
+
+            category_summary_rub['Profit/Loss per Transaction'] = category_summary_rub['Total Sum'] / category_summary_rub['Number of Transactions']
+
+            # Sort the DataFrame by 'Total Sum' in descending order and select the top 5 rows
+            top_5_total_sum_rub = category_summary_rub.sort_values(by='Total Sum', ascending=False).head(5)
+
+            # Create a horizontal bar graph for 'Total Sum'
+            fig_total_sum_rub = px.bar(top_5_total_sum_rub, x='Category', y='Total Sum',
+                                title='Top 5 Categories by Total Profit (RUB)')
+
+            # Create a horizontal bar graph for 'Number of Transactions'
+            top_10_transactions_rub = category_summary_rub.sort_values(by='Number of Transactions', ascending=False).head(5)
+            fig_transactions_rub = px.bar(top_10_transactions_rub, x='Category', y='Number of Transactions',
+                                    title='Top 5 Categories by Number of Transactions (RUB)')
+
+            # Create a horizontal bar graph for 'Profit/Loss per Transaction'
+            top_10_profit_loss_rub = category_summary_rub.sort_values(by='Profit/Loss per Transaction', ascending=False).head(5)
+            fig_profit_loss_rub = px.bar(top_10_profit_loss_rub, x='Category', y='Profit/Loss per Transaction',
+                                    title='Top 5 Categories by Profit per Transaction (RUB)')
+            
+            # Extract the month from the 'Date' column
+            df_fin_rub['Month'] = df_fin_rub['Date'].dt.strftime('%B')
+
+            # Calculate the sum of profits and losses for each month
+            profits = df_fin_rub[df_fin_rub['Sum'] > 0].groupby('Month')['Sum'].sum().reset_index()
+            losses = df_fin_rub[df_fin_rub['Sum'] < 0].groupby('Month')['Sum'].sum().reset_index()
+
+            # Merge the profits and losses dataframes
+            merged = pd.merge(profits, losses, on='Month', how='outer', suffixes=('_Profit', '_Loss'))
+
+            # Fill missing values with 0
+            merged = merged.fillna(0)
+
+            # Calculate the net profit or loss for each month
+            merged['Net_Profit_Loss'] = merged['Sum_Profit'] + merged['Sum_Loss']
+
+
+            # Assuming you have a DataFrame named 'merged' containing the data
+
+            # Define the order of months
+            month_order = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ]
+
+            # Convert 'Month' column to categorical with defined order
+            merged['Month'] = pd.Categorical(merged['Month'], categories=month_order, ordered=True)
+
+            # Sort the DataFrame by the categorical 'Month' column
+            merged = merged.sort_values('Month')
+
+            # Create a bar graph
+            fig_month_rub = px.bar(merged, x='Month', y='Net_Profit_Loss',
+                                    title='Net Profit/Loss by Month (Grouped)')
+            fig_month_rub.update_traces(marker_color='green', selector=dict(type='bar', marker_line_color='green'))
+            fig_month_rub.update_xaxes(title_text='Month')
+            fig_month_rub.update_yaxes(title_text='Net Profit/Loss')
+            
+            st.write('<h4 style="text-align: center;">Profit/Loss by Time (RUB)</h4>', unsafe_allow_html=True)
+            container = st.container(border=True)  
+
+            with container: 
+                st.markdown('''
+                    <h2 style='text-align: center; font-size: 12px;'>
+                        July and the Summer in general were heavy expenditure months.
+                        Investments in Equipment were usually made in the summer as well as expenditures for accounting services and International
+                        Memberships such as the FIL/World Lacrosse.
+                    </h2>
+                ''', unsafe_allow_html=True)
+
+                with st.expander('Profit/Loss by Month (Grouped)'):                
+                    st.plotly_chart(fig_month_rub, use_container_width=True)
+
+                
+
+
+                with st.expander('Profit/Loss by Year (Grouped)'): 
+                    st.plotly_chart(fig_net_rub, use_container_width=True)
+
+
+            st.write('<h4 style="text-align: center;">Profit Category Analysis (RUB)</h4>', unsafe_allow_html=True)
+    
+
+            container = st.container(border=True)  
+            with container: 
+                with st.expander('Total Sum Leading Categories'):
+                    st.plotly_chart(fig_total_sum_rub, use_container_width=True)
+                
+                with st.expander('Transactions per Category'):
+                    st.plotly_chart(fig_transactions_rub, use_container_width=True)
+
+                with st.expander('Profit per Transaction'):
+                    st.plotly_chart(fig_profit_loss_rub, use_container_width=True)
+
+            st.write('''In the RUB fund the Membership Fee (~100 RUB per person per practice) was the main source of income until 
+                     2017 since practices were conducted on city property no field rental was needed. 
+                     Therefore to keep the cost of practices down, and to reimburse the fund for amortization of equipment,
+                     logistics, and other expenses were funded
+                     mostly by the Membership Fee. After the Membership Fee was discontinued, it was replaced by profit
+                     from equipment sales and field rental as well as other minor revenue sources.                     
+                        ''')   
+            st.write('''However, the most profitable transaction was having any type of Events, such as intra-squad games, championships,
+                     tournaments, where a large amount of players would come and provide a large profit boost for the fund, as well as a 
+                     boost in overall morale since these games were very competitive and of a high level (for Russia). In our experience, one event
+                     a quarter is a good frequency since doing it too many times lowered the attendance rate of each individual event. 
+                     i.e. Supply/Demand. Events once a quarter (instead of monthly) increased the intrinsic value of the event and gave people something to look forward to 
+                     and get excited about. Additionally, since
+                     the events were not common, people made an effort to come to them as they wouldn't have another chance to play
+                     on a high level for another 3 months.
+                        ''')    
+            
+
+        
+
+
+
+
+        with col2:
+            container = st.container(border=True)  
+            with container: 
+                source = [0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 10, 10, 10, 10]
+                target = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 12, 13, 14, 15]
+
+                # Values for the links
+                value = [310, 259, 250, 240, 195, 181, 80, 25, 5, 2000, 250, 181, 68, 2000, 1046]
+
+                # Creating the Sankey diagram
+                fig_sankey2 = go.Figure(data=[go.Sankey(
+                    node=dict(
+                        pad=15,
+                        thickness=20,
+                        line=dict(color='black', width=0.5),
+                        
+                        label=['Head Sale', 'Shafts Sale', 'Savings', 'Helmet Sale', 'Gloves Sale', 'Reimbursement',
+                               'Elbows Sale', 'Strings Sale', 'Equipment Sale', 'Rolling Inventory', 'Total Income',
+                                'Elbows Purchase', 'Ball Purchases', 'Strings Purchase', 'Rolling Inventory', 'Payout'],
+
+                        color=[
+                        'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen', 'lightgreen',
+                        'lightgreen', 'lightgreen', 'lightblue',
+                        'indianred', 'indianred', 'indianred', 'indianred', 'indianred'
+                        ]  
+                    ),
+                    link=dict(
+                        source=source,
+                        target=target,
+                        value=value,
+                        color='rgba(0, 0, 0, .05)'  # Example: semi-transparent black lines
+                    )
+                )])
+
+                # Updating layout properties
+                fig_sankey2.update_layout(title_text="USD Fund Cash Flow")
+
+                # Show the Sankey diagram
+                st.plotly_chart(fig_sankey2, use_container_width=True)
+
+                st.markdown('''
+                    <h2 style='text-align: center; font-size: 12px;'>
+                        *Since the USD fund does not have as many Categories, the Equipment Category was extrapolated to show a better
+                        cash flow picture. Therefore, in the USD fund chart "Equipment" is non-player equipment. Things such as goals, nets, cones, etc.
+                    </h2>
+                ''', unsafe_allow_html=True)
+
+                
+
+            
+
+
+
+            df_filtered_usd = df_fin_usd[~df_fin_usd['Commentary'].str.contains('(Liquidation)', na=False)]
+
+            
+            # Extract the year from the 'Date' column
+            df_filtered_usd['Year'] = df_filtered_usd['Date'].dt.year
+
+            # Calculate the sum of profits and losses for each year
+            profits = df_filtered_usd[df_filtered_usd['Sum'] > 0].groupby('Year')['Sum'].sum()
+            losses = df_filtered_usd[df_filtered_usd['Sum'] < 0].groupby('Year')['Sum'].sum()
+
+            # Calculate the net profit or loss for each year
+            net_profit_loss = profits.add(losses, fill_value=0)
+
+            # Convert 'Year' to strings
+            net_profit_loss.index = net_profit_loss.index.astype(str)
+
+            # Create a bar graph
+            fig_net_usd = px.bar(x=net_profit_loss.index, y=net_profit_loss.values, title='Net Profit/Loss by Year USD Fund')
+            fig_net_usd.update_traces(marker_color='green', selector=dict(type='bar', marker_line_color='green'))
+            fig_net_usd.update_xaxes(title_text='Year')
+            fig_net_usd.update_yaxes(title_text='Net Profit/Loss')
+                         
+
+            category_summary_usd = df_fin_usd.groupby('Category').agg({'Sum': ['sum', 'count']})
+            category_summary_usd.columns = ['Total Sum', 'Number of Transactions']
+            category_summary_usd = category_summary_usd.reset_index()
+
+            category_summary_usd['Profit/Loss per Transaction'] = category_summary_usd['Total Sum'] / category_summary_usd['Number of Transactions']
+
+            # Sort the DataFrame by 'Total Sum' in descending order and select the top 5 rows
+            top_5_total_sum_usd = category_summary_usd.sort_values(by='Total Sum', ascending=False).head(5)
+
+            # Create a horizontal bar graph for 'Total Sum'
+            fig_total_sum_usd = px.bar(top_5_total_sum_usd, x='Category', y='Total Sum',
+                                title='Categories by Total Sum (USD)')
+
+            # Create a horizontal bar graph for 'Number of Transactions'
+            top_10_transactions_usd = category_summary_usd.sort_values(by='Number of Transactions', ascending=False).head(5)
+            fig_transactions_usd = px.bar(top_10_transactions_usd, x='Category', y='Number of Transactions',
+                                    title='Number of Transactions per Category (USD)')
+
+            # Create a horizontal bar graph for 'Profit/Loss per Transaction'
+            top_10_profit_loss_usd = category_summary_usd.sort_values(by='Profit/Loss per Transaction', ascending=False).head(5)
+            fig_profit_loss_usd = px.bar(top_10_profit_loss_usd, x='Category', y='Profit/Loss per Transaction',
+                                    title='Profit/Loss per Transaction (USD)')
+
+            # Extract the month from the 'Date' column
+            df_fin_usd['Month'] = df_fin_usd['Date'].dt.strftime('%B')
+
+            # Calculate the sum of profits and losses for each month
+            profits = df_fin_usd[df_fin_usd['Sum'] > 0].groupby('Month')['Sum'].sum().reset_index()
+            losses = df_fin_usd[df_fin_usd['Sum'] < 0].groupby('Month')['Sum'].sum().reset_index()
+
+            # Merge the profits and losses dataframes
+            merged = pd.merge(profits, losses, on='Month', how='outer', suffixes=('_Profit', '_Loss'))
+
+            # Fill missing values with 0
+            merged = merged.fillna(0)
+
+            # Calculate the net profit or loss for each month
+            merged['Net_Profit_Loss'] = merged['Sum_Profit'] + merged['Sum_Loss']
+
+
+            # Assuming you have a DataFrame named 'merged' containing the data
+
+            # Define the order of months
+            month_order = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ]
+
+            # Convert 'Month' column to categorical with defined order
+            merged['Month'] = pd.Categorical(merged['Month'], categories=month_order, ordered=True)
+
+            # Sort the DataFrame by the categorical 'Month' column
+            merged = merged.sort_values('Month')
+
+            # Create a bar graph
+            fig_month_usd = px.bar(merged, x='Month', y='Net_Profit_Loss',
+                                    title='Net Profit/Loss by Month (Grouped)')
+            fig_month_usd.update_traces(marker_color='green', selector=dict(type='bar', marker_line_color='green'))
+            fig_month_usd.update_xaxes(title_text='Month')
+            fig_month_usd.update_yaxes(title_text='Net Profit/Loss')
+
+
+
+            
+            st.write('<h4 style="text-align: center;">Profit/Loss by Time (USD)</h4>', unsafe_allow_html=True)
+
+            container = st.container(border=True) 
+            with container: 
+                st.markdown('''
+                    <h2 style='text-align: center; font-size: 12px;'>
+                        In the USD fund, May 2022 was the month of fund liquidation, all the cash in the fund was returned to the founders. While the RUB fund shows a 
+                        modest loss, RUB profits in May over the years helped offset the liquidation loss.
+                        However, since the USD fund was still young, the loss looks more severe as there were not as many years of profit in May
+                        to cover the liquidation loss. There were even some months and years that showed no transactions. 
+                        
+                    </h2>
+                ''', unsafe_allow_html=True)
+
+
+
+                with st.expander('Profit/Loss by Month (Grouped)'):   
+
+                                                     
+                    st.plotly_chart(fig_month_usd, use_container_width=True)
+
+         
+
+                with st.expander('Profit/Loss by Year (Grouped)'): 
+                    st.plotly_chart(fig_net_usd, use_container_width=True)
+
+
+            st.write('<h4 style="text-align: center;">Profit Category Analysis (USD)</h4>', unsafe_allow_html=True)
+
+            container = st.container(border=True)  
+            with container: 
+                with st.expander('Profit/Loss per Category USD'):
+                    st.plotly_chart(fig_total_sum_usd, use_container_width=True)
+                
+                with st.expander('Transactions per Category USD'):
+                    st.plotly_chart(fig_transactions_usd, use_container_width=True)
+
+                with st.expander('Leading Category for P/L per Transaction USD'):
+                    st.plotly_chart(fig_profit_loss_usd, use_container_width=True)
+            
+
+            st.write('''The USD fund shows that the majority of the revenue, (excluding a credit from savings of \$250) was all for Player Equipment. 
+                        Although the liquidation payout nullified any remaining funds from all sources, there still remained a 
+                        rolling inventory of about \$2000 that still belongs to the fund.
+                        ''')
+
+       
+            
+            
+
+
+
+
+
+
 
 
    
 
     elif selected_subsection == "Equipment Data":
         st.subheader("Equipment data Content. Under Construction")
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1129,42 +1522,104 @@ def show_attendance_data():
 
             # Display the plot in Streamlit
             st.plotly_chart(fig, use_container_width=True)
+        
+
+        #####################################################################
+        container = st.container(border=True)  
+        with container:
+            with st.expander('Field Rental Operations by Year'):
+                st.write("<h3 style='text-align: center;'>Field Rental Operations by Year</h3>", unsafe_allow_html=True)
+                # Filter the DataFrame for 'Field Rental' operations
+                field_rental_df = df_fin[df_fin['Operation'] == 'Field Rental']
+
+                # Group by year and count the occurrences
+                field_rental_df['Year'] = field_rental_df['Date'].dt.year
+                count_by_year = field_rental_df.groupby('Year').size().reset_index(name='Count')
+
+                # Create a line graph
+                fig_fieldrental = px.line(count_by_year, x='Year', y='Count')
+                fig_fieldrental.update_traces(line=dict(color='lightblue'))  # Change to your desired color
+                fig_fieldrental.update_xaxes(title_text='Year')
+                fig_fieldrental.update_yaxes(title_text='Count')
+
+                # Show the graph
+                
+                st.plotly_chart(fig_fieldrental, use_container_width=True)
+
+        ####################################################################
+        
+        container = st.container(border=True)  
+        with container:
+            with st.expander('Field Rental Operations by Month'):
+                st.write("<h3 style='text-align: center;'>Field Rental Operations by Month</h3>", unsafe_allow_html=True)
+
+                # Extract the month from the 'Date' column
+                field_rental_df['Month'] = field_rental_df['Date'].dt.strftime('%B')
+
+                # Define a custom sorting order for months
+                month_order = [
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ]
+
+                # Group by month and count the occurrences
+                count_by_month = field_rental_df.groupby('Month').size().reset_index(name='Count')
+
+                # Sort the months in chronological order
+                count_by_month['Month'] = pd.Categorical(count_by_month['Month'], categories=month_order, ordered=True)
+                count_by_month = count_by_month.sort_values('Month')
+
+                # Create a line graph
+                fig_rentalmonth = px.line(count_by_month, x='Month', y='Count')
+                fig_rentalmonth.update_traces(line=dict(color='lightblue'))  # Change to your desired color
+                fig_rentalmonth.update_xaxes(title_text='Month')
+                fig_rentalmonth.update_yaxes(title_text='Count')
+
+                # Show the graph
+                st.plotly_chart(fig_rentalmonth, use_container_width=True)
+
+
+
+
+
+
 
 
         #####################################################################
         # Title of chart
         container = st.container(border=True)  
-        with container:    
-            st.write("<h3 style='text-align: center;'>Unique Players Over Time</h3>", unsafe_allow_html=True)
+        with container: 
+            with st.expander('Unique Attendees per Year'):
+                st.write("<h3 style='text-align: center;'>Unique Attendees per Year</h3>", unsafe_allow_html=True)   
+           
 
 
+                def calculate_cumulative_unique_attendees(df):
+                    cumulative_unique_attendees = []
+                    unique_attendees = set()
 
-            def calculate_cumulative_unique_attendees(df):
-                cumulative_unique_attendees = []
-                unique_attendees = set()
+                    for year in range(2015, df['Date_Date_Excel'].dt.year.max() + 1):
+                        attendees_in_year = df[df['Date_Date_Excel'].dt.year <= year]['Going'].str.split(', ').explode()
+                        # Filter out specific entries
+                        attendees_filtered = [attendee for attendee in attendees_in_year if attendee not in ["No Data", "No Name"] and len(attendee.split()) <= 3]
+                        unique_attendees.update(attendees_filtered)
+                        cumulative_unique_attendees.append(len(unique_attendees))
 
-                for year in range(2015, df['Date_Date_Excel'].dt.year.max() + 1):
-                    attendees_in_year = df[df['Date_Date_Excel'].dt.year <= year]['Going'].str.split(', ').explode()
-                    # Filter out specific entries
-                    attendees_filtered = [attendee for attendee in attendees_in_year if attendee not in ["No Data", "No Name"] and len(attendee.split()) <= 3]
-                    unique_attendees.update(attendees_filtered)
-                    cumulative_unique_attendees.append(len(unique_attendees))
+                    return cumulative_unique_attendees
 
-                return cumulative_unique_attendees
+            
 
-        
+                # Calculate cumulative unique attendees
+                cumulative_counts = calculate_cumulative_unique_attendees(df_att)
 
-            # Calculate cumulative unique attendees
-            cumulative_counts = calculate_cumulative_unique_attendees(df_att)
+                # Plot cumulative unique attendees count for each year using Plotly
+                years = range(2015, df_att['Date_Date_Excel'].dt.year.max() + 1)
+                data = {"Year": years, "Cumulative Unique Attendees": cumulative_counts}
+                fig_unique = px.line(data, x="Year", y="Cumulative Unique Attendees")
+                fig_unique.update_traces(line=dict(color='skyblue'))  # Set the line color
 
-            # Plot cumulative unique attendees count for each year using Plotly
-            years = range(2015, df_att['Date_Date_Excel'].dt.year.max() + 1)
-            data = {"Year": years, "Cumulative Unique Attendees": cumulative_counts}
-            fig_unique = px.line(data, x="Year", y="Cumulative Unique Attendees")
-            fig_unique.update_traces(line=dict(color='skyblue'))  # Set the line color
-
-            # Display Plotly figure in Streamlit
-            st.plotly_chart(fig_unique, use_container_width=True)
+                # Display Plotly figure in Streamlit
+                st.plotly_chart(fig_unique, use_container_width=True)
 
 
 
@@ -1270,7 +1725,7 @@ def show_attendance_data():
         # Set layout for the chart
         fig_events.update_layout(
             xaxis=dict(title='Month'),
-            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, event_attendance_per_month.max() + 50]),
+            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, event_attendance_per_month.max() + 100]),
             yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False),
             legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
         )
@@ -1314,7 +1769,7 @@ def show_attendance_data():
         # Set layout for the chart
         fig_tp_mo.update_layout(
             xaxis=dict(title='Month'),
-            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, total_attendance_team_practices_month.max() + 50]),
+            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, total_attendance_team_practices_month.max() + 100]),
             yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False),
             legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
         )
@@ -1357,8 +1812,8 @@ def show_attendance_data():
         # Set layout for the chart
         fig_sp_mo.update_layout(
             xaxis=dict(title='Month'),
-            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, total_attendance_skills_practices_month.max() + 50]),
-            yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False),
+            yaxis=dict(title='Total Attendees', showgrid=False, range=[0, total_attendance_skills_practices_month.max() + 100]),
+            yaxis2=dict(title='Secondary Y-Axis Title', overlaying='y', side='right', showgrid=False, range=[0, avg_attendance_skills_practices_month.max() + 1]),
             legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
         )
 
@@ -1684,130 +2139,136 @@ def show_attendance_data():
 
 
 
+        container = st.container(border=True)  
+        with container:
+            st.write("<h3 style='text-align: center;'>Total and Avg Attendance per Type</h3>", unsafe_allow_html=True)
 
-        st.write("<h3 style='text-align: center;'>Total and Avg Attendance per Type</h3>", unsafe_allow_html=True)
+            # Calculate total attendance per event type
+            total_attendance_per_type = df_att.groupby('Type')['Attendance'].sum()
 
-        # Calculate total attendance per event type
-        total_attendance_per_type = df_att.groupby('Type')['Attendance'].sum()
+            # Sort the total attendance per event type in descending order
+            total_attendance_per_type = total_attendance_per_type.sort_values(ascending=True) 
 
-        # Sort the total attendance per event type in descending order
-        total_attendance_per_type = total_attendance_per_type.sort_values(ascending=True) 
+            # Calculate average attendance per event type
+            average_attendance_per_type = df_att.groupby('Type')['Attendance'].mean()
 
-        # Calculate average attendance per event type
-        average_attendance_per_type = df_att.groupby('Type')['Attendance'].mean()
-
-        # Sort the average attendance per event type based on the total attendance order
-        average_attendance_per_type = average_attendance_per_type.loc[total_attendance_per_type.index]
+            # Sort the average attendance per event type based on the total attendance order
+            average_attendance_per_type = average_attendance_per_type.loc[total_attendance_per_type.index]
 
 
-        fig_att_type = go.Figure()
+            fig_att_type = go.Figure()
 
 
 
 #######################################################
 ############### Attendance per type ###################
 
-        # Add a horizontal bar chart
-        fig_att_type.add_trace(go.Bar(
-            x=total_attendance_per_type.values,  # Total attendance values
-            y=total_attendance_per_type.index,   # Event types
-            text=total_attendance_per_type.values,
-            textposition='auto',
-            textfont=dict(size=16, color='black'),
-            orientation='h',                    # Horizontal orientation
-            marker=dict(color='skyblue'),
-            name='Attendance by Type'       # Bar color
-        ))
+            # Add a horizontal bar chart
+            fig_att_type.add_trace(go.Bar(
+                x=total_attendance_per_type.values,  # Total attendance values
+                y=total_attendance_per_type.index,   # Event types
+                text=total_attendance_per_type.values,
+                textposition='auto',
+                textfont=dict(size=16, color='black'),
+                orientation='h',                    # Horizontal orientation
+                marker=dict(color='skyblue'),
+                name='Attendance by Type'       # Bar color
+            ))
 
 
-        # Add a line chart for average attendance per event type
-        fig_att_type.add_trace(go.Scatter(
-            x=average_attendance_per_type.values,  # Average attendance values
-            y=average_attendance_per_type.index,   # Event types
-            mode='lines+markers+text',
-            name='Average Attendance',            # Line chart name
-            marker=dict(color='red', size=10),
-            text=average_attendance_per_type.round(1),
-            textposition='top center',
-            textfont=dict(size=16, color='red'),
-            line=dict(color='red'),            # Line color
-            xaxis ='x2'
-        ))
+            # Add a line chart for average attendance per event type
+            fig_att_type.add_trace(go.Scatter(
+                x=average_attendance_per_type.values,  # Average attendance values
+                y=average_attendance_per_type.index,   # Event types
+                mode='lines+markers+text',
+                name='Average Attendance',            # Line chart name
+                marker=dict(color='red', size=10),
+                text=average_attendance_per_type.round(1),
+                textposition='top center',
+                textfont=dict(size=16, color='red'),
+                line=dict(color='red'),            # Line color
+                xaxis ='x2'
+            ))
 
 
 
-        fig_att_type.update_layout(
-            
-            xaxis=dict(showgrid=False, showticklabels=False, range=[0, 4700]),  # Adjust the x-axis range
-            yaxis=dict(showgrid=True),  
-            height=800,  # Set the height of the chart
-            bargap=0.1,  # Set the gap between bars
-            legend=dict(x=.5, y=.3),
-            xaxis2=dict(title='Average Attendance', range=[0, 30], overlaying='x', side='bottom', showticklabels=False, showgrid=False),  # Adjust the second x-axis
-        )
+            fig_att_type.update_layout(
+                
+                xaxis=dict(showgrid=False, showticklabels=False, range=[0, 4700]),  # Adjust the x-axis range
+                yaxis=dict(showgrid=True),  
+                height=800,  # Set the height of the chart
+                bargap=0.1,  # Set the gap between bars
+                legend=dict(x=.5, y=.3),
+                xaxis2=dict(title=None, range=[0, 30], overlaying='x', side='bottom', showticklabels=False, showgrid=False),  # Adjust the second x-axis
+            )
 
 
-        # Display the plot
-        st.plotly_chart(fig_att_type, use_container_width=True)
+            # Display the plot
+            st.plotly_chart(fig_att_type, use_container_width=True)
 
   
         #####################################################################
         ####################   interactive attendance chart   ##########################
-        st.write("<h3 style='text-align: center;'>Event Type Attendance Per Year Interactive Chart</h3>", unsafe_allow_html=True)
+        container = st.container(border=True)  
+        with container:
 
-        # Create a multiselect element for selecting event types
-        selected_types = st.multiselect("Select Event Type ", df_att['Type'].unique(),label_visibility='collapsed')
-      
+            st.write("<h3 style='text-align: center;'>Event Type Attendance Per Year Interactive Chart</h3>", unsafe_allow_html=True)
 
-        # Filter the DataFrame based on the selected event types
-        filtered_data = df_att[df_att['Type'].isin(selected_types)]
+            # Create a multiselect element for selecting event types
+            selected_types = st.multiselect("Select Event Type ", df_att['Type'].unique(),label_visibility='collapsed')
+        
 
-        # Group by year and calculate total attendance per year
-        total_attendance_per_year = filtered_data.groupby(['Year', 'Type'])['Attendance'].sum().reset_index()
+            # Filter the DataFrame based on the selected event types
+            filtered_data = df_att[df_att['Type'].isin(selected_types)]
 
-        # Create an interactive line chart using Plotly Express
-        fig_int_att = px.line(total_attendance_per_year, x='Year', y='Attendance', color='Type')
-        fig_int_att.update_xaxes(type='category')  # Ensure the x-axis is treated as categorical (years)
+            # Group by year and calculate total attendance per year
+            total_attendance_per_year = filtered_data.groupby(['Year', 'Type'])['Attendance'].sum().reset_index()
 
-        # Update layout to remove axis labels and tick marks
-        fig_int_att.update_xaxes(title_text=None, showticklabels=True)
-        fig_int_att.update_yaxes(title_text=None, showticklabels=True)
+            # Create an interactive line chart using Plotly Express
+            fig_int_att = px.line(total_attendance_per_year, x='Year', y='Attendance', color='Type')
+            fig_int_att.update_xaxes(type='category')  # Ensure the x-axis is treated as categorical (years)
 
-        # Display the chart in Streamlit
-        st.plotly_chart(fig_int_att, use_container_width=True)
+            # Update layout to remove axis labels and tick marks
+            fig_int_att.update_xaxes(title_text=None, showticklabels=True)
+            fig_int_att.update_yaxes(title_text=None, showticklabels=True)
+
+            # Display the chart in Streamlit
+            st.plotly_chart(fig_int_att, use_container_width=True)
 
 
 
         ###########################################################
         ###################### histograms #########################
-        st.write("<h3 style='text-align: center;'>Event Attendance Boxplots</h3>", unsafe_allow_html=True)
+        container = st.container(border=True)  
+        with container:
+            st.write("<h3 style='text-align: center;'>Event Attendance Boxplots</h3>", unsafe_allow_html=True)
 
 
 
+            
+            # Multiselect element to select event types
+            selected_types = st.multiselect('Select Event Type', df_att['Type'].unique(), key='multiselect')
+
+
+
+            # Filter data based on selected event types
+            filtered_data = df_att[df_att['Type'].isin(selected_types)]
+
+            # Create an interactive boxplot chart using Plotly Express
+            if not filtered_data.empty:
+                fig_box = px.box(filtered_data, x='Type', y='Attendance', points="all")
+
+                # Update layout to remove axis titles
+                fig_box.update_xaxes(title_text=None, showticklabels=True)
+                fig_box.update_yaxes(title_text='Attendance', showticklabels=True)
+
+                # Set the chart width using the use_container_width function
+                st.plotly_chart(fig_box, use_container_width=True)
+            else:
+                st.warning("No data available for the selected event types.")
         
-        # Multiselect element to select event types
-        selected_types = st.multiselect('Select Event Type', df_att['Type'].unique(), key='multiselect')
 
 
-
-        # Filter data based on selected event types
-        filtered_data = df_att[df_att['Type'].isin(selected_types)]
-
-        # Create an interactive boxplot chart using Plotly Express
-        if not filtered_data.empty:
-            fig_box = px.box(filtered_data, x='Type', y='Attendance', points="all")
-
-            # Update layout to remove axis titles
-            fig_box.update_xaxes(title_text=None, showticklabels=True)
-            fig_box.update_yaxes(title_text='Attendance', showticklabels=True)
-
-            # Set the chart width using the use_container_width function
-            st.plotly_chart(fig_box, use_container_width=True)
-        else:
-            st.warning("No data available for the selected event types.")
-        
-
-        st.markdown("<p style='text-align: center;'>add attendance by month on this page</p>", unsafe_allow_html=True)
         
         st.write("<h3 style='text-align: center;'>Conclusions</h3>", unsafe_allow_html=True)
 
@@ -1977,311 +2438,252 @@ def show_attendance_data():
 
 
 
-        
-        st.write('<h2 style="text-align: center;">Individual Attendance Data</h2>', unsafe_allow_html=True)
-
-
-        
-        all_attendees = df_att['Going'].str.split(', ').explode()
-        filtered_attendees = [attendee for attendee in all_attendees if attendee != "No Data" and len(attendee.split()) <= 3]
-        unique_attendees = sorted(list(set(filtered_attendees))) 
-
-
-        
-
-        # Dropdown menu to select an attendee's name
-        selected_name = st.selectbox("Select an Attendee", unique_attendees)
-
-
-
-        if selected_name:
-            # Filter data for the selected attendee
-            attendee_data = df_att[df_att['Going'].str.contains(selected_name)]
-
-            # Function to calculate the percentage of events attended by each attendee
-            def calculate_percentage_attended(df, selected_attendee):
-                total_events = df.shape[0]
-                events_attended = df[df['Going'].str.contains(selected_attendee, case=False)].shape[0]
-                return (events_attended / total_events) * 100 if total_events > 0 else 0
-            
-             # Calculate the percentage of events attended by each attendee
-            df_percentage_attended = pd.DataFrame(columns=['Attendee', 'Percentage'])
-            df_percentage_attended['Attendee'] = unique_attendees
-            df_percentage_attended['Percentage'] = df_percentage_attended['Attendee'].apply(
-                lambda x: calculate_percentage_attended(df_att, x))
-
-
-            # Calculate metrics
-            total_team_practices_attended = attendee_data[attendee_data['Type'] == 'Team Practice'].shape[0]
-            total_skills_practices_attended = attendee_data[attendee_data['Type'] == 'Skills Practice'].shape[0]
-            total_events_attended = attendee_data.shape[0]
-            first_event_date = attendee_data['Date_Date_Excel'].min()
-            last_event_date = attendee_data['Date_Date_Excel'].max()
-
-            # Calculate the number of months between the first and last event
-            months_attended = max((last_event_date - first_event_date).days / 30, 1)
-            avg_events_per_month = total_events_attended / months_attended if months_attended != 0 else total_events_attended
-
-             # Create a DataFrame to store average events per month for each attendee
-            attendees_avg_events = pd.DataFrame(columns=['Attendee', 'AvgEventsPerMonth'])
-
-            
-
-            # Format first and last event dates to the desired format
-            formatted_first_date = first_event_date.strftime("%b %d, %Y")
-            formatted_last_date = last_event_date.strftime("%b %d, %Y")
-
-            # Compute rankings for different event types based on attendance count
-            df_team_practices = df_att[df_att['Type'] == 'Team Practice']
-            df_skills_practices = df_att[df_att['Type'] == 'Skills Practice']
-            df_total_events = df_att.copy()  # Create a copy of the original DataFrame
-            # Sort the DataFrame by percentage in descending order to assign ranks
-            df_percentage_attended = df_percentage_attended.sort_values(by='Percentage', ascending=False)
-            df_percentage_attended['Rank'] = df_percentage_attended['Percentage'].rank(ascending=False, method='min')
-
-
-                                  
-            
-            total_events_ranks = df_total_events['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
-            team_practices_ranks = df_team_practices['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
-            skills_practices_ranks = df_skills_practices['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
-        
-            rank_total_events = total_events_ranks[selected_name] if selected_name in total_events_ranks else None
-            rank_team_practices = team_practices_ranks[selected_name] if selected_name in team_practices_ranks else None
-            rank_skills_practices = skills_practices_ranks[selected_name] if selected_name in skills_practices_ranks else None
-            rank_percentage_attended = df_percentage_attended[df_percentage_attended['Attendee'] == selected_name]['Rank'].values[0]
-            
-
+        container = st.container(border=True)  
+        with container:    
+            st.write('<h2 style="text-align: center;">Individual Attendance Data</h2>', unsafe_allow_html=True)
 
 
             
-            # Function to convert a duration string to minutes
-            def convert_duration_to_minutes(duration_str):
-                parts = duration_str.split()
-                minutes = 0
+            all_attendees = df_att['Going'].str.split(', ').explode()
+            filtered_attendees = [attendee for attendee in all_attendees if attendee != "No Data" and len(attendee.split()) <= 3]
+            unique_attendees = sorted(list(set(filtered_attendees))) 
 
-                for i in range(len(parts)):
-                    if parts[i] == 'days':
-                        minutes += int(parts[i - 1]) * 24 * 60
-                    elif parts[i] == 'hr':
-                        minutes += int(parts[i - 1]) * 60
-                    elif parts[i] == 'min':
-                        minutes += int(parts[i - 1])
-
-                return minutes
-            
-            # Filter the DataFrame to select rows where the selected_name is in the "Going" column
-            selected_name_events = df_att[df_att['Going'].str.contains(selected_name, case=False)]
-
-            # Sample duration values from the filtered DataFrame
-            selected_name_durations = selected_name_events['Duration']
-
-            # Convert the duration strings to minutes and sum them
-            total_player_minutes = sum([convert_duration_to_minutes(duration) for duration in selected_name_durations])
-
-            # Convert the total minutes back to hours and minutes
-            total_player_hours = total_player_minutes // 60
-            remaining_player_minutes = total_player_minutes % 60
-
-             # Create a dictionary to store minutes attended by each attendee
-            attendees_minutes = {}
-
-            # Loop through unique attendees to calculate their total time spent at events
-            for attendee in unique_attendees:
-                attendee_events = df_att[df_att['Going'].str.contains(attendee, case=False)]
-                attendee_durations = attendee_events['Duration']
-                total_player_minutes = sum([convert_duration_to_minutes(duration) for duration in attendee_durations])
-                attendees_minutes[attendee] = total_player_minutes
-
-
-            # Sort attendees by the total minutes attended in descending order to get ranks
-            ranked_attendees = sorted(attendees_minutes.items(), key=lambda x: x[1], reverse=True)
-
-            # Get the rank for the selected attendee
-            rank_selected_name = [rank for rank, (name, _) in enumerate(ranked_attendees, 1) if name.lower() == selected_name.lower()]
-
-
-            # Display metrics with formatted dates and rankings
-            st.markdown(
-                f"""
-                <div style='text-align: center;'>
-                    <h3 style='margin-bottom: 0;'>Attendance Ranks and Stats for {selected_name}</h3>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
 
             
-            #st.write(f"Total Team Practices Attended: {total_team_practices_attended}, # {int(rank_team_practices) if rank_team_practices else 'N/A'}")
-            #st.write(f"Total Skills Practices Attended: {total_skills_practices_attended}, # {int(rank_skills_practices) if rank_skills_practices else 'N/A'}")
-            #st.write(f"Total Events Attended: {total_events_attended}, # {int(rank_total_events) if rank_total_events else 'N/A'}")
-            #st.write(f"Percentage of All Events Attended by {selected_name}: {total_events_attended / df_att.shape[0] * 100:.2f}%, # {int(rank_percentage_attended)}")
-            #st.write(f"Date of First Event Attended: {formatted_first_date}")
-            #st.write(f"Date of Last Event Attended: {formatted_last_date}")
-            #st.write(f"Average Events Attended per Month: {avg_events_per_month:.2f}")
-            #st.write(f"Time spent at events: {total_hours} hr {remaining_minutes} min | # {rank_selected_name[0]}" if rank_selected_name else f"Time spent by {selected_name} at events: {total_hours} hr {remaining_minutes} min | No rank found for {selected_name}")
+
+            # Dropdown menu to select an attendee's name
+            selected_name = st.selectbox("Select an Attendee", unique_attendees)
+
+
+
+            if selected_name:
+                # Filter data for the selected attendee
+                attendee_data = df_att[df_att['Going'].str.contains(selected_name)]
+
+                # Function to calculate the percentage of events attended by each attendee
+                def calculate_percentage_attended(df, selected_attendee):
+                    total_events = df.shape[0]
+                    events_attended = df[df['Going'].str.contains(selected_attendee, case=False)].shape[0]
+                    return (events_attended / total_events) * 100 if total_events > 0 else 0
+                
+                # Calculate the percentage of events attended by each attendee
+                df_percentage_attended = pd.DataFrame(columns=['Attendee', 'Percentage'])
+                df_percentage_attended['Attendee'] = unique_attendees
+                df_percentage_attended['Percentage'] = df_percentage_attended['Attendee'].apply(
+                    lambda x: calculate_percentage_attended(df_att, x))
+
+
+                # Calculate metrics
+                total_team_practices_attended = attendee_data[attendee_data['Type'] == 'Team Practice'].shape[0]
+                total_skills_practices_attended = attendee_data[attendee_data['Type'] == 'Skills Practice'].shape[0]
+                total_events_attended = attendee_data.shape[0]
+                first_event_date = attendee_data['Date_Date_Excel'].min()
+                last_event_date = attendee_data['Date_Date_Excel'].max()
+
+                # Calculate the number of months between the first and last event
+                months_attended = max((last_event_date - first_event_date).days / 30, 1)
+                avg_events_per_month = total_events_attended / months_attended if months_attended != 0 else total_events_attended
+
+                # Create a DataFrame to store average events per month for each attendee
+                attendees_avg_events = pd.DataFrame(columns=['Attendee', 'AvgEventsPerMonth'])
+
+                
+
+                # Format first and last event dates to the desired format
+                formatted_first_date = first_event_date.strftime("%b %d, %Y")
+                formatted_last_date = last_event_date.strftime("%b %d, %Y")
+
+                # Compute rankings for different event types based on attendance count
+                df_team_practices = df_att[df_att['Type'] == 'Team Practice']
+                df_skills_practices = df_att[df_att['Type'] == 'Skills Practice']
+                df_total_events = df_att.copy()  # Create a copy of the original DataFrame
+                # Sort the DataFrame by percentage in descending order to assign ranks
+                df_percentage_attended = df_percentage_attended.sort_values(by='Percentage', ascending=False)
+                df_percentage_attended['Rank'] = df_percentage_attended['Percentage'].rank(ascending=False, method='min')
+
+
+                                    
+                
+                total_events_ranks = df_total_events['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
+                team_practices_ranks = df_team_practices['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
+                skills_practices_ranks = df_skills_practices['Going'].str.split(', ').explode().value_counts().rank(ascending=False, method='min')
             
+                rank_total_events = total_events_ranks[selected_name] if selected_name in total_events_ranks else None
+                rank_team_practices = team_practices_ranks[selected_name] if selected_name in team_practices_ranks else None
+                rank_skills_practices = skills_practices_ranks[selected_name] if selected_name in skills_practices_ranks else None
+                rank_percentage_attended = df_percentage_attended[df_percentage_attended['Attendee'] == selected_name]['Rank'].values[0]
+                
 
 
 
+                
+                # Function to convert a duration string to minutes
+                def convert_duration_to_minutes(duration_str):
+                    parts = duration_str.split()
+                    minutes = 0
+
+                    for i in range(len(parts)):
+                        if parts[i] == 'days':
+                            minutes += int(parts[i - 1]) * 24 * 60
+                        elif parts[i] == 'hr':
+                            minutes += int(parts[i - 1]) * 60
+                        elif parts[i] == 'min':
+                            minutes += int(parts[i - 1])
+
+                    return minutes
+                
+                # Filter the DataFrame to select rows where the selected_name is in the "Going" column
+                selected_name_events = df_att[df_att['Going'].str.contains(selected_name, case=False)]
+
+                # Sample duration values from the filtered DataFrame
+                selected_name_durations = selected_name_events['Duration']
+
+                # Convert the duration strings to minutes and sum them
+                total_player_minutes = sum([convert_duration_to_minutes(duration) for duration in selected_name_durations])
+
+                # Convert the total minutes back to hours and minutes
+                total_player_hours = total_player_minutes // 60
+                remaining_player_minutes = total_player_minutes % 60
+
+                # Create a dictionary to store minutes attended by each attendee
+                attendees_minutes = {}
+
+                # Loop through unique attendees to calculate their total time spent at events
+                for attendee in unique_attendees:
+                    attendee_events = df_att[df_att['Going'].str.contains(attendee, case=False)]
+                    attendee_durations = attendee_events['Duration']
+                    total_player_minutes = sum([convert_duration_to_minutes(duration) for duration in attendee_durations])
+                    attendees_minutes[attendee] = total_player_minutes
 
 
+                # Sort attendees by the total minutes attended in descending order to get ranks
+                ranked_attendees = sorted(attendees_minutes.items(), key=lambda x: x[1], reverse=True)
+
+                # Get the rank for the selected attendee
+                rank_selected_name = [rank for rank, (name, _) in enumerate(ranked_attendees, 1) if name.lower() == selected_name.lower()]
 
 
-            col1, col2, col3 = st.columns(3)
-            
-         
-            with col1:
+                # Display metrics with formatted dates and rankings
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>First Event Attended</span>
-                        </div>
-                        <p style='font-size: 30px;'>{formatted_first_date}</p>
+                        <h3 style='margin-bottom: 0;'>Attendance Ranks and Stats for {selected_name}</h3>
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
 
-            with col2:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>Avg Events Attended per Month</span>
-                        </div>
-                        <p style='font-size: 30px;'>{avg_events_per_month:.2f}</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                
+                #st.write(f"Total Team Practices Attended: {total_team_practices_attended}, # {int(rank_team_practices) if rank_team_practices else 'N/A'}")
+                #st.write(f"Total Skills Practices Attended: {total_skills_practices_attended}, # {int(rank_skills_practices) if rank_skills_practices else 'N/A'}")
+                #st.write(f"Total Events Attended: {total_events_attended}, # {int(rank_total_events) if rank_total_events else 'N/A'}")
+                #st.write(f"Percentage of All Events Attended by {selected_name}: {total_events_attended / df_att.shape[0] * 100:.2f}%, # {int(rank_percentage_attended)}")
+                #st.write(f"Date of First Event Attended: {formatted_first_date}")
+                #st.write(f"Date of Last Event Attended: {formatted_last_date}")
+                #st.write(f"Average Events Attended per Month: {avg_events_per_month:.2f}")
+                #st.write(f"Time spent at events: {total_hours} hr {remaining_minutes} min | # {rank_selected_name[0]}" if rank_selected_name else f"Time spent by {selected_name} at events: {total_hours} hr {remaining_minutes} min | No rank found for {selected_name}")
+                
 
-            with col3:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>Last Event Attended</span>
+
+
+
+
+
+
+                col1, col2, col3 = st.columns(3)
+                
+            
+                with col1:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>First Event Attended</span>
+                            </div>
+                            <p style='font-size: 30px;'>{formatted_first_date}</p>
                         </div>
-                        <p style='font-size: 30px;'>{formatted_last_date}</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                with col2:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>Avg Events Attended per Month</span>
+                            </div>
+                            <p style='font-size: 30px;'>{avg_events_per_month:.2f}</p>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                with col3:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>Last Event Attended</span>
+                            </div>
+                            <p style='font-size: 30px;'>{formatted_last_date}</p>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+
+                
+
 
 
             
 
+                col1, col2 = st.columns(2)
 
-
-          
-
-            col1, col2 = st.columns(2)
-
-            with col1:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>Team Practices Attended</span>
+                with col1:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>Team Practices Attended</span>
+                            </div>
+                            <p style='font-size: 30px;'># {int(rank_team_practices) if rank_team_practices else 'N/A'}  ({total_team_practices_attended})</p>
                         </div>
-                        <p style='font-size: 30px;'># {int(rank_team_practices) if rank_team_practices else 'N/A'}  ({total_team_practices_attended})</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                        """,
+                        unsafe_allow_html=True
+                    )
 
-                percentage_attended_team = total_team_practices_attended / 381 * 100
+                    percentage_attended_team = total_team_practices_attended / 381 * 100
 
-                # Create the gauge chart for team practices attended
-                fig_team_practices = go.Figure(go.Indicator(
-                    mode="gauge+number",
-                    value = percentage_attended_team,
-                    title={'text': "Percentage of Team Practices Attended"},
-                    gauge={
-                        'axis': {'range': [None, 100]},
-                        'bar': {'color': "darkgreen"},
-                        'steps': [
-                            {'range': [0, 25], 'color': "lightgray"},
-                            {'range': [25, 50], 'color': "lightblue"},
-                            {'range': [50, 75], 'color': "skyblue"},
-                            {'range': [75, 100], 'color': "steelblue"}
-                        ],
-                    },
-                    number={
-                        'suffix': "%",
-                        'font': {'size': 70}
-                    }
-                ))
+                    # Create the gauge chart for team practices attended
+                    fig_team_practices = go.Figure(go.Indicator(
+                        mode="gauge+number",
+                        value = percentage_attended_team,
+                        title={'text': "Percentage of Team Practices Attended"},
+                        gauge={
+                            'axis': {'range': [None, 100]},
+                            'bar': {'color': "darkgreen"},
+                            'steps': [
+                                {'range': [0, 25], 'color': "lightgray"},
+                                {'range': [25, 50], 'color': "lightblue"},
+                                {'range': [50, 75], 'color': "skyblue"},
+                                {'range': [75, 100], 'color': "steelblue"}
+                            ],
+                        },
+                        number={
+                            'suffix': "%",
+                            'font': {'size': 50}
+                        }
+                    ))
 
-                # Display the centered gauge chart in Streamlit using plotly_chart with use_container_width=True
-                
-                with st.expander('Expand'):
-                    st.plotly_chart(fig_team_practices, use_container_width=True)
-                
-                
-                
-                
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            with col2:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>Skills Practices Attended</span>
-                        </div>
-                        <p style='font-size: 30px;'># {int(rank_skills_practices) if rank_skills_practices else 'N/A'}  ({total_skills_practices_attended})</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-                percentage_attended_skills = total_skills_practices_attended / skills_practice_count * 100
-
-                # Create the gauge chart for skills practices attended
-                fig_skills_practices = go.Figure(go.Indicator(
-                    mode="gauge+number",
-                    value=percentage_attended_skills,
-                    title={'text': "Percentage of Skills Practices Attended"},
-                    gauge={
-                        'axis': {'range': [None, 100]},
-                        'bar': {'color': "darkgreen"},
-                        'steps': [
-                            {'range': [0, 25], 'color': "lightgray"},
-                            {'range': [25, 50], 'color': "lightblue"},
-                            {'range': [50, 75], 'color': "skyblue"},
-                            {'range': [75, 100], 'color': "steelblue"}
-                        ],
-                    },
-                    number={
-                        'suffix': "%",
-                        'font': {'size': 70}
-                    }
-                ))
-
-                # Display the centered gauge chart in Streamlit using plotly_chart with use_container_width=True
-                with st.expander('Expand'):
-                    st.plotly_chart(fig_skills_practices, use_container_width=True)
-
-                
+                    # Display the centered gauge chart in Streamlit using plotly_chart with use_container_width=True
+                    
+                    with st.expander('Expand'):
+                        st.plotly_chart(fig_team_practices, use_container_width=True)
+                    
+                    
+                    
                     
 
 
@@ -2298,91 +2700,151 @@ def show_attendance_data():
 
 
 
-            col4, col5 = st.columns(2)
 
-            with col4:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>All Events Attended</span>
+
+
+                with col2:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>Skills Practices Attended</span>
+                            </div>
+                            <p style='font-size: 30px;'># {int(rank_skills_practices) if rank_skills_practices else 'N/A'}  ({total_skills_practices_attended})</p>
                         </div>
-                        <p style='font-size: 30px;'># {int(rank_total_events) if rank_total_events else 'N/A'}  ({total_events_attended})</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                    percentage_attended_skills = total_skills_practices_attended / skills_practice_count * 100
+
+                    # Create the gauge chart for skills practices attended
+                    fig_skills_practices = go.Figure(go.Indicator(
+                        mode="gauge+number",
+                        value=percentage_attended_skills,
+                        title={'text': "Percentage of Skills Practices Attended"},
+                        gauge={
+                            'axis': {'range': [None, 100]},
+                            'bar': {'color': "darkgreen"},
+                            'steps': [
+                                {'range': [0, 25], 'color': "lightgray"},
+                                {'range': [25, 50], 'color': "lightblue"},
+                                {'range': [50, 75], 'color': "skyblue"},
+                                {'range': [75, 100], 'color': "steelblue"}
+                            ],
+                        },
+                        number={
+                            'suffix': "%",
+                            'font': {'size': 50}
+                        }
+                    ))
+
+                    # Display the centered gauge chart in Streamlit using plotly_chart with use_container_width=True
+                    with st.expander('Expand'):
+                        st.plotly_chart(fig_skills_practices, use_container_width=True)
+
+                    
+                        
 
 
-                percentage_attended = total_events_attended / df_att.shape[0] * 100
-                fig_total_events = go.Figure(go.Indicator(
-                    mode = "gauge+number",
-                    value=percentage_attended,
-                    title={'text': "Percent of all Events Attended"},
-                    gauge = {
-                        'axis': {'range': [None, 100]},
-                        'bar': {'color': "darkgreen"},
-                        'steps' : [
-                            {'range': [0, 25], 'color': "lightgray"},
-                            {'range': [25, 50], 'color': "lightblue"},
-                            {'range': [50, 75], 'color': "skyblue"},
-                            {'range': [75, 100], 'color': "steelblue"}
-                        ],
-                    },
-                    number={
-                        'suffix': "%",
-                        'font': {'size': 70}
-                    }
-                ))
 
-                # Display the gauge chart in Streamlit
-                with st.expander('Expand'):
-                    st.plotly_chart(fig_total_events, use_container_width=True)
 
-                
 
-                
-      
-            with col5:
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
-                            <span style='font-size: 16px; font-weight: bold;'>Time spent at events</span>
+
+
+
+
+
+
+
+
+
+
+                col4, col5 = st.columns(2)
+
+                with col4:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>All Events Attended</span>
+                            </div>
+                            <p style='font-size: 30px;'># {int(rank_total_events) if rank_total_events else 'N/A'}  ({total_events_attended})</p>
                         </div>
-                        <p style='font-size: 30px;'># {rank_selected_name[0] if rank_selected_name else 'N/A'}  ({total_player_hours} hr {remaining_player_minutes} min)</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                        """,
+                        unsafe_allow_html=True
+                    )
 
-                # Calculate the percentage of total time spent at events
-                percentage_time_spent = (total_player_hours / total_hours) * 100
 
-                # Create the gauge chart for time spent at events
-                fig_time_spent = go.Figure(go.Indicator(
-                    mode="gauge+number",
-                    value=percentage_time_spent,
-                    title={'text': "Percent of all events"},
-                    gauge={
-                        'axis': {'range': [None, 100]},
-                        'bar': {'color': "darkgreen"},
-                        'steps': [
-                            {'range': [0, 25], 'color': "lightgray"},
-                            {'range': [25, 50], 'color': "lightblue"},
-                            {'range': [50, 75], 'color': "skyblue"},
-                            {'range': [75, 100], 'color': "steelblue"}
-                        ],
-                    },
-                    number={
-                        'suffix': "%",
-                        'font': {'size': 70}
-                    }
-                ))
+                    percentage_attended = total_events_attended / df_att.shape[0] * 100
+                    fig_total_events = go.Figure(go.Indicator(
+                        mode = "gauge+number",
+                        value=percentage_attended,
+                        title={'text': "Percent of all Events Attended"},
+                        gauge = {
+                            'axis': {'range': [None, 100]},
+                            'bar': {'color': "darkgreen"},
+                            'steps' : [
+                                {'range': [0, 25], 'color': "lightgray"},
+                                {'range': [25, 50], 'color': "lightblue"},
+                                {'range': [50, 75], 'color': "skyblue"},
+                                {'range': [75, 100], 'color': "steelblue"}
+                            ],
+                        },
+                        number={
+                            'suffix': "%",
+                            'font': {'size': 50}
+                        }
+                    ))
 
-                # Display the gauge chart in Streamlit
-                with st.expander('Expand'):
-                    st.plotly_chart(fig_time_spent, use_container_width=True)
+                    # Display the gauge chart in Streamlit
+                    with st.expander('Expand'):
+                        st.plotly_chart(fig_total_events, use_container_width=True)
+
+                    
+
+                    
+        
+                with col5:
+                    st.markdown(
+                        f"""
+                        <div style='text-align: center;'>
+                            <div style='background-color: skyblue; border-radius: 10px; padding: 10px;'>
+                                <span style='font-size: 16px; font-weight: bold;'>Time spent at events</span>
+                            </div>
+                            <p style='font-size: 30px;'># {rank_selected_name[0] if rank_selected_name else 'N/A'}  ({total_player_hours} hr {remaining_player_minutes} min)</p>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                    # Calculate the percentage of total time spent at events
+                    percentage_time_spent = (total_player_hours / total_hours) * 100
+
+                    # Create the gauge chart for time spent at events
+                    fig_time_spent = go.Figure(go.Indicator(
+                        mode="gauge+number",
+                        value=percentage_time_spent,
+                        title={'text': "Percent of all events"},
+                        gauge={
+                            'axis': {'range': [None, 100]},
+                            'bar': {'color': "darkgreen"},
+                            'steps': [
+                                {'range': [0, 25], 'color': "lightgray"},
+                                {'range': [25, 50], 'color': "lightblue"},
+                                {'range': [50, 75], 'color': "skyblue"},
+                                {'range': [75, 100], 'color': "steelblue"}
+                            ],
+                        },
+                        number={
+                            'suffix': "%",
+                            'font': {'size': 50}
+                        }
+                    ))
+
+                    # Display the gauge chart in Streamlit
+                    with st.expander('Expand'):
+                        st.plotly_chart(fig_time_spent, use_container_width=True)
 
                 
 
