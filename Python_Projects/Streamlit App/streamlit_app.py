@@ -1355,6 +1355,230 @@ def show_financial_analysis():
     elif selected_subsection == "Equipment Data":
         st.subheader("Equipment data Content. Under Construction")
 
+        ##############################Data Bank#################################################3
+
+        df_fin_rub = df_fin[~df_fin['Classification'].str.contains('USD')]
+
+        #order_refund_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Order Refund', 'Sum'].sum()
+        #payment_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Payment', 'Sum'].sum()
+        #payout_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Payout', 'Sum'].sum()
+        player_fine_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Player Fine', 'Sum'].sum()
+        #reimbursement_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Reimbursement', 'Sum'].sum()
+        shoulders_sale_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Shoulders Sale', 'Sum'].sum()
+        #transfer_to_artur_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Transfer to Artur', 'Sum'].sum()
+        bank_interest_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Credit', 'Sum'].sum()
+        #materials_purchase_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Materials Purchase', 'Sum'].sum()
+        lacrosse_clinic_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Lacrosse Clinic', 'Sum'].sum()
+        ball_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Ball Purchase', 'Ball Sale', 'Ball Purchases']), 'Sum'].sum()
+        elbows_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Elbows Purchase', 'Elbows Sale']), 'Sum'].sum()
+        equipment_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Equipment Purchase', 'Equipment Sale']), 'Sum'].sum()
+        field_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Field Fees', 'Field Rental']), 'Sum'].sum()
+        gloves_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Gloves Purchase', 'Gloves Sale']), 'Sum'].sum()
+        head_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Head Purchase', 'Head Sale']), 'Sum'].sum()
+        helmet_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Helmet Purchase', 'Helmet Sale']), 'Sum'].sum()
+        loan_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Loan Issuance', 'Loan Repayment', 'Loan']), 'Sum'].sum()
+        membership_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Membership Fee', 'Membership Fee EFL', 'Membership Fee FIL']), 'Sum'].sum()
+        shafts_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Shafts Purchase', 'Shafts Sale']), 'Sum'].sum()
+        stick_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Stick Sale', 'Sticks Purchase']), 'Sum'].sum()
+        strings_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Strings Purchase', 'Strings Sale']), 'Sum'].sum()
+        t_shirt_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['T-Shirt Sale', 'T-Shirts Purchase']), 'Sum'].sum()
+
+
+        ###############################################
+
+
+        df_fin_usd = df_fin[df_fin['Classification'].str.contains('USD')]
+
+        # Create variables for each pair/group of usd operations
+        ball_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Ball Purchase', 'Ball Sale', 'Ball Purchases']), 'Sum'].sum()
+        elbows_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Elbows Purchase', 'Elbows Sale']), 'Sum'].sum()
+        equipment_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Equipment Purchase', 'Equipment Sale']), 'Sum'].sum()
+        field_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Field Fees', 'Field Rental']), 'Sum'].sum()
+        gloves_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Gloves Purchase', 'Gloves Sale']), 'Sum'].sum()
+        head_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Head Purchase', 'Head Sale']), 'Sum'].sum()
+        helmet_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Helmet Purchase', 'Helmet Sale']), 'Sum'].sum()
+        loan_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Loan Issuance', 'Loan Repayment', 'Loan']), 'Sum'].sum()
+        membership_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Membership Fee', 'Membership Fee EFL', 'Membership Fee FIL']), 'Sum'].sum()
+        shafts_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Shafts Purchase', 'Shafts Sale']), 'Sum'].sum()
+        stick_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Stick Sale', 'Sticks Purchase']), 'Sum'].sum()
+        strings_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Strings Purchase', 'Strings Sale']), 'Sum'].sum()
+        t_shirt_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['T-Shirt Sale', 'T-Shirts Purchase']), 'Sum'].sum()
+        
+
+        ##################################################Data Bank############################################3
+
+        # Calculate the total sums for each operation
+        total_sums = [
+            ("Ball", ball_total_rub),
+            ("Elbows", elbows_total_rub),
+            ("Equipment", equipment_total_rub),
+            ("Field", field_total_rub),
+            ("Gloves", gloves_total_rub),
+            ("Head", head_total_rub),
+            ("Helmet", helmet_total_rub),
+            ("Loan", loan_total_rub),
+            ("Membership", membership_total_rub),
+            ("Shafts", shafts_total_rub),
+            ("Stick", stick_total_rub),
+            ("Strings", strings_total_rub),
+            ("T-Shirt", t_shirt_total_rub),
+            ("Clinic", lacrosse_clinic_rub),
+            ("Bank Interest", bank_interest_rub),
+            ("Shoulder Pads", shoulders_sale_total_rub),
+            
+
+        ]
+
+        # Create a DataFrame
+        df_total_sums_rub = pd.DataFrame(total_sums, columns=["Operation", "Total Sum"])
+
+        # Sort the DataFrame by Total Sum in descending order
+        df_total_sums_rub  = df_total_sums_rub .sort_values(by="Total Sum", ascending=False)
+
+        # Select the top 25 rows
+        top_25_total_sums = df_total_sums_rub .head(25)
+
+        # Create a bar graph
+        fig_op_profit_rub = px.bar(
+            top_25_total_sums,
+            x="Operation",
+            y="Total Sum",
+            labels={"Total Sum": "Total Sum (RUB)"},
+            title="Top 25 Profit for Rub Operations",
+        )
+
+        # Show the graph
+     
+        st.plotly_chart(fig_op_profit_rub, use_container_width=True)
+
+
+        ###################################################
+
+
+        # Group the data by 'Operation' and sum the 'Sum' values for each group
+        operation_summary_rub = df_fin_rub.groupby('Operation')['Sum'].sum().reset_index()
+
+        # Sort the data in descending order by the 'Sum' column and get the top 15 rows
+        top_15_operations = operation_summary_rub.sort_values(by='Sum', ascending=False).head(15)
+
+        # Create a bar graph using Plotly Express
+        fig_op_revenue_rub = px.bar(top_15_operations, x='Operation', y='Sum', title='Top 15 Operations by Total Sum (rub)')
+
+        # Show the graph
+        
+        st.plotly_chart(fig_op_revenue_rub, use_container_width=True)
+
+
+        ##################################################################
+        
+
+
+
+
+
+
+
+
+        # Calculate the total sums for each operation
+        total_sums = [
+            ("Ball", ball_total_usd),
+            ("Elbows", elbows_total_usd),
+            ("Equipment", equipment_total_usd),
+            ("Field", field_total_usd),
+            ("Gloves", gloves_total_usd),
+            ("Head", head_total_usd),
+            ("Helmet", helmet_total_usd),
+            ("Loan", loan_total_usd),
+            ("Membership", membership_total_usd),
+            ("Shafts", shafts_total_usd),
+            ("Stick", stick_total_usd),
+            ("Strings", strings_total_usd),
+            ("T-Shirt", t_shirt_total_usd),
+            
+        ]
+
+        # Create a DataFrame
+        df_total_sums_usd = pd.DataFrame(total_sums, columns=["Operation", "Total Sum"])
+
+        # Sort the DataFrame by Total Sum in descending order
+        df_total_sums_usd  = df_total_sums_usd .sort_values(by="Total Sum", ascending=False)
+
+        # Select the top 25 rows
+        top_25_total_sums = df_total_sums_usd .head(25)
+
+        # Create a bar graph
+        fig_op_profit_usd = px.bar(
+            top_25_total_sums,
+            x="Operation",
+            y="Total Sum",
+            labels={"Total Sum": "Total Sum (usd)"},
+            title="Top 25 Profit for usd Operations",
+        )
+
+        # Show the graph
+        
+        st.plotly_chart(fig_op_profit_usd, use_container_width=True)
+
+
+        #########################################################################
+
+        # Group the data by 'Operation' and sum the 'Sum' values for each group
+        operation_summary_usd = df_fin_usd.groupby('Operation')['Sum'].sum().reset_index()
+
+        # Sort the data in descending order by the 'Sum' column and get the top 15 rows
+        top_15_operations = operation_summary_usd.sort_values(by='Sum', ascending=False).head(15)
+
+        # Create a bar graph using Plotly Express
+        fig_op_revenue_usd = px.bar(top_15_operations, x='Operation', y='Sum', title='Top 15 Operations by Total Sum (usd)')
+
+        # Show the graph
+        
+        st.plotly_chart(fig_op_revenue_usd, use_container_width=True)
+
+
+
+        #########################################################
+
+        
+        # Filter the DataFrame for 'Equipment' operations in the 'Category' column
+        equipment_df_rub = df_fin_rub[df_fin_rub['Category'].str.contains('Equipment', case=False, na=False)]
+
+        # Extract the year from the 'Date' column
+        equipment_df_rub['Year'] = equipment_df_rub['Date'].dt.year
+
+        # Group by year and count the occurrences
+        count_by_year = equipment_df_rub.groupby('Year').size().reset_index(name='Count')
+
+        # Create a line graph
+        fig_equip_rub = px.line(count_by_year, x='Year', y='Count', title='Equipment Operations Over Time')
+        fig_equip_rub.update_xaxes(title_text='Year')
+        fig_equip_rub.update_yaxes(title_text='Count')
+
+        # Show the graph
+        
+        st.plotly_chart(fig_equip_rub, use_container_width=True)
+
+
+        #########################################################
+
+        # Filter the DataFrame for 'Equipment' operations in the 'Category' column
+        equipment_df_usd = df_fin_usd[df_fin_usd['Category'].str.contains('Equipment', case=False, na=False)]
+
+        # Extract the year from the 'Date' column
+        equipment_df_usd['Year'] = equipment_df_usd['Date'].dt.year
+
+        # Group by year and count the occurrences
+        count_by_year = equipment_df_usd.groupby('Year').size().reset_index(name='Count')
+
+        # Create a line graph
+        fig_equip_usd = px.line(count_by_year, x='Year', y='Count', title='Equipment Operations Over Time')
+        fig_equip_usd.update_xaxes(title_text='Year')
+        fig_equip_usd.update_yaxes(title_text='Count')
+
+        # Show the graph
+        st.plotly_chart(fig_equip_usd, use_container_width=True)
+        
+
 
 
 
@@ -1538,7 +1762,7 @@ def show_attendance_data():
 
                 # Create a line graph
                 fig_fieldrental = px.line(count_by_year, x='Year', y='Count')
-                fig_fieldrental.update_traces(line=dict(color='lightblue'))  # Change to your desired color
+                fig_fieldrental.update_traces(line=dict(color='skyblue'))  # Change to your desired color
                 fig_fieldrental.update_xaxes(title_text='Year')
                 fig_fieldrental.update_yaxes(title_text='Count')
 
@@ -1571,7 +1795,7 @@ def show_attendance_data():
 
                 # Create a line graph
                 fig_rentalmonth = px.line(count_by_month, x='Month', y='Count')
-                fig_rentalmonth.update_traces(line=dict(color='lightblue'))  # Change to your desired color
+                fig_rentalmonth.update_traces(line=dict(color='skyblue'))  # Change to your desired color
                 fig_rentalmonth.update_xaxes(title_text='Month')
                 fig_rentalmonth.update_yaxes(title_text='Count')
 
