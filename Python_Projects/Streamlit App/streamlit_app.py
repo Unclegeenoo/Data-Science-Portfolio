@@ -465,6 +465,9 @@ def show_general_stats():
     with container:
         # Plot the pie chart with the specified color palette
     
+    
+
+
         fig, ax = plt.subplots(figsize=(10, 6))  # Set the size here (width, height)
         pie = type_counts_grouped.plot(kind='pie', startangle=140, labels=[None]*len(type_counts_grouped), ax=ax, colors=colors)
         plt.title('Event Distribution by Types')
@@ -472,12 +475,14 @@ def show_general_stats():
 
         # Get percentages for legend labels
         percentages_grouped = ['{:1.0f}%'.format(val * 100) for val in type_counts_grouped / type_counts_grouped.sum()]
-        legend_labels_grouped = [f'{type_counts_grouped.index[i]}: {percentages_grouped[i]}' for i in range(len(type_counts_grouped))]
+        # Create legend labels with counts and percentages
+        legend_labels_grouped = [f'{type_counts_grouped.index[i]}: {type_counts_grouped.iloc[i]} ({percentages_grouped[i]})' for i in range(len(type_counts_grouped))]
 
         # Create a legend with percentages multiplied by 100
         plt.legend(legend_labels_grouped, loc='center right', bbox_to_anchor=(1.2, 0.5), title="Event Types")
         plt.ylabel('')  # Remove the y-label
         st.pyplot(fig)
+
 
 
     ############################
@@ -644,22 +649,24 @@ def show_general_stats():
   
 
 #####################################################################
+    container = st.container(border=True)  
+    with container:
 
-    st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event Frequency Charts</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='font-size: 24px; text-align: center;'>Event Frequency Charts</h2>", unsafe_allow_html=True)
 
 
-    with st.expander('Total Team Practices and Avg. Team Practices per Week per Year'):
-        st.plotly_chart(fig3, use_container_width=True)
-        st.markdown("<p style='text-align: center;'>Practices were conducted from 2010 but were recorded only starting at the end of 2013. 2013 has 8 weeks of data, 2022 has 11 weeks of data.</p>", unsafe_allow_html=True)
-        
+        with st.expander('Total Team Practices and Avg. Team Practices per Week per Year'):
+            st.plotly_chart(fig3, use_container_width=True)
+            st.markdown("<p style='text-align: center;'>Practices were conducted from 2010 but were recorded only starting at the end of 2013. 2013 has 8 weeks of data, 2022 has 11 weeks of data.</p>", unsafe_allow_html=True)
+            
 
-    with st.expander('Total Skills Practices and Avg. Skills Practices per Week per Year'):
-        st.plotly_chart(fig2, use_container_width=True)
-        st.markdown("<p style='text-align: center;'>Skills practices were started in 2015 by two people. One of them moved to a different part of the city after 2016, which decreased the amount of practices they had.</p>", unsafe_allow_html=True)
+        with st.expander('Total Skills Practices and Avg. Skills Practices per Week per Year'):
+            st.plotly_chart(fig2, use_container_width=True)
+            st.markdown("<p style='text-align: center;'>Skills practices were started in 2015 by two people. One of them moved to a different part of the city after 2016, which decreased the amount of practices they had.</p>", unsafe_allow_html=True)
 
-    with st.expander('Total Events and Avg. Events per Week per Year'):
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown("<p style='text-align: center;'>This includes all events</p>", unsafe_allow_html=True)
+        with st.expander('Total Events and Avg. Events per Week per Year'):
+            st.plotly_chart(fig, use_container_width=True)
+            st.markdown("<p style='text-align: center;'>This includes all events</p>", unsafe_allow_html=True)
 
 
     
@@ -1093,11 +1100,14 @@ def show_financial_analysis():
             fig_month_rub.update_traces(marker_color='green', selector=dict(type='bar', marker_line_color='green'))
             fig_month_rub.update_xaxes(title_text='Month')
             fig_month_rub.update_yaxes(title_text='Net Profit/Loss')
-            
-            st.write('<h4 style="text-align: center;">Profit/Loss by Time (RUB)</h4>', unsafe_allow_html=True)
-            container = st.container(border=True)  
 
-            with container: 
+
+
+            container = st.container(border=True)  
+            with container:
+
+                st.write('<h4 style="text-align: center;">Profit/Loss by Time (RUB)</h4>', unsafe_allow_html=True)
+                
                 st.markdown('''
                     <h2 style='text-align: center; font-size: 12px;'>
                         July and the Summer in general were heavy expenditure months.
@@ -1116,11 +1126,13 @@ def show_financial_analysis():
                     st.plotly_chart(fig_net_rub, use_container_width=True)
 
 
-            st.write('<h4 style="text-align: center;">Profit Category Analysis (RUB)</h4>', unsafe_allow_html=True)
+            container = st.container(border=True)  
+            with container:
+
+                st.write('<h4 style="text-align: center;">Profit Category Analysis (RUB)</h4>', unsafe_allow_html=True)
     
 
-            container = st.container(border=True)  
-            with container: 
+             
                 with st.expander('Total Sum Leading Categories'):
                     st.plotly_chart(fig_total_sum_rub, use_container_width=True)
                 
@@ -1292,11 +1304,12 @@ def show_financial_analysis():
 
 
 
-            
-            st.write('<h4 style="text-align: center;">Profit/Loss by Time (USD)</h4>', unsafe_allow_html=True)
-
             container = st.container(border=True) 
             with container: 
+
+                st.write('<h4 style="text-align: center;">Profit/Loss by Time (USD)</h4>', unsafe_allow_html=True)
+
+            
                 st.markdown('''
                     <h2 style='text-align: center; font-size: 12px;'>
                         In the USD fund, May 2022 was the month of fund liquidation, all the cash in the fund was returned to the founders. While the RUB fund shows a 
@@ -1320,10 +1333,12 @@ def show_financial_analysis():
                     st.plotly_chart(fig_net_usd, use_container_width=True)
 
 
-            st.write('<h4 style="text-align: center;">Profit Category Analysis (USD)</h4>', unsafe_allow_html=True)
-
             container = st.container(border=True)  
-            with container: 
+            with container:
+            
+                st.write('<h4 style="text-align: center;">Profit Category Analysis (USD)</h4>', unsafe_allow_html=True)
+
+             
                 with st.expander('Profit/Loss per Category USD'):
                     st.plotly_chart(fig_total_sum_usd, use_container_width=True)
                 
@@ -1353,7 +1368,9 @@ def show_financial_analysis():
    
 
     elif selected_subsection == "Equipment Data":
-        st.subheader("Equipment data Content. Under Construction")
+
+        st.write('<h2 style="text-align: center;">Equipment Sales Data</h2>', unsafe_allow_html=True)
+        
 
         ##############################Data Bank#################################################3
 
@@ -1435,21 +1452,21 @@ def show_financial_analysis():
         # Sort the DataFrame by Total Sum in descending order
         df_total_sums_rub  = df_total_sums_rub .sort_values(by="Total Sum", ascending=False)
 
-        # Select the top 25 rows
-        top_25_total_sums = df_total_sums_rub .head(25)
+        # Select the top (x) rows
+        top_total_sums_rub = df_total_sums_rub .head(25)
 
         # Create a bar graph
         fig_op_profit_rub = px.bar(
-            top_25_total_sums,
+            top_total_sums_rub,
             x="Operation",
             y="Total Sum",
             labels={"Total Sum": "Total Sum (RUB)"},
-            title="Top 25 Profit for Rub Operations",
+            title="Top Profit for RUB Operations",
         )
 
         # Show the graph
      
-        st.plotly_chart(fig_op_profit_rub, use_container_width=True)
+        
 
 
         ###################################################
@@ -1458,20 +1475,61 @@ def show_financial_analysis():
         # Group the data by 'Operation' and sum the 'Sum' values for each group
         operation_summary_rub = df_fin_rub.groupby('Operation')['Sum'].sum().reset_index()
 
-        # Sort the data in descending order by the 'Sum' column and get the top 15 rows
-        top_15_operations = operation_summary_rub.sort_values(by='Sum', ascending=False).head(15)
+        # Sort the data in descending order by the 'Sum' column and get the top (x) rows
+        top_operations_rub = operation_summary_rub.sort_values(by='Sum', ascending=False).head(15)
 
         # Create a bar graph using Plotly Express
-        fig_op_revenue_rub = px.bar(top_15_operations, x='Operation', y='Sum', title='Top 15 Operations by Total Sum (rub)')
+        fig_op_revenue_rub = px.bar(top_operations_rub, x='Operation', y='Sum', title='Top Operations by Revenue (RUB)')
 
         # Show the graph
         
-        st.plotly_chart(fig_op_revenue_rub, use_container_width=True)
+        
 
 
         ##################################################################
-        
 
+        # Filter the DataFrame for 'Equipment' operations in the 'Category' column
+        equipment_df_rub = df_fin_rub[df_fin_rub['Category'].str.contains('Equipment', case=False, na=False)]
+
+        # Extract the year from the 'Date' column
+        equipment_df_rub['Year'] = equipment_df_rub['Date'].dt.year
+
+        # Group by year and count the occurrences
+        count_by_year = equipment_df_rub.groupby('Year').size().reset_index(name='Count')
+
+        # Create a line graph
+        fig_equip_rub = px.line(count_by_year, x='Year', y='Count', title='Equipment Operations Over Time RUB Fund')
+        fig_equip_rub.update_xaxes(title_text='Year')
+        fig_equip_rub.update_yaxes(title_text='Count')
+
+
+
+
+
+
+        ##################################################################
+
+        col1, col2 = st.columns(2)
+
+       
+
+        with col1:
+            container = st.container(border=True)  
+            with container:
+
+                st.plotly_chart(fig_equip_rub, use_container_width=True)
+            
+            container = st.container(border=True)  
+            with container: 
+
+                st.plotly_chart(fig_op_profit_rub, use_container_width=True)
+
+            container = st.container(border=True)  
+            with container:
+
+                st.plotly_chart(fig_op_revenue_rub, use_container_width=True)
+
+            
 
 
 
@@ -1484,16 +1542,16 @@ def show_financial_analysis():
             ("Ball", ball_total_usd),
             ("Elbows", elbows_total_usd),
             ("Equipment", equipment_total_usd),
-            ("Field", field_total_usd),
+            
             ("Gloves", gloves_total_usd),
             ("Head", head_total_usd),
             ("Helmet", helmet_total_usd),
-            ("Loan", loan_total_usd),
-            ("Membership", membership_total_usd),
+           
+           
             ("Shafts", shafts_total_usd),
-            ("Stick", stick_total_usd),
+           
             ("Strings", strings_total_usd),
-            ("T-Shirt", t_shirt_total_usd),
+           
             
         ]
 
@@ -1503,21 +1561,21 @@ def show_financial_analysis():
         # Sort the DataFrame by Total Sum in descending order
         df_total_sums_usd  = df_total_sums_usd .sort_values(by="Total Sum", ascending=False)
 
-        # Select the top 25 rows
-        top_25_total_sums = df_total_sums_usd .head(25)
+        # Select the top (x) rows
+        top_total_sums_usd = df_total_sums_usd .head(25)
 
         # Create a bar graph
         fig_op_profit_usd = px.bar(
-            top_25_total_sums,
+            top_total_sums_usd,
             x="Operation",
             y="Total Sum",
             labels={"Total Sum": "Total Sum (usd)"},
-            title="Top 25 Profit for usd Operations",
+            title="Top Profit for USD Operations",
         )
 
         # Show the graph
         
-        st.plotly_chart(fig_op_profit_usd, use_container_width=True)
+        
 
 
         #########################################################################
@@ -1525,38 +1583,26 @@ def show_financial_analysis():
         # Group the data by 'Operation' and sum the 'Sum' values for each group
         operation_summary_usd = df_fin_usd.groupby('Operation')['Sum'].sum().reset_index()
 
-        # Sort the data in descending order by the 'Sum' column and get the top 15 rows
-        top_15_operations = operation_summary_usd.sort_values(by='Sum', ascending=False).head(15)
+        # Sort the data in descending order by the 'Sum' column and get the top (x) rows
+        top_operations_usd = operation_summary_usd.sort_values(by='Sum', ascending=False).head(12)
 
         # Create a bar graph using Plotly Express
-        fig_op_revenue_usd = px.bar(top_15_operations, x='Operation', y='Sum', title='Top 15 Operations by Total Sum (usd)')
+        fig_op_revenue_usd = px.bar(top_operations_usd, x='Operation', y='Sum', title='Top Operations by Revenue (USD)')
 
         # Show the graph
         
-        st.plotly_chart(fig_op_revenue_usd, use_container_width=True)
+        
 
 
 
         #########################################################
 
         
-        # Filter the DataFrame for 'Equipment' operations in the 'Category' column
-        equipment_df_rub = df_fin_rub[df_fin_rub['Category'].str.contains('Equipment', case=False, na=False)]
-
-        # Extract the year from the 'Date' column
-        equipment_df_rub['Year'] = equipment_df_rub['Date'].dt.year
-
-        # Group by year and count the occurrences
-        count_by_year = equipment_df_rub.groupby('Year').size().reset_index(name='Count')
-
-        # Create a line graph
-        fig_equip_rub = px.line(count_by_year, x='Year', y='Count', title='Equipment Operations Over Time')
-        fig_equip_rub.update_xaxes(title_text='Year')
-        fig_equip_rub.update_yaxes(title_text='Count')
-
-        # Show the graph
         
-        st.plotly_chart(fig_equip_rub, use_container_width=True)
+
+      
+        
+        
 
 
         #########################################################
@@ -1571,13 +1617,32 @@ def show_financial_analysis():
         count_by_year = equipment_df_usd.groupby('Year').size().reset_index(name='Count')
 
         # Create a line graph
-        fig_equip_usd = px.line(count_by_year, x='Year', y='Count', title='Equipment Operations Over Time')
+        fig_equip_usd = px.line(count_by_year, x='Year', y='Count', title='Equipment Operations Over Time USD Fund')
         fig_equip_usd.update_xaxes(title_text='Year')
         fig_equip_usd.update_yaxes(title_text='Count')
 
         # Show the graph
-        st.plotly_chart(fig_equip_usd, use_container_width=True)
+
+
+        ##################################################### ##############
+        with col2:
+            container = st.container(border=True)  
+            with container:
         
+                st.plotly_chart(fig_equip_usd, use_container_width=True)
+
+            container = st.container(border=True)  
+            with container:
+
+                st.plotly_chart(fig_op_profit_usd, use_container_width=True)
+
+            container = st.container(border=True)  
+            with container:
+
+                st.plotly_chart(fig_op_revenue_usd, use_container_width=True)
+                
+            
+            
 
 
 
@@ -1744,13 +1809,15 @@ def show_attendance_data():
                 legend=dict(x=.3, y=1, traceorder='normal', orientation='h'),
             )
 
-            # Display the plot in Streamlit
-            st.plotly_chart(fig, use_container_width=True)
+            container = st.container(border=True)  
+            with container:
+
+                # Display the plot in Streamlit
+                st.plotly_chart(fig, use_container_width=True)
         
 
         #####################################################################
-        container = st.container(border=True)  
-        with container:
+        
             with st.expander('Field Rental Operations by Year'):
                 st.write("<h3 style='text-align: center;'>Field Rental Operations by Year</h3>", unsafe_allow_html=True)
                 # Filter the DataFrame for 'Field Rental' operations
@@ -1772,8 +1839,7 @@ def show_attendance_data():
 
         ####################################################################
         
-        container = st.container(border=True)  
-        with container:
+        
             with st.expander('Field Rental Operations by Month'):
                 st.write("<h3 style='text-align: center;'>Field Rental Operations by Month</h3>", unsafe_allow_html=True)
 
@@ -1811,8 +1877,7 @@ def show_attendance_data():
 
         #####################################################################
         # Title of chart
-        container = st.container(border=True)  
-        with container: 
+        
             with st.expander('Unique Attendees per Year'):
                 st.write("<h3 style='text-align: center;'>Unique Attendees per Year</h3>", unsafe_allow_html=True)   
            
@@ -2055,25 +2120,28 @@ def show_attendance_data():
 #################################################################
 
 
+        container = st.container(border=True)  
+        with container:
 
-        st.write("<h3 style='text-align: center;'>Attendance per Month</h3>", unsafe_allow_html=True)
-        
+            st.write("<h3 style='text-align: center;'>Attendance per Month</h3>", unsafe_allow_html=True)
+            
 
-        ##filler for spacing
-        st.markdown("<br><br>", unsafe_allow_html=True)
+            ##filler for spacing
+            st.markdown("<br><br>", unsafe_allow_html=True)
+
+          
 
 
 
+            with st.expander('Total Attendees per Month'):
+                    st.plotly_chart(fig_events, use_container_width=True)
+            
+            with st.expander('Total Team Practice Attendees per Month'):
+                    st.plotly_chart(fig_tp_mo, use_container_width=True)
 
-        with st.expander('Total Attendees per Month'):
-                st.plotly_chart(fig_events, use_container_width=True)
-        
-        with st.expander('Total Team Practice Attendees per Month'):
-                st.plotly_chart(fig_tp_mo, use_container_width=True)
-
-        with st.expander('Total Skills Practice Attendees per Month'):
-                st.plotly_chart(fig_sp_mo, use_container_width=True)
-           
+            with st.expander('Total Skills Practice Attendees per Month'):
+                    st.plotly_chart(fig_sp_mo, use_container_width=True)
+            
 
 
 
@@ -2096,252 +2164,253 @@ def show_attendance_data():
 
 
 
+        container = st.container(border=True)  
+        with container:
+
+            st.write("<h3 style='text-align: center;'>Lacrosse Event Attendance Segmented</h3>", unsafe_allow_html=True)
 
 
-        st.write("<h3 style='text-align: center;'>Lacrosse Event Attendance Segmented</h3>", unsafe_allow_html=True)
-
-
-        # Create the layout for the dashboard row 1
-        col1, col2, = st.columns(2) 
-
-        
-
-
-        # First row
-        with col1:
-            st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
-            fig_team = go.Figure()
-
-            fig_team.add_trace(go.Bar(
-                x=total_attendance_team_practices.index,
-                y=total_attendance_team_practices.values,
-                marker=dict(color='skyblue'),  # Set the bar color here
-                text=total_attendance_team_practices.values,
-                textposition='inside',
-                textfont=dict(size=16, color='black'),
-                name='Total Attendance'
-            ))
-
-            fig_team.add_trace(go.Scatter(
-                x=average_attendance_team_practice_per_year.index,
-                y=average_attendance_team_practice_per_year.values,
-                mode='lines+markers+text',
-                name='Avg Attendance per Event',
-                marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
-                text=rounded_average_attendance_team_practice.values,
-                textposition='top center',
-                textfont=dict(size=16, color='red'),
-                yaxis='y2'
-            ))
-
-
-            
-            fig_team.update_layout(
-                xaxis=dict(title='Year'),
-                yaxis=dict(showgrid=False, range=[0, 900], showticklabels=False, showline=False),
-                yaxis2=dict(overlaying='y', side='right', showgrid=False, range=[6, 12], showticklabels=False, showline=False),
-                legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
-            )
-
-            
-            
-
-
-
-
-        with col2:
-            st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
-
-            fig_skills = go.Figure()
-            fig_skills.add_trace(go.Bar(
-                x=total_attendance_skills_practices.index,
-                y=total_attendance_skills_practices.values,
-                marker=dict(color='skyblue'),  # Set the bar color here
-                text=total_attendance_skills_practices.values,
-                textposition='inside',
-                textfont=dict(size=16, color='black'),
-                name='Total Attendance'
-            ))
-
-            fig_skills.add_trace(go.Scatter(
-                x=average_attendance_skills_practice_per_year.index,
-                y=average_attendance_skills_practice_per_year.values,
-                mode='lines+markers+text',
-                name='Avg Attendance per Event',
-                marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
-                text=rounded_average_attendance_skills_practice.values,
-                textposition='top center',
-                textfont=dict(size=16, color='red'),
-                yaxis='y2'
-            ))
-
-            fig_skills.update_layout(
-                xaxis=dict(title='Year'),
-                yaxis=dict(showgrid=False, range=[0, 300], showticklabels=False, showline=False),
-                yaxis2=dict(overlaying='y', side='right', showgrid=False, range=[0, 10], showticklabels=False, showline=False),
-                legend=dict(x=0.3, y=.99, traceorder='normal', orientation='h'),
-            )
-
-
-            # Set the x-axis to start from 2013
-            fig_skills.update_xaxes(range=[2013, 2022])
-
+            # Create the layout for the dashboard row 1
+            col1, col2, = st.columns(2) 
 
             
 
 
+            # First row
+            with col1:
+                st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
+                fig_team = go.Figure()
+
+                fig_team.add_trace(go.Bar(
+                    x=total_attendance_team_practices.index,
+                    y=total_attendance_team_practices.values,
+                    marker=dict(color='skyblue'),  # Set the bar color here
+                    text=total_attendance_team_practices.values,
+                    textposition='inside',
+                    textfont=dict(size=16, color='black'),
+                    name='Total Attendance'
+                ))
+
+                fig_team.add_trace(go.Scatter(
+                    x=average_attendance_team_practice_per_year.index,
+                    y=average_attendance_team_practice_per_year.values,
+                    mode='lines+markers+text',
+                    name='Avg Attendance per Event',
+                    marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+                    text=rounded_average_attendance_team_practice.values,
+                    textposition='top center',
+                    textfont=dict(size=16, color='red'),
+                    yaxis='y2'
+                ))
 
 
-        # Create the layout for the dashboard row 2
-        col1, col2, = st.columns(2)
+                
+                fig_team.update_layout(
+                    xaxis=dict(title='Year'),
+                    yaxis=dict(showgrid=False, range=[0, 900], showticklabels=False, showline=False),
+                    yaxis2=dict(overlaying='y', side='right', showgrid=False, range=[6, 12], showticklabels=False, showline=False),
+                    legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
+                )
 
-        # Filter data for 'Championship' and 'Intra-Squad Game'
-        championship_events = completed_events[completed_events['Type'] == 'Championship']
-        intra_squad_game_events = completed_events[completed_events['Type'] == 'Intra-Squad Game']
-
-        # Compute total attendance for 'Championship' and 'Intra-Squad Game' per year
-        total_attendance_championship = championship_events.groupby('Year')['Attendance'].sum()
-        total_attendance_intra_squad_game = intra_squad_game_events.groupby('Year')['Attendance'].sum()
-
-        # Compute average attendance per event per year for 'Championship' and 'Intra-Squad Game'
-        average_attendance_championship_per_year = championship_events.groupby('Year')['Attendance'].mean()
-        average_attendance_intra_squad_game_per_year = intra_squad_game_events.groupby('Year')['Attendance'].mean()
-
-        
-        # Round average attendance for Championship per year to tenths
-        average_attendance_championship_per_year = average_attendance_championship_per_year.round(1)
-
-        # Round average attendance for Intra-Squad Game per year to tenths
-        average_attendance_intra_squad_game_per_year = average_attendance_intra_squad_game_per_year.round(1)
-
-        
-        ################## chart 4 data (2nd chart in 2nd row) ######################
-
-        # Filter the DataFrame for 'Tournament' events
-        tournament_events = df_att[df_att['Type'] == 'Tournament']
-
-        # Compute total attendance per year for Tournament events
-        total_attendance_per_year_tournament = tournament_events.groupby('Year')['Attendance'].sum()
-          
-
-        # Filter the DataFrame for 'Intra-Squad Game' events
-        intra_squad_events = df_att[df_att['Type'] == 'Intra-Squad Game']
-
-        # Compute total attendance per year for Intra-Squad Game events
-        total_attendance_per_year_intra_squad_game = intra_squad_events.groupby('Year')['Attendance'].sum()
-
-        # Concatenate the two dataframes
-        combined_events = pd.concat([intra_squad_events, tournament_events])
-
-        # Concatenate the two dataframes
-        average_combined = combined_events.groupby('Year')['Attendance'].mean()
-
-
-
-        #############################################################
-
-
-
-
-        # second row
-        with col1:
-            st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
-            fig_championship = go.Figure()
-
-            # Add bar chart for total attendance
-            fig_championship.add_trace(go.Bar(
-                x=total_attendance_championship.index,
-                y=total_attendance_championship.values,
-                marker=dict(color='skyblue'),
-                text=total_attendance_championship.values,
-                textposition='inside',
-                textfont=dict(size=16, color='black'),
-                name='Championship Attendance'
-            ))
-
-            # Add line chart for average attendance per event per year
-            fig_championship.add_trace(go.Scatter(
-                x=average_attendance_championship_per_year.index,
-                y=average_attendance_championship_per_year.values,
-                mode='lines+markers+text',
-                name='Avg Attendance per Event',
-                marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
-                text=average_attendance_championship_per_year.values,
-                textposition='top center',
-                textfont=dict(size=16, color='red'),
-                yaxis='y2'
-            ))
-
-            fig_championship.update_layout(
-                xaxis=dict(title='Year'),
-                yaxis=dict(showgrid=False, range=[0, 75], showticklabels=False, showline=False),
-                yaxis2=dict(overlaying='y', side='right', showgrid=False, range=[0, 35], showticklabels=False, showline=False),
-                legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
-            )
-
-            with st.expander('Team Practice Attendance'):
-                st.plotly_chart(fig_team, use_container_width=True)
-            with st.expander('Championship Attendance'):
-                st.plotly_chart(fig_championship, use_container_width=True)
-            
+                
                 
 
 
-        
-        with col2:
-            st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
-            fig_intra_tour = go.Figure()
-
-            # Add bar chart for total attendance - Tournament
-            fig_intra_tour.add_trace(go.Bar(
-                x=total_attendance_per_year_tournament.index,
-                y=total_attendance_per_year_tournament.values,
-                marker=dict(color='skyblue'),
-                text=total_attendance_per_year_tournament.values,
-                textposition='inside',
-                textfont=dict(size=16, color='black'),
-                name='Tournament Attendance'
-            ))
-
-            # Add bar chart for Intra-Squad Game attendance, stacked on top of Tournament attendance
-            fig_intra_tour.add_trace(go.Bar(
-                x=total_attendance_per_year_intra_squad_game.index,
-                y=total_attendance_per_year_intra_squad_game.values,
-                marker=dict(color='aqua'),
-                text=total_attendance_per_year_intra_squad_game.values,
-                textposition='inside',
-                textfont=dict(size=16, color='black'),
-                name='Intra-Squad Game Attendance'
-            ))
-
-            # Add line chart for the average of Tournament and Intra-Squad Game attendance
-            fig_intra_tour.add_trace(go.Scatter(
-                x=average_combined.index,
-                y=average_combined.values,
-                mode='lines+markers+text',
-                name='Avg Combined Attendance',
-                marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
-                text=average_combined.values.round(1),
-                textposition='top center',
-                textfont=dict(size=16, color='red'),
-                yaxis='y2'
-            ))
 
 
+            with col2:
+                st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
 
-            fig_intra_tour.update_layout(
-                xaxis=dict(title='Year'),
-                yaxis=dict(showgrid=False, range=[0, 275], showticklabels=False, showline=False),
-                yaxis2=dict(overlaying='y', side='right', showgrid=False, range=[0, 23], showticklabels=False, showline=False),
-                legend=dict(x=0.1, y=1, traceorder='normal', orientation='h'),
-                barmode='stack'  # Stacked bar mode
-            )
+                fig_skills = go.Figure()
+                fig_skills.add_trace(go.Bar(
+                    x=total_attendance_skills_practices.index,
+                    y=total_attendance_skills_practices.values,
+                    marker=dict(color='skyblue'),  # Set the bar color here
+                    text=total_attendance_skills_practices.values,
+                    textposition='inside',
+                    textfont=dict(size=16, color='black'),
+                    name='Total Attendance'
+                ))
+
+                fig_skills.add_trace(go.Scatter(
+                    x=average_attendance_skills_practice_per_year.index,
+                    y=average_attendance_skills_practice_per_year.values,
+                    mode='lines+markers+text',
+                    name='Avg Attendance per Event',
+                    marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+                    text=rounded_average_attendance_skills_practice.values,
+                    textposition='top center',
+                    textfont=dict(size=16, color='red'),
+                    yaxis='y2'
+                ))
+
+                fig_skills.update_layout(
+                    xaxis=dict(title='Year'),
+                    yaxis=dict(showgrid=False, range=[0, 300], showticklabels=False, showline=False),
+                    yaxis2=dict(overlaying='y', side='right', showgrid=False, range=[0, 10], showticklabels=False, showline=False),
+                    legend=dict(x=0.3, y=.99, traceorder='normal', orientation='h'),
+                )
 
 
-            with st.expander('Skills Practice Attendance'):  
-                st.plotly_chart(fig_skills, use_container_width=True)
-            with st.expander('Intra-Squad Game and Tournament Attendance'):
-                st.plotly_chart(fig_intra_tour, use_container_width=True)
+                # Set the x-axis to start from 2013
+                fig_skills.update_xaxes(range=[2013, 2022])
+
+
+                
+
+
+
+
+            # Create the layout for the dashboard row 2
+            col1, col2, = st.columns(2)
+
+            # Filter data for 'Championship' and 'Intra-Squad Game'
+            championship_events = completed_events[completed_events['Type'] == 'Championship']
+            intra_squad_game_events = completed_events[completed_events['Type'] == 'Intra-Squad Game']
+
+            # Compute total attendance for 'Championship' and 'Intra-Squad Game' per year
+            total_attendance_championship = championship_events.groupby('Year')['Attendance'].sum()
+            total_attendance_intra_squad_game = intra_squad_game_events.groupby('Year')['Attendance'].sum()
+
+            # Compute average attendance per event per year for 'Championship' and 'Intra-Squad Game'
+            average_attendance_championship_per_year = championship_events.groupby('Year')['Attendance'].mean()
+            average_attendance_intra_squad_game_per_year = intra_squad_game_events.groupby('Year')['Attendance'].mean()
+
+            
+            # Round average attendance for Championship per year to tenths
+            average_attendance_championship_per_year = average_attendance_championship_per_year.round(1)
+
+            # Round average attendance for Intra-Squad Game per year to tenths
+            average_attendance_intra_squad_game_per_year = average_attendance_intra_squad_game_per_year.round(1)
+
+            
+            ################## chart 4 data (2nd chart in 2nd row) ######################
+
+            # Filter the DataFrame for 'Tournament' events
+            tournament_events = df_att[df_att['Type'] == 'Tournament']
+
+            # Compute total attendance per year for Tournament events
+            total_attendance_per_year_tournament = tournament_events.groupby('Year')['Attendance'].sum()
+            
+
+            # Filter the DataFrame for 'Intra-Squad Game' events
+            intra_squad_events = df_att[df_att['Type'] == 'Intra-Squad Game']
+
+            # Compute total attendance per year for Intra-Squad Game events
+            total_attendance_per_year_intra_squad_game = intra_squad_events.groupby('Year')['Attendance'].sum()
+
+            # Concatenate the two dataframes
+            combined_events = pd.concat([intra_squad_events, tournament_events])
+
+            # Concatenate the two dataframes
+            average_combined = combined_events.groupby('Year')['Attendance'].mean()
+
+
+
+            #############################################################
+
+
+
+
+            # second row
+            with col1:
+                st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
+                fig_championship = go.Figure()
+
+                # Add bar chart for total attendance
+                fig_championship.add_trace(go.Bar(
+                    x=total_attendance_championship.index,
+                    y=total_attendance_championship.values,
+                    marker=dict(color='skyblue'),
+                    text=total_attendance_championship.values,
+                    textposition='inside',
+                    textfont=dict(size=16, color='black'),
+                    name='Championship Attendance'
+                ))
+
+                # Add line chart for average attendance per event per year
+                fig_championship.add_trace(go.Scatter(
+                    x=average_attendance_championship_per_year.index,
+                    y=average_attendance_championship_per_year.values,
+                    mode='lines+markers+text',
+                    name='Avg Attendance per Event',
+                    marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+                    text=average_attendance_championship_per_year.values,
+                    textposition='top center',
+                    textfont=dict(size=16, color='red'),
+                    yaxis='y2'
+                ))
+
+                fig_championship.update_layout(
+                    xaxis=dict(title='Year'),
+                    yaxis=dict(showgrid=False, range=[0, 75], showticklabels=False, showline=False),
+                    yaxis2=dict(overlaying='y', side='right', showgrid=False, range=[0, 35], showticklabels=False, showline=False),
+                    legend=dict(x=0.3, y=1, traceorder='normal', orientation='h'),
+                )
+
+                with st.expander('Team Practice Attendance'):
+                    st.plotly_chart(fig_team, use_container_width=True)
+                with st.expander('Championship Attendance'):
+                    st.plotly_chart(fig_championship, use_container_width=True)
+                
+                    
+
+
+            
+            with col2:
+                st.write("<h3 style='text-align: center;'></h3>", unsafe_allow_html=True)
+                fig_intra_tour = go.Figure()
+
+                # Add bar chart for total attendance - Tournament
+                fig_intra_tour.add_trace(go.Bar(
+                    x=total_attendance_per_year_tournament.index,
+                    y=total_attendance_per_year_tournament.values,
+                    marker=dict(color='skyblue'),
+                    text=total_attendance_per_year_tournament.values,
+                    textposition='inside',
+                    textfont=dict(size=16, color='black'),
+                    name='Tournament Attendance'
+                ))
+
+                # Add bar chart for Intra-Squad Game attendance, stacked on top of Tournament attendance
+                fig_intra_tour.add_trace(go.Bar(
+                    x=total_attendance_per_year_intra_squad_game.index,
+                    y=total_attendance_per_year_intra_squad_game.values,
+                    marker=dict(color='aqua'),
+                    text=total_attendance_per_year_intra_squad_game.values,
+                    textposition='inside',
+                    textfont=dict(size=16, color='black'),
+                    name='Intra-Squad Game Attendance'
+                ))
+
+                # Add line chart for the average of Tournament and Intra-Squad Game attendance
+                fig_intra_tour.add_trace(go.Scatter(
+                    x=average_combined.index,
+                    y=average_combined.values,
+                    mode='lines+markers+text',
+                    name='Avg Combined Attendance',
+                    marker=dict(color='rgba(255, 0, 0, 0.7)', size=10),
+                    text=average_combined.values.round(1),
+                    textposition='top center',
+                    textfont=dict(size=16, color='red'),
+                    yaxis='y2'
+                ))
+
+
+
+                fig_intra_tour.update_layout(
+                    xaxis=dict(title='Year'),
+                    yaxis=dict(showgrid=False, range=[0, 275], showticklabels=False, showline=False),
+                    yaxis2=dict(overlaying='y', side='right', showgrid=False, range=[0, 23], showticklabels=False, showline=False),
+                    legend=dict(x=0.1, y=1, traceorder='normal', orientation='h'),
+                    barmode='stack'  # Stacked bar mode
+                )
+
+
+                with st.expander('Skills Practice Attendance'):  
+                    st.plotly_chart(fig_skills, use_container_width=True)
+                with st.expander('Intra-Squad Game and Tournament Attendance'):
+                    st.plotly_chart(fig_intra_tour, use_container_width=True)
             
                 
 
@@ -2568,7 +2637,7 @@ def show_attendance_data():
         
 
 
-
+        
         st.write('<h2 style="text-align: center;">Top 7 Attendees</h2>', unsafe_allow_html=True)
 
            
