@@ -10,19 +10,16 @@ from plotly.subplots import make_subplots
 from geopy.geocoders import Nominatim
 import folium
 from folium import plugins
+from dateutil import parser
+
+
+
 
 
 st.set_page_config(layout='wide')
 
 ############## Data Bank ####################
-data = pd.DataFrame({
-        'Source': ['Africa', 'Asia', 'South America', 'North America'],
-        'Jan': [5, 3, 1, 3],
-        'Feb': [8, 4, 2, 4],
-        'Mar': [8, 5, 2, 5],
-        'Apr': [9, 8, 3, 6]
-})
-data['Growth'] = data['Apr'] - data['Jan']
+
 
 
 ###add all data frames, convert date_date_excel do datetime, split df_fin into rub/usd
@@ -42,7 +39,13 @@ df_forex = pd.read_csv("USD_RUB.csv")
 df_forex['Date'] = pd.to_datetime(df_forex['Date'])
 df_forex.dropna(subset=['Date', 'Price'], inplace=True)
 
+# Parse the date string using dateutil.parser
+df_att['Date_Date_Excel'] = df_att['Date_Date_Excel'].apply(lambda x: parser.parse(x))
+
+
 df_att['Date_Date_Excel'] = pd.to_datetime(df_att['Date_Date_Excel'], format='%A, %B %d, %Y')
+
+
 
 
 
@@ -322,9 +325,8 @@ def show_general_stats():
 
     #############################################################
 
-    st.markdown("<p style='text-align: center;'>Practices were conducted from 2010 but were recorded only starting at the end of 2013 at which the rate of practice was 2.1 per week. </p>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Same with the beginning of 2022, at that time, for those first weeks of 2022 the rate of practice was 1.2. </p>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>2013 has 8 weeks of data, 2022 has 11 weeks of data</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Practices were conducted from 2010 to 2022, but were recorded only starting at the end of 2013. </p>", unsafe_allow_html=True)
+    
     
       
 
@@ -666,7 +668,7 @@ def show_general_stats():
 
         with st.expander('Total Events and Avg. Events per Week per Year'):
             st.plotly_chart(fig, use_container_width=True)
-            st.markdown("<p style='text-align: center;'>This includes all events</p>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align: center;'>This is a sum of all events the Moscow Lacrosse Club conducted. There were 13 unique types of events that were facilitated by the club. </p>", unsafe_allow_html=True)
 
 
     
@@ -1370,6 +1372,12 @@ def show_financial_analysis():
     elif selected_subsection == "Equipment Data":
 
         st.write('<h2 style="text-align: center;">Equipment Sales Data</h2>', unsafe_allow_html=True)
+        st.markdown("""
+                <p style='text-align: center;'>
+                    Equipment sales transactions were gradually migrated from the RUB fund to the USD fund over time to combat the falling Ruble. At the time of liquidation,
+                    both funds were still selling equipment. 
+                </p>
+            """, unsafe_allow_html=True)
         
 
         ##############################Data Bank#################################################3
@@ -1379,22 +1387,22 @@ def show_financial_analysis():
         #order_refund_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Order Refund', 'Sum'].sum()
         #payment_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Payment', 'Sum'].sum()
         #payout_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Payout', 'Sum'].sum()
-        player_fine_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Player Fine', 'Sum'].sum()
+        #player_fine_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Player Fine', 'Sum'].sum()
         #reimbursement_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Reimbursement', 'Sum'].sum()
         shoulders_sale_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Shoulders Sale', 'Sum'].sum()
         #transfer_to_artur_total_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Transfer to Artur', 'Sum'].sum()
-        bank_interest_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Credit', 'Sum'].sum()
+        ##bank_interest_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Credit', 'Sum'].sum()
         #materials_purchase_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Materials Purchase', 'Sum'].sum()
-        lacrosse_clinic_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Lacrosse Clinic', 'Sum'].sum()
+        ##lacrosse_clinic_rub = df_fin_rub.loc[df_fin_rub['Operation'] == 'Lacrosse Clinic', 'Sum'].sum()
         ball_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Ball Purchase', 'Ball Sale', 'Ball Purchases']), 'Sum'].sum()
         elbows_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Elbows Purchase', 'Elbows Sale']), 'Sum'].sum()
         equipment_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Equipment Purchase', 'Equipment Sale']), 'Sum'].sum()
-        field_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Field Fees', 'Field Rental']), 'Sum'].sum()
+        ##field_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Field Fees', 'Field Rental']), 'Sum'].sum()
         gloves_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Gloves Purchase', 'Gloves Sale']), 'Sum'].sum()
         head_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Head Purchase', 'Head Sale']), 'Sum'].sum()
         helmet_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Helmet Purchase', 'Helmet Sale']), 'Sum'].sum()
-        loan_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Loan Issuance', 'Loan Repayment', 'Loan']), 'Sum'].sum()
-        membership_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Membership Fee', 'Membership Fee EFL', 'Membership Fee FIL']), 'Sum'].sum()
+        ##loan_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Loan Issuance', 'Loan Repayment', 'Loan']), 'Sum'].sum()
+        ##membership_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Membership Fee', 'Membership Fee EFL', 'Membership Fee FIL']), 'Sum'].sum()
         shafts_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Shafts Purchase', 'Shafts Sale']), 'Sum'].sum()
         stick_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Stick Sale', 'Sticks Purchase']), 'Sum'].sum()
         strings_total_rub = df_fin_rub.loc[df_fin_rub['Operation'].isin(['Strings Purchase', 'Strings Sale']), 'Sum'].sum()
@@ -1404,50 +1412,35 @@ def show_financial_analysis():
         ###############################################
 
 
-        df_fin_usd = df_fin[df_fin['Classification'].str.contains('USD')]
-
-        # Create variables for each pair/group of usd operations
-        ball_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Ball Purchase', 'Ball Sale', 'Ball Purchases']), 'Sum'].sum()
-        elbows_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Elbows Purchase', 'Elbows Sale']), 'Sum'].sum()
-        equipment_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Equipment Purchase', 'Equipment Sale']), 'Sum'].sum()
-        field_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Field Fees', 'Field Rental']), 'Sum'].sum()
-        gloves_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Gloves Purchase', 'Gloves Sale']), 'Sum'].sum()
-        head_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Head Purchase', 'Head Sale']), 'Sum'].sum()
-        helmet_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Helmet Purchase', 'Helmet Sale']), 'Sum'].sum()
-        loan_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Loan Issuance', 'Loan Repayment', 'Loan']), 'Sum'].sum()
-        membership_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Membership Fee', 'Membership Fee EFL', 'Membership Fee FIL']), 'Sum'].sum()
-        shafts_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Shafts Purchase', 'Shafts Sale']), 'Sum'].sum()
-        stick_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Stick Sale', 'Sticks Purchase']), 'Sum'].sum()
-        strings_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Strings Purchase', 'Strings Sale']), 'Sum'].sum()
-        t_shirt_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['T-Shirt Sale', 'T-Shirts Purchase']), 'Sum'].sum()
+        
         
 
         ##################################################Data Bank############################################3
 
         # Calculate the total sums for each operation
-        total_sums = [
+        total_sums_rub = [
             ("Ball", ball_total_rub),
             ("Elbows", elbows_total_rub),
             ("Equipment", equipment_total_rub),
-            ("Field", field_total_rub),
+            #("Field", field_total_rub),
             ("Gloves", gloves_total_rub),
             ("Head", head_total_rub),
             ("Helmet", helmet_total_rub),
-            ("Loan", loan_total_rub),
-            ("Membership", membership_total_rub),
+            #("Loan", loan_total_rub),
+            #("Membership", membership_total_rub),
             ("Shafts", shafts_total_rub),
             ("Stick", stick_total_rub),
             ("Strings", strings_total_rub),
             ("T-Shirt", t_shirt_total_rub),
-            ("Clinic", lacrosse_clinic_rub),
-            ("Bank Interest", bank_interest_rub),
+            #("Clinic", lacrosse_clinic_rub),
+            #("Bank Interest", bank_interest_rub),
             ("Shoulder Pads", shoulders_sale_total_rub),
             
 
         ]
 
         # Create a DataFrame
-        df_total_sums_rub = pd.DataFrame(total_sums, columns=["Operation", "Total Sum"])
+        df_total_sums_rub = pd.DataFrame(total_sums_rub, columns=["Operation", "Total Sum"])
 
         # Sort the DataFrame by Total Sum in descending order
         df_total_sums_rub  = df_total_sums_rub .sort_values(by="Total Sum", ascending=False)
@@ -1481,7 +1474,23 @@ def show_financial_analysis():
         # Create a bar graph using Plotly Express
         fig_op_revenue_rub = px.bar(top_operations_rub, x='Operation', y='Sum', title='Top Operations by Revenue (RUB)')
 
-        # Show the graph
+      
+
+     
+
+        # Exclude specific operation types
+        operations_to_exclude = ["Field Fees", "Payout", "Payment", "Field Rental", "Loan", "Membership Fee", "Loan Issuance", "Loan Repayment", "Lacrosse Clinic", "Membership Fee EFL", "Membership Fee FIL", "Clinic", "Bank Interest", "Order Refund", "Reimbursement", "Player Fine", "Credit", "Transfer to Artur", "Materials Purchase"]
+        operation_summary_rub = operation_summary_rub[~operation_summary_rub['Operation'].isin(operations_to_exclude)]
+
+        # Get the top operations
+        top_operations_rub = operation_summary_rub.sort_values(by='Sum', ascending=False).head(25)
+
+        # Create the bar chart
+        fig_op_revenue_rub = px.bar(top_operations_rub, x='Operation', y='Sum', title='Top Equipment Operations by Revenue (RUB)')
+
+       
+
+        
         
         
 
@@ -1523,22 +1532,51 @@ def show_financial_analysis():
             with container: 
 
                 st.plotly_chart(fig_op_profit_rub, use_container_width=True)
+                st.markdown("""
+                    <p style='text-align: center;'>
+                        While Sticks were the most profitable item, they were sometimes assembled from parts of heads and shafts, which is reflected
+                        in the statistics for shafts. Heads were replaced at a much higher rate than shafts, so sitting inventory and using shafts for
+                        complete-stick assembly skewed the profit calculations. Equipment in this case is goals/nets/cones/bags/etc.
+                    
+                    </p>
+                """, unsafe_allow_html=True)
 
             container = st.container(border=True)  
             with container:
 
                 st.plotly_chart(fig_op_revenue_rub, use_container_width=True)
+                st.markdown("""
+                    <p style='text-align: center;'>
+                        This shows a more detailed view of how much was purchased and sold over the duration of the fund. All leftovers are now in the USD 
+                        Rolling inventory valued and denominated in USD at the time of liquidation. 
+                    </p>
+                """, unsafe_allow_html=True)
 
             
 
 
 
 
+        df_fin_usd = df_fin[df_fin['Classification'].str.contains('USD')]
 
+        # Create variables for each pair/group of usd operations
+        ball_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Ball Purchase', 'Ball Sale', 'Ball Purchases']), 'Sum'].sum()
+        elbows_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Elbows Purchase', 'Elbows Sale']), 'Sum'].sum()
+        equipment_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Equipment Purchase', 'Equipment Sale']), 'Sum'].sum()
+        #field_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Field Fees', 'Field Rental']), 'Sum'].sum()
+        gloves_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Gloves Purchase', 'Gloves Sale']), 'Sum'].sum()
+        head_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Head Purchase', 'Head Sale']), 'Sum'].sum()
+        helmet_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Helmet Purchase', 'Helmet Sale']), 'Sum'].sum()
+        #loan_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Loan Issuance', 'Loan Repayment', 'Loan']), 'Sum'].sum()
+        #membership_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Membership Fee', 'Membership Fee EFL', 'Membership Fee FIL']), 'Sum'].sum()
+        shafts_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Shafts Purchase', 'Shafts Sale']), 'Sum'].sum()
+        #stick_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Stick Sale', 'Sticks Purchase']), 'Sum'].sum()
+        strings_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['Strings Purchase', 'Strings Sale']), 'Sum'].sum()
+        t_shirt_total_usd = df_fin_usd.loc[df_fin_usd['Operation'].isin(['T-Shirt Sale', 'T-Shirts Purchase']), 'Sum'].sum()
 
 
         # Calculate the total sums for each operation
-        total_sums = [
+        total_sums_usd = [
             ("Ball", ball_total_usd),
             ("Elbows", elbows_total_usd),
             ("Equipment", equipment_total_usd),
@@ -1556,7 +1594,7 @@ def show_financial_analysis():
         ]
 
         # Create a DataFrame
-        df_total_sums_usd = pd.DataFrame(total_sums, columns=["Operation", "Total Sum"])
+        df_total_sums_usd = pd.DataFrame(total_sums_usd, columns=["Operation", "Total Sum"])
 
         # Sort the DataFrame by Total Sum in descending order
         df_total_sums_usd  = df_total_sums_usd .sort_values(by="Total Sum", ascending=False)
@@ -1584,12 +1622,27 @@ def show_financial_analysis():
         operation_summary_usd = df_fin_usd.groupby('Operation')['Sum'].sum().reset_index()
 
         # Sort the data in descending order by the 'Sum' column and get the top (x) rows
-        top_operations_usd = operation_summary_usd.sort_values(by='Sum', ascending=False).head(12)
+        #top_operations_usd = operation_summary_usd.sort_values(by='Sum', ascending=False).head(12)
 
         # Create a bar graph using Plotly Express
-        fig_op_revenue_usd = px.bar(top_operations_usd, x='Operation', y='Sum', title='Top Operations by Revenue (USD)')
+        #fig_op_revenue_usd = px.bar(top_operations_usd, x='Operation', y='Sum', title='Top Equipment Operations by Revenue (USD)')
 
-        # Show the graph
+       
+
+        # Exclude specific operation types
+        operations_to_exclude = ["Reimbursement", "Payout", "Savings"]
+        operation_summary_usd = operation_summary_usd[~operation_summary_usd['Operation'].isin(operations_to_exclude)]
+
+        # Get the top operations
+        top_operations_usd = operation_summary_usd.sort_values(by='Sum', ascending=False).head(25)
+
+        # Create the bar chart
+        fig_op_revenue_usd = px.bar(top_operations_usd, x='Operation', y='Sum', title='Top Equipment Operations by Revenue (USD)')
+        
+
+        
+
+        
         
         
 
@@ -1635,17 +1688,44 @@ def show_financial_analysis():
             with container:
 
                 st.plotly_chart(fig_op_profit_usd, use_container_width=True)
+                st.markdown("""
+                    <p style='text-align: center;'>
+                        Not long before liquidation, a large purchase of elbows strings and balls was still unsold in our rolling inventory.
+                        This purchase was to cover the elbow pad and string needs of the club for at least 5 years.
+                            
+                    </p>
+                """, unsafe_allow_html=True)
+            
+            
 
             container = st.container(border=True)  
+            container.markdown("""
+                <style>
+                    .st-geAtf {
+                        background-color: #f2f2f2; /* Replace with your desired grey color */
+                        padding: 10px; /* Optional: Add padding for better appearance */
+                    }
+                </style>
+            """, unsafe_allow_html=True)
+
+
             with container:
 
                 st.plotly_chart(fig_op_revenue_usd, use_container_width=True)
+                st.markdown("""
+                    <p style='text-align: center;'>
+                        Heads and shafts (unassembled sticks) are the most profitable and most purchased items in the equipment category. Unfortunately
+                        Elbows, and Strings didn't have a chance to sell off. Balls are consumables that were also sold, but never profitable since most of them
+                        got used before being sold, and were considered an unavoidable expense. 
+                         
+                    </p>
+                """, unsafe_allow_html=True)
+
+            
+                 
                 
             
             
-
-
-
 
 
 
@@ -1760,6 +1840,7 @@ def show_attendance_data():
 
             # Title of chart
             st.write("<h3 style='text-align: center;'>Attendance Over Time</h3>", unsafe_allow_html=True)
+            
 
             # Filter DataFrame for 'Completed' events
             completed_events = df_att[df_att['Status'] == 'Completed']
@@ -1814,12 +1895,55 @@ def show_attendance_data():
 
                 # Display the plot in Streamlit
                 st.plotly_chart(fig, use_container_width=True)
+
+                st.markdown("""
+                    <p style='text-align: center;'>
+                        The attendance average dropped from 2015 was due to the club adding weekday skills practices.
+                        Skills practices were conducted near two of the founders in different parts of the city. However, since the attendance of the 
+                        skills practices were lower and skills practices were more frequent, the total average attendees per event dropped significantly. 
+                    </p>
+                """, unsafe_allow_html=True)
+
+            def calculate_cumulative_unique_attendees(df):
+                cumulative_unique_attendees = []
+                unique_attendees = set()
+
+                for year in range(2015, df['Date_Date_Excel'].dt.year.max() + 1):
+                    attendees_in_year = df[df['Date_Date_Excel'].dt.year <= year]['Going'].str.split(', ').explode()
+                    # Filter out specific entries
+                    attendees_filtered = [attendee for attendee in attendees_in_year if attendee not in ["No Data", "No Name"] and len(attendee.split()) <= 3]
+                    unique_attendees.update(attendees_filtered)
+                    cumulative_unique_attendees.append(len(unique_attendees))
+
+                return cumulative_unique_attendees
+
+        
+
+            # Calculate cumulative unique attendees
+            cumulative_counts = calculate_cumulative_unique_attendees(df_att)
+
+            # Plot cumulative unique attendees count for each year using Plotly
+            years = range(2015, df_att['Date_Date_Excel'].dt.year.max() + 1)
+            data = {"Year": years, "Cumulative Unique Attendees": cumulative_counts}
+            fig_unique = px.line(data, x="Year", y="Cumulative Unique Attendees")
+            fig_unique.update_traces(line=dict(color='skyblue'))  # Set the line color
+
+            
+
+               
+            with st.expander('Unique Attendees Per Year'):
+                 st.plotly_chart(fig_unique, use_container_width=True)
+
+
+
         
 
         #####################################################################
-        
-            with st.expander('Field Rental Operations by Year'):
-                st.write("<h3 style='text-align: center;'>Field Rental Operations by Year</h3>", unsafe_allow_html=True)
+        container = st.container(border=True)  
+        with container:
+            st.write("<h3 style='text-align: center;'>Field Rental Operations</h3>", unsafe_allow_html=True)
+            with st.expander('By Year'):
+                
                 # Filter the DataFrame for 'Field Rental' operations
                 field_rental_df = df_fin[df_fin['Operation'] == 'Field Rental']
 
@@ -1840,8 +1964,8 @@ def show_attendance_data():
         ####################################################################
         
         
-            with st.expander('Field Rental Operations by Month'):
-                st.write("<h3 style='text-align: center;'>Field Rental Operations by Month</h3>", unsafe_allow_html=True)
+            with st.expander('By Month'):
+                
 
                 # Extract the month from the 'Date' column
                 field_rental_df['Month'] = field_rental_df['Date'].dt.strftime('%B')
@@ -1867,6 +1991,12 @@ def show_attendance_data():
 
                 # Show the graph
                 st.plotly_chart(fig_rentalmonth, use_container_width=True)
+                st.markdown("""
+                    <p style='text-align: center;'>
+                        In the first few years, all practices during acceptable weather were conducted on free courts/fields, which limited the need
+                        for field rental to only Championships/Intra-Squad games on full-size fields. 
+                    </p>
+                """, unsafe_allow_html=True)
 
 
 
@@ -1878,37 +2008,27 @@ def show_attendance_data():
         #####################################################################
         # Title of chart
         
-            with st.expander('Unique Attendees per Year'):
-                st.write("<h3 style='text-align: center;'>Unique Attendees per Year</h3>", unsafe_allow_html=True)   
-           
-
-
-                def calculate_cumulative_unique_attendees(df):
-                    cumulative_unique_attendees = []
-                    unique_attendees = set()
-
-                    for year in range(2015, df['Date_Date_Excel'].dt.year.max() + 1):
-                        attendees_in_year = df[df['Date_Date_Excel'].dt.year <= year]['Going'].str.split(', ').explode()
-                        # Filter out specific entries
-                        attendees_filtered = [attendee for attendee in attendees_in_year if attendee not in ["No Data", "No Name"] and len(attendee.split()) <= 3]
-                        unique_attendees.update(attendees_filtered)
-                        cumulative_unique_attendees.append(len(unique_attendees))
-
-                    return cumulative_unique_attendees
-
+            
             
 
-                # Calculate cumulative unique attendees
-                cumulative_counts = calculate_cumulative_unique_attendees(df_att)
 
-                # Plot cumulative unique attendees count for each year using Plotly
-                years = range(2015, df_att['Date_Date_Excel'].dt.year.max() + 1)
-                data = {"Year": years, "Cumulative Unique Attendees": cumulative_counts}
-                fig_unique = px.line(data, x="Year", y="Cumulative Unique Attendees")
-                fig_unique.update_traces(line=dict(color='skyblue'))  # Set the line color
+            def calculate_cumulative_unique_attendees(df):
+                cumulative_unique_attendees = []
+                unique_attendees = set()
 
-                # Display Plotly figure in Streamlit
-                st.plotly_chart(fig_unique, use_container_width=True)
+                for year in range(2015, df['Date_Date_Excel'].dt.year.max() + 1):
+                    attendees_in_year = df[df['Date_Date_Excel'].dt.year <= year]['Going'].str.split(', ').explode()
+                    # Filter out specific entries
+                    attendees_filtered = [attendee for attendee in attendees_in_year if attendee not in ["No Data", "No Name"] and len(attendee.split()) <= 3]
+                    unique_attendees.update(attendees_filtered)
+                    cumulative_unique_attendees.append(len(unique_attendees))
+
+                return cumulative_unique_attendees
+
+        
+
+           
+               
 
 
 
@@ -2124,23 +2244,52 @@ def show_attendance_data():
         with container:
 
             st.write("<h3 style='text-align: center;'>Attendance per Month</h3>", unsafe_allow_html=True)
+
+            st.markdown("""
+                    <p style='text-align: center;'>
+                        While Team Practices were stable throughout the year, when the weather would improve in Moscow, 
+                        the club would conduct more Skills practices. The uptick in July was usually due to a Championship or 
+                        Tournament that was usually attended by more people on average. 
+                    </p>
+                """, unsafe_allow_html=True)
             
 
             ##filler for spacing
             st.markdown("<br><br>", unsafe_allow_html=True)
 
-          
 
-
+        # Calculate cumulative unique attendees
+            
 
             with st.expander('Total Attendees per Month'):
                     st.plotly_chart(fig_events, use_container_width=True)
+                    
             
             with st.expander('Total Team Practice Attendees per Month'):
                     st.plotly_chart(fig_tp_mo, use_container_width=True)
+                    st.markdown("""
+                            <p style='text-align: center;'>
+                                Summertime in Russia is a time to go to the country house ("dacha") outside of the city. These traditional weekend trips for the urban 
+                                poplulation would take away from our attendance. Additionally, from April to October is vacation season in Russia, which would
+                                take its share of the attendance as well. Initially practices were twice a weekend, but due to these persisting factors,
+                                practices were limited to once a week. This raised the intrinsic value of each practice since they were less frequent, and over time would
+                                raise the attendance level at each weekend team practice since people started to schedule their weekend knowing that there is no second
+                                practice available that weekend for them.
+                            </p>
+                        """, unsafe_allow_html=True)
 
             with st.expander('Total Skills Practice Attendees per Month'):
                     st.plotly_chart(fig_sp_mo, use_container_width=True)
+                    st.markdown("""
+                            <p style='text-align: center;'>
+                                Skills practices were available for free for everybody. In the beginning, Team Practices were just Skills Practices that 
+                                grew too large for free courts/fields. So while the club developed a consistent regiment of team practices for experienced players,
+                                skills practices were used and expanded to develop and maintain a solid on-boarding procedure for new players in multiple districts of Moscow. 
+                                These free practices would provide the foundational skills and knowledge to be able to participate in Team Practices down the line, as
+                                well as get to know the players and coaches of the team. i.e. these skills practices would be a valueable on-ramp for players wishing to 
+                                join the team but haven't the experience, or are too intimidated to make the big leap from stick skills to pads and full contact. 
+                            </p>
+                        """, unsafe_allow_html=True)
             
 
 
@@ -2350,8 +2499,23 @@ def show_attendance_data():
 
                 with st.expander('Team Practice Attendance'):
                     st.plotly_chart(fig_team, use_container_width=True)
+                    st.markdown("""
+                    <p style='text-align: center;'>
+                        2018 was a busy year outside of practices. There were tournaments, the World Championship in Israel, recovery time after the
+                        Championship, vacations and weather factors limited the amount of times the team could get together in 2018. 
+                    </p>
+                """, unsafe_allow_html=True)
+
+
+
                 with st.expander('Championship Attendance'):
                     st.plotly_chart(fig_championship, use_container_width=True)
+                    st.markdown("""
+                            <p style='text-align: center;'>
+                                Championship Attendance was consistently growing over the years. As seen in lower charts, Championships had one of the best average attendance
+                                records for all events.  Everyone loves a Championship.
+                            </p>
+                        """, unsafe_allow_html=True)
                 
                     
 
@@ -2409,8 +2573,25 @@ def show_attendance_data():
 
                 with st.expander('Skills Practice Attendance'):  
                     st.plotly_chart(fig_skills, use_container_width=True)
+                    st.markdown("""
+                            <p style='text-align: center;'>
+                                At the end of 2016, one of the founders holding practices moved to a different district in Moscow.
+                                this decreased the Total Attendance since the host was now 45mins away from his previous location, 
+                                which limited the attendance willing and able to travel that far for skills practices. 
+                            </p>
+                        """, unsafe_allow_html=True)
+
+
+
                 with st.expander('Intra-Squad Game and Tournament Attendance'):
                     st.plotly_chart(fig_intra_tour, use_container_width=True)
+                    st.markdown("""
+                            <p style='text-align: center;'>
+                                Intra-Squad Games were created to compensate for Tournaments (mostly abroad) that were no longer attendable due to sanctions, 
+                                financial issues connected with the Ruble losing its value, administrative issues with visas to European countries and etc. 
+                                Eventually becoming our most attended type of event. 
+                            </p>
+                        """, unsafe_allow_html=True)
             
                 
 
